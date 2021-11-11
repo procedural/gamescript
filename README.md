@@ -1,9 +1,10 @@
 # Game Script
 
+![game_script_screenshot](https://user-images.githubusercontent.com/28234322/141370424-192f786b-2ea2-4ae0-91a2-e0b2333a0edb.png)
+
 # Download here: [procedural.itch.io/gamescript](https://procedural.itch.io/gamescript)
 
-Join the official Game Script Discord server! https://discord.gg/D7pKPw4kFf
-===========================================================================
+## Join the official Game Script Discord server for news, updates, code and more! https://discord.gg/D7pKPw4kFf
 
 Install
 -------
@@ -14,12 +15,12 @@ Install
 Hotkeys
 -------
 
-* F3: toggle between script and game mode.
-* F5: rerun the script.
-* F7: stop running the script.
-* F9: continue running the script.
-* F11: toggle fullscreen mode.
-* Ctrl + Tab: switch between windows in script mode.
+* `F3`: toggle between script and game mode.
+* `F5`: rerun the script.
+* `F7`: stop running the script.
+* `F9`: continue running the script.
+* `F11`: toggle fullscreen mode.
+* `Ctrl` + `Tab`: switch between windows in script mode.
 
 List of available script functions
 ----------------------------------
