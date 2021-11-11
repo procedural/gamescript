@@ -23,6 +23,15 @@ Hotkeys
 * `F9`: continue running the script.
 * `F11`: toggle fullscreen mode.
 * `Ctrl` + `Tab`: switch between windows in script mode.
+* `W`: fly forward in game mode.
+* `S`: fly back in game mode.
+* `A`: fly left in game mode.
+* `D`: fly right in game mode.
+* `E`: fly up in game mode.
+* `Q`: fly down in game mode.
+* `T`: roll camera left in game mode.
+* `Y`: roll camera right in game mode.
+* `R`: reset camera roll in game mode.
 
 List of available script functions
 ----------------------------------
