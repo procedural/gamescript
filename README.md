@@ -12,6 +12,8 @@ Install
 * Download and extract GameScript folder, double click on the `game_script.exe` file on Windows 7 (64-bit) or higher.
 * Download and extract GameScript folder, double click on the `game_script.desktop` file on Ubuntu 16.04 (64-bit) or higher.
 
+## [🐞 Report a bug or an issue](https://github.com/procedural/gamescript/issues)
+
 Hotkeys
 -------
 
