@@ -22,8 +22,8 @@ Hotkeys
 * `F7`: stop running the script.
 * `F9`: continue running the script.
 * `F11`: toggle fullscreen mode.
-* `Alt` + `Ctrl`, arrow keys: move between UI elements with keyboard in script mode.
 * `Ctrl` + `Tab`: switch between windows in script mode.
+* `Alt` + `Ctrl`, arrow keys: move between UI elements with keyboard in script mode.
 * `W`: fly forward in game mode.
 * `S`: fly back in game mode.
 * `A`: fly left in game mode.
