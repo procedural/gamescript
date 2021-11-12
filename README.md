@@ -121,6 +121,7 @@ fn pointerGetNumber(Number pointer, Number index) -> Number number
 fn pointerGetUnsignedInteger(Number pointer, Number index) -> Number unsignedInteger
 fn pointerSetBool(Number pointer, Number index, Bool value)
 fn pointerSetString(Number pointer, Number pointerCharsFirst, String value)
+fn pointerSetStringExcludingNullChar(Number pointer, Number pointerCharsFirst, String value)
 fn pointerSetNumber(Number pointer, Number index, Number value)
 fn pointerSetUnsignedInteger(Number pointer, Number index, Number value)
 fn pointerGetRaw8Bit(Number pointer, Number bytesFirst) -> Number raw8Bit
@@ -161,6 +162,9 @@ fn numberToString(Number number) -> String string
 fn numberToBinaryString(Number number) -> String string
 fn numberWholePartToString(Number number) -> String string
 fn stringCharToNumber(String string) -> Number charNumber
+fn interpretStringToInteger(String string) -> Number integer
+fn interpretStringToFloat(String string) -> Number float
+fn interpretStringToDouble(String string) -> Number double
 fn stringReadFromFile(String filepath) -> String string
 fn stringWriteToFile(String string, String filepath)
 fn stringAppendToFile(String string, String filepath)
