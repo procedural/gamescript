@@ -118,11 +118,13 @@ fn globalArrayPersistentGetBytesCount(String label) -> Number bytesCount
 fn globalArrayPersistentGetPointer(String label) -> Number pointer
 fn pointerGetBool(Number pointer, Number index) -> Bool boolean
 fn pointerGetString(Number pointer) -> String string
+fn pointerGetSubstring(Number pointer, Number pointerCharsFirst, Number charsCount) -> String string
 fn pointerGetNumber(Number pointer, Number index) -> Number number
 fn pointerGetUnsignedInteger(Number pointer, Number index) -> Number unsignedInteger
 fn pointerSetBool(Number pointer, Number index, Bool value)
-fn pointerSetString(Number pointer, Number pointerCharsFirst, String value)
-fn pointerSetStringExcludingNullChar(Number pointer, Number pointerCharsFirst, String value)
+fn pointerSetString(Number pointer, Number pointerCharsFirst, String string)
+fn pointerSetStringExcludingNullChar(Number pointer, Number pointerCharsFirst, String string)
+fn pointerSetSubstring(Number pointer, Number pointerCharsFirst, String string, Number stringCharsFirst, Number stringCharsCount)
 fn pointerSetNumber(Number pointer, Number index, Number value)
 fn pointerSetUnsignedInteger(Number pointer, Number index, Number value)
 fn pointerGetRaw8Bit(Number pointer, Number bytesFirst) -> Number raw8Bit
