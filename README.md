@@ -37,7 +37,7 @@ Hotkeys
 List of available script functions
 ----------------------------------
 
-```
+```javascript
 fn print(String string)
 fn printDraw(String string)
 fn windowSetTitle(String title)
