@@ -243,7 +243,7 @@ fn meshClearIndices(Number handle)
 fn meshGetVerticesPointer(Number handle) -> Number pointer
 fn meshGetColorsPointer(Number handle) -> Number pointer
 fn meshGetTexCoordsPointer(Number handle) -> Number pointer
-fn meshGetGetIndicesPointer(Number handle) -> Number pointer
+fn meshGetIndicesPointer(Number handle) -> Number pointer
 fn meshMergeDuplicateVertices(Number handle)
 fn meshSetupIndicesAuto(Number handle)
 fn meshAddTriangle(Number handle, Number verticesArrayIndex1, Number verticesArrayIndex2, Number verticesArrayIndex3)
