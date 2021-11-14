@@ -319,6 +319,32 @@ fn libGameScriptExternalProcedureSet(Number parameter1, Number parameter2)
 fn libGameScriptExternalProcedureCall()
 ```
 
+List of constants
+-----------------
+
+```javascript
+const DEFAULT_CAMERA_SET_PROJECTION_MODE_PERSPECTIVE  = 0
+const DEFAULT_CAMERA_SET_PROJECTION_MODE_ORTHOGRAPHIC = 1
+
+const BLEND_MODE_ENABLE_ALPHA    = 1
+const BLEND_MODE_ENABLE_ADD      = 2
+const BLEND_MODE_ENABLE_SUBTRACT = 3
+const BLEND_MODE_ENABLE_MULTIPLY = 4
+const BLEND_MODE_ENABLE_SCREEN   = 5
+
+const CULLING_ENABLE_BACK  = 0
+const CULLING_ENABLE_FRONT = 1
+
+const MOUSE_GLFW_SET_INPUT_MODE_NORMAL   = 0
+const MOUSE_GLFW_SET_INPUT_MODE_HIDDEN   = 1
+const MOUSE_GLFW_SET_INPUT_MODE_DISABLED = 2
+
+const IMAGE_GET_IMAGE_TYPE_GRAYSCALE        = 0
+const IMAGE_GET_IMAGE_TYPE_COLOR_RGB        = 1
+const IMAGE_GET_IMAGE_TYPE_COLOR_ALPHA_RGBA = 2
+const IMAGE_GET_IMAGE_TYPE_UNDEFINED        = 3
+```
+
 Currently, Game Script uses the Ape programming language v0.14.0 by Krzysztof Gabis, you can read more about it in my public fork of his Github repo here:
 
 https://github.com/procedural/script
