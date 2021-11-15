@@ -261,6 +261,10 @@ fn imageNew(String label, Number width, Number height) -> Number handle
 fn imagePersistentNew(String label, Number width, Number height) -> Number handle
 fn imageNewFromFile(String label, String filepath) -> Number handle
 fn imagePersistentNewFromFile(String label, String filepath) -> Number handle
+fn imageDelete(Number handle)
+fn imagePersistentDelete(Number handle)
+fn imageDeleteAll()
+fn imagePersistentDeleteAll()
 fn imageGetHandle(String label) -> Number handle
 fn imagePersistentGetHandle(String label) -> Number handle
 fn imageClear(Number handle, Number alpha0to255)
@@ -275,10 +279,6 @@ fn imageUpdate(Number handle)
 fn imageGammaCorrect(Number handle)
 fn imageBind(Number handle)
 fn imageUnbind(Number handle)
-fn imageDelete(Number handle)
-fn imagePersistentDelete(Number handle)
-fn imageDeleteAll()
-fn imagePersistentDeleteAll()
 fn shaderBegin(String label, String filepathShaderVert, String filepathShaderFrag) -> Bool shadersAreValid
 fn shaderEnd(String label)
 fn shaderSetUniform4f(String label, String uniformName, Number x, Number y, Number z, Number w)
