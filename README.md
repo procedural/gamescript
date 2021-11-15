@@ -275,8 +275,8 @@ fn imageGetHeight(Number handle) -> Number height
 fn imageGetImageType(Number handle) -> Number imageType
 fn imageGetColor(Number handle, Number x, Number y) -> Number [4] {r0To255, g0To255, b0To255, a0To255}
 fn imageSetColor(Number handle, Number x, Number y, Number r0to255, Number g0to255, Number b0to255, Number a0to255)
-fn imageUpdate(Number handle)
 fn imageGammaCorrect(Number handle)
+fn imageUpdate(Number handle)
 fn imageBind(Number handle)
 fn imageUnbind(Number handle)
 fn shaderBegin(String label, String filepathShaderVert, String filepathShaderFrag) -> Bool shadersAreValid
