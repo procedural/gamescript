@@ -120,19 +120,19 @@ fn globalArrayPersistentGetPointer(String label) -> Number pointer
 fn globalSharedArrayPersistentNew8Bit(String label, Number count) -> Number pointer
 fn globalSharedArrayPersistentGetBytesCount(String label) -> Number bytesCount
 fn globalSharedArrayPersistentGetPointer(String label) -> Number pointer
-fn pointerGetBool(Number pointer, Number index) -> Bool value
+fn pointerGetBool(Number pointerTo8BitBools, Number index) -> Bool value
 fn pointerGetString(Number pointer) -> String string
 fn pointerGetSubstring(Number pointer, Number pointerCharsFirst, Number charsCount) -> String string
-fn pointerGetNumber(Number pointer, Number index) -> Number value
-fn pointerGetUnsignedInteger(Number pointer, Number index) -> Number value
-fn pointerGetUnsignedInteger8Bit(Number pointer, Number index) -> Number value
-fn pointerSetBool(Number pointer, Number index, Bool value)
+fn pointerGetNumber(Number pointerTo32BitFloats, Number index) -> Number value
+fn pointerGetUnsignedInteger(Number pointerTo32BitUints, Number index) -> Number value
+fn pointerGetUnsignedInteger8Bit(Number pointerTo8BitUints, Number index) -> Number value
+fn pointerSetBool(Number pointerTo8BitBools, Number index, Bool value)
 fn pointerSetString(Number pointer, Number pointerCharsFirst, String string)
 fn pointerSetStringExcludingNullChar(Number pointer, Number pointerCharsFirst, String string)
 fn pointerSetSubstring(Number pointer, Number pointerCharsFirst, String string, Number stringCharsFirst, Number stringCharsCount)
-fn pointerSetNumber(Number pointer, Number index, Number value)
-fn pointerSetUnsignedInteger(Number pointer, Number index, Number value)
-fn pointerSetUnsignedInteger8Bit(Number pointer, Number index, Number value)
+fn pointerSetNumber(Number pointerTo32BitFloats, Number index, Number value)
+fn pointerSetUnsignedInteger(Number pointerTo32BitUints, Number index, Number value)
+fn pointerSetUnsignedInteger8Bit(Number pointerTo8BitUints, Number index, Number value)
 fn pointerGetRaw8Bit(Number pointer, Number bytesFirst) -> Number raw8Bit
 fn pointerGetRaw16Bit(Number pointer, Number bytesFirst) -> Number raw16Bit
 fn pointerGetRaw32Bit(Number pointer, Number bytesFirst) -> Number raw32Bit
