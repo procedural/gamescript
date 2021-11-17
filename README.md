@@ -406,7 +406,7 @@ fn threadSafeMemcpy(Number pointerTarget, Number pointerTargetBytesFirst, Number
 fn threadSafeMemcmp(Number pointerA, Number pointerABytesFirst, Number pointerB, Number pointerBBytesFirst, Number bytesCount) -> Bool areEqual // Thread-safe memory.
 fn threadWaitForEqualUint64Value(Number pointerA, Number pointerABytesFirst, Number pointerB, Number pointerBBytesFirst) // Thread-safe memory.
 fn threadWaitForEqualOrMoreThanUint64Value(Number pointerA, Number pointerABytesFirst, Number pointerB, Number pointerBBytesFirst) // Thread-safe memory.
-fn threadWaitForThread2FrameToFinish(Number thread2Frame)
+fn threadWaitForThread1FrameToFinish(Number thread1Frame)
 fn strlenWithNullChar(String string) -> Number length
 fn boolToNumber(Bool boolean) -> Number number
 fn boolToString(Bool boolean) -> String string
