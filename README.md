@@ -147,9 +147,9 @@ fn memcmp(Number pointerA, Number pointerABytesFirst, Number pointerB, Number po
 fn threadSafeMemset(Number pointer, Number pointerBytesFirst, Number value8Bit, Number bytesCount)
 fn threadSafeMemcpy(Number pointerTarget, Number pointerTargetBytesFirst, Number pointerSource, Number pointerSourceBytesFirst, Number bytesCount)
 fn threadSafeMemcmp(Number pointerA, Number pointerABytesFirst, Number pointerB, Number pointerBBytesFirst, Number bytesCount) -> Bool areEqual
-fn threadWaitForEqualUint64Value(Number pointerA, Number pointerABytesFirst, Number pointerB, Number pointerBBytesFirst)
-fn threadWaitForEqualOrMoreThanUint64Value(Number pointerA, Number pointerABytesFirst, Number pointerB, Number pointerBBytesFirst)
-fn threadWaitForThread2FrameToFinish(Number thread2Frame)
+fn threadWaitForEqualUint64Value(Number pointerA, Number pointerABytesFirst, Number pointerB, Number pointerBBytesFirst) -> Bool trueIfFinishedFalseIfAborted
+fn threadWaitForEqualOrMoreThanUint64Value(Number pointerA, Number pointerABytesFirst, Number pointerB, Number pointerBBytesFirst) -> Bool trueIfFinishedFalseIfAborted
+fn threadWaitForThread2FrameToFinish(Number thread2Frame) -> Bool trueIfFinishedFalseIfAborted
 fn strlenWithNullChar(String string) -> Number length
 fn keyboardGetGlfwKeyEvent(Number glfwKey) -> Number keyEvent
 fn keyboardGetGlfwKeyModifiers(Number glfwKey) -> Number keyModifiers
@@ -372,6 +372,7 @@ List of available script functions of thread 2
 
 ```javascript
 fn getCurrentFrameThread2() -> Number frameOfThread2
+fn setCurrentFrameThread2(Number frameOfThread2)
 fn print(String string) // Thread-safe.
 fn getExeDirectoryPath() -> String path // Thread-safe.
 fn globalSharedArrayPersistentNew8Bit(String label, Number count) -> Number pointer // Thread-safe.
@@ -404,9 +405,9 @@ fn memcmp(Number pointerA, Number pointerABytesFirst, Number pointerB, Number po
 fn threadSafeMemset(Number pointer, Number pointerBytesFirst, Number value8Bit, Number bytesCount) // Thread-safe memory.
 fn threadSafeMemcpy(Number pointerTarget, Number pointerTargetBytesFirst, Number pointerSource, Number pointerSourceBytesFirst, Number bytesCount) // Thread-safe memory.
 fn threadSafeMemcmp(Number pointerA, Number pointerABytesFirst, Number pointerB, Number pointerBBytesFirst, Number bytesCount) -> Bool areEqual // Thread-safe memory.
-fn threadWaitForEqualUint64Value(Number pointerA, Number pointerABytesFirst, Number pointerB, Number pointerBBytesFirst) // Thread-safe memory.
-fn threadWaitForEqualOrMoreThanUint64Value(Number pointerA, Number pointerABytesFirst, Number pointerB, Number pointerBBytesFirst) // Thread-safe memory.
-fn threadWaitForThread1FrameToFinish(Number thread1Frame)
+fn threadWaitForEqualUint64Value(Number pointerA, Number pointerABytesFirst, Number pointerB, Number pointerBBytesFirst) -> Bool trueIfFinishedFalseIfAborted // Thread-safe memory.
+fn threadWaitForEqualOrMoreThanUint64Value(Number pointerA, Number pointerABytesFirst, Number pointerB, Number pointerBBytesFirst) -> Bool trueIfFinishedFalseIfAborted // Thread-safe memory.
+fn threadWaitForThread2FrameToFinish(Number thread2Frame) -> Bool trueIfFinishedFalseIfAborted
 fn strlenWithNullChar(String string) -> Number length
 fn boolToNumber(Bool boolean) -> Number number
 fn boolToString(Bool boolean) -> String string
