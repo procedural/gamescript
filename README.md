@@ -106,6 +106,7 @@ fn cullingEnable(Number mode)
 fn cullingDisable()
 fn clear(Number r0to1, Number g0to1, Number b0to1, Number a0to1)
 fn clearAlpha()
+fn saveScreenRawToMemory(Number x, Number y, Number width, Number height, Number out8BitRGBAPixels)
 fn globalArrayNew8Bit(String label, Number count) -> Number pointer
 fn globalArrayPersistentNew8Bit(String label, Number count) -> Number pointer
 fn globalArrayDelete(String label)
@@ -116,17 +117,22 @@ fn globalArrayGetBytesCount(String label) -> Number bytesCount
 fn globalArrayGetPointer(String label) -> Number pointer
 fn globalArrayPersistentGetBytesCount(String label) -> Number bytesCount
 fn globalArrayPersistentGetPointer(String label) -> Number pointer
-fn pointerGetBool(Number pointer, Number index) -> Bool boolean
+fn globalSharedArrayPersistentNew8Bit(String label, Number count) -> Number pointer
+fn globalSharedArrayPersistentGetBytesCount(String label) -> Number bytesCount
+fn globalSharedArrayPersistentGetPointer(String label) -> Number pointer
+fn pointerGetBool(Number pointer, Number index) -> Bool value
 fn pointerGetString(Number pointer) -> String string
 fn pointerGetSubstring(Number pointer, Number pointerCharsFirst, Number charsCount) -> String string
-fn pointerGetNumber(Number pointer, Number index) -> Number number
-fn pointerGetUnsignedInteger(Number pointer, Number index) -> Number unsignedInteger
+fn pointerGetNumber(Number pointer, Number index) -> Number value
+fn pointerGetUnsignedInteger(Number pointer, Number index) -> Number value
+fn pointerGetUnsignedInteger8Bit(Number pointer, Number index) -> Number value
 fn pointerSetBool(Number pointer, Number index, Bool value)
 fn pointerSetString(Number pointer, Number pointerCharsFirst, String string)
 fn pointerSetStringExcludingNullChar(Number pointer, Number pointerCharsFirst, String string)
 fn pointerSetSubstring(Number pointer, Number pointerCharsFirst, String string, Number stringCharsFirst, Number stringCharsCount)
 fn pointerSetNumber(Number pointer, Number index, Number value)
 fn pointerSetUnsignedInteger(Number pointer, Number index, Number value)
+fn pointerSetUnsignedInteger8Bit(Number pointer, Number index, Number value)
 fn pointerGetRaw8Bit(Number pointer, Number bytesFirst) -> Number raw8Bit
 fn pointerGetRaw16Bit(Number pointer, Number bytesFirst) -> Number raw16Bit
 fn pointerGetRaw32Bit(Number pointer, Number bytesFirst) -> Number raw32Bit
@@ -138,6 +144,12 @@ fn pointerSetRaw64Bit(Number pointer, Number bytesFirst, Number rawBitsAsDouble)
 fn memset(Number pointer, Number pointerBytesFirst, Number value8Bit, Number bytesCount)
 fn memcpy(Number pointerTarget, Number pointerTargetBytesFirst, Number pointerSource, Number pointerSourceBytesFirst, Number bytesCount)
 fn memcmp(Number pointerA, Number pointerABytesFirst, Number pointerB, Number pointerBBytesFirst, Number bytesCount) -> Bool areEqual
+fn threadSafeMemset(Number pointer, Number pointerBytesFirst, Number value8Bit, Number bytesCount)
+fn threadSafeMemcpy(Number pointerTarget, Number pointerTargetBytesFirst, Number pointerSource, Number pointerSourceBytesFirst, Number bytesCount)
+fn threadSafeMemcmp(Number pointerA, Number pointerABytesFirst, Number pointerB, Number pointerBBytesFirst, Number bytesCount) -> Bool areEqual
+fn threadWaitForEqualUint64Value(Number pointerA, Number pointerABytesFirst, Number pointerB, Number pointerBBytesFirst)
+fn threadWaitForEqualOrMoreThanUint64Value(Number pointerA, Number pointerABytesFirst, Number pointerB, Number pointerBBytesFirst)
+fn threadWaitForThread2FrameToFinish(Number thread2Frame)
 fn strlenWithNullChar(String string) -> Number length
 fn keyboardGetGlfwKeyEvent(Number glfwKey) -> Number keyEvent
 fn keyboardGetGlfwKeyModifiers(Number glfwKey) -> Number keyModifiers
@@ -267,12 +279,15 @@ fn imageDeleteAll()
 fn imagePersistentDeleteAll()
 fn imageGetHandle(String label) -> Number handle
 fn imagePersistentGetHandle(String label) -> Number handle
+fn imageLoadFromMemory(Number handle, Number pointer, Number pointerBytesFirst, Number pointerBytesCount) -> Bool success
 fn imageClear(Number handle, Number alpha0to255)
 fn imageSetTextureMinMagFilter(Number handle, Number minFilter, Number magFilter)
 fn imageSetTextureWrap(Number handle, Number wrapX, Number wrapY)
 fn imageGetWidth(Number handle) -> Number width
 fn imageGetHeight(Number handle) -> Number height
+fn imageGetBitsPerPixel(Number handle) -> Number bitsPerPixel
 fn imageGetImageType(Number handle) -> Number imageType
+fn imageGetPixelsPointer(Number handle) -> Number pointerToPixels
 fn imageGetColor(Number handle, Number x, Number y) -> Number [4] {r0To255, g0To255, b0To255, a0To255}
 fn imageSetColor(Number handle, Number x, Number y, Number r0to255, Number g0to255, Number b0to255, Number a0to255)
 fn imageGammaCorrect(Number handle)
@@ -314,6 +329,13 @@ fn soundUpdate()
 fn profileBegin(String mark)
 fn profileEnd(String mark)
 fn systemCommand(String command) -> String output
+fn githubR_lyehLz4xEncode(Number pointer, Number pointerBytesFirst, Number pointerBytesCount, Number outPointer, Number outPointerBytesFirst, Number outPointerBytesCount, Number flags) -> Number value
+fn githubR_lyehLz4xDecode(Number pointer, Number pointerBytesFirst, Number pointerBytesCount, Number outPointer, Number outPointerBytesFirst, Number outPointerBytesCount) -> Number value
+fn githubR_lyehLz4xBoundsEncodeOutBytesCount(Number bytesCount, Number flags) -> Number value
+fn githubR_lyehUlzEncode(Number pointer, Number pointerBytesFirst, Number pointerBytesCount, Number outPointer, Number outPointerBytesFirst, Number outPointerBytesCount, Number flags) -> Number value
+fn githubR_lyehUlzDecode(Number pointer, Number pointerBytesFirst, Number pointerBytesCount, Number outPointer, Number outPointerBytesFirst, Number outPointerBytesCount) -> Number value
+fn githubR_lyehUlzBoundsEncodeOutBytesCount(Number bytesCount, Number flags) -> Number value
+fn thread2Run()
 fn libGameScriptExternalProcedureReload()
 fn libGameScriptExternalProcedureSet(Number parameter1, Number parameter2)
 fn libGameScriptExternalProcedureCall()
@@ -343,6 +365,105 @@ const IMAGE_GET_IMAGE_TYPE_GRAYSCALE        = 0
 const IMAGE_GET_IMAGE_TYPE_COLOR_RGB        = 1
 const IMAGE_GET_IMAGE_TYPE_COLOR_ALPHA_RGBA = 2
 const IMAGE_GET_IMAGE_TYPE_UNDEFINED        = 3
+```
+
+List of available script functions of thread 2
+----------------------------------------------
+
+```javascript
+fn getCurrentFrameThread2() -> Number frameOfThread2
+fn print(String string) // Thread-safe.
+fn getExeDirectoryPath() -> String path // Thread-safe.
+fn globalSharedArrayPersistentNew8Bit(String label, Number count) -> Number pointer // Thread-safe.
+fn globalSharedArrayPersistentGetBytesCount(String label) -> Number bytesCount // Thread-safe.
+fn globalSharedArrayPersistentGetPointer(String label) -> Number pointer // Thread-safe.
+fn pointerGetBool(Number pointer, Number index) -> Bool value
+fn pointerGetString(Number pointer) -> String string
+fn pointerGetSubstring(Number pointer, Number pointerCharsFirst, Number charsCount) -> String string
+fn pointerGetNumber(Number pointer, Number index) -> Number value
+fn pointerGetUnsignedInteger(Number pointer, Number index) -> Number value
+fn pointerGetUnsignedInteger8Bit(Number pointer, Number index) -> Number value
+fn pointerSetBool(Number pointer, Number index, Bool value)
+fn pointerSetString(Number pointer, Number pointerCharsFirst, String string)
+fn pointerSetStringExcludingNullChar(Number pointer, Number pointerCharsFirst, String string)
+fn pointerSetSubstring(Number pointer, Number pointerCharsFirst, String string, Number stringCharsFirst, Number stringCharsCount)
+fn pointerSetNumber(Number pointer, Number index, Number value)
+fn pointerSetUnsignedInteger(Number pointer, Number index, Number value)
+fn pointerSetUnsignedInteger8Bit(Number pointer, Number index, Number value)
+fn pointerGetRaw8Bit(Number pointer, Number bytesFirst) -> Number raw8Bit
+fn pointerGetRaw16Bit(Number pointer, Number bytesFirst) -> Number raw16Bit
+fn pointerGetRaw32Bit(Number pointer, Number bytesFirst) -> Number raw32Bit
+fn pointerGetRaw64Bit(Number pointer, Number bytesFirst) -> Number raw64Bit
+fn pointerSetRaw8Bit(Number pointer, Number bytesFirst, Number rawBitsAsDouble)
+fn pointerSetRaw16Bit(Number pointer, Number bytesFirst, Number rawBitsAsDouble)
+fn pointerSetRaw32Bit(Number pointer, Number bytesFirst, Number rawBitsAsDouble)
+fn pointerSetRaw64Bit(Number pointer, Number bytesFirst, Number rawBitsAsDouble)
+fn memset(Number pointer, Number pointerBytesFirst, Number value8Bit, Number bytesCount)
+fn memcpy(Number pointerTarget, Number pointerTargetBytesFirst, Number pointerSource, Number pointerSourceBytesFirst, Number bytesCount)
+fn memcmp(Number pointerA, Number pointerABytesFirst, Number pointerB, Number pointerBBytesFirst, Number bytesCount) -> Bool areEqual
+fn threadSafeMemset(Number pointer, Number pointerBytesFirst, Number value8Bit, Number bytesCount) // Thread-safe memory.
+fn threadSafeMemcpy(Number pointerTarget, Number pointerTargetBytesFirst, Number pointerSource, Number pointerSourceBytesFirst, Number bytesCount) // Thread-safe memory.
+fn threadSafeMemcmp(Number pointerA, Number pointerABytesFirst, Number pointerB, Number pointerBBytesFirst, Number bytesCount) -> Bool areEqual // Thread-safe memory.
+fn threadWaitForEqualUint64Value(Number pointerA, Number pointerABytesFirst, Number pointerB, Number pointerBBytesFirst) // Thread-safe memory.
+fn threadWaitForEqualOrMoreThanUint64Value(Number pointerA, Number pointerABytesFirst, Number pointerB, Number pointerBBytesFirst) // Thread-safe memory.
+fn threadWaitForThread2FrameToFinish(Number thread2Frame)
+fn strlenWithNullChar(String string) -> Number length
+fn boolToNumber(Bool boolean) -> Number number
+fn boolToString(Bool boolean) -> String string
+fn numberToBool(Number number) -> Bool boolean
+fn numberToString(Number number) -> String string
+fn numberToBinaryString(Number number) -> String string
+fn numberWholePartToString(Number number) -> String string
+fn stringCharToNumber(String string) -> Number charNumber
+fn interpretStringToInteger(String string) -> Number integer
+fn interpretStringToFloat(String string) -> Number float
+fn interpretStringToDouble(String string) -> Number double
+fn stringReadFromFile(String filepath) -> String string
+fn stringWriteToFile(String string, String filepath)
+fn stringAppendToFile(String string, String filepath)
+fn binaryGetByteSizeOfFile(String filepath) -> Number bytesCount
+fn binaryReadFromFile(String filepath, Number writeToPointer, Number writeToPointerBytesFirst)
+fn binaryWriteToFile(Number pointer, Number pointerBytesFirst, Number pointerBytesCount, String writeToFilepath)
+fn meshGetVerticesCount(Number handle) -> Number count // Two threads must not access the same mesh handle at the same time.
+fn meshGetColorsCount(Number handle) -> Number count // Two threads must not access the same mesh handle at the same time.
+fn meshGetTexCoordsCount(Number handle) -> Number count // Two threads must not access the same mesh handle at the same time.
+fn meshGetIndicesCount(Number handle) -> Number count // Two threads must not access the same mesh handle at the same time.
+fn meshAddVertex(Number handle, Number x, Number y, Number z) // Two threads must not access the same mesh handle at the same time.
+fn meshAddColor(Number handle, Number r0to1, Number g0to1, Number b0to1, Number a0to1) // Two threads must not access the same mesh handle at the same time.
+fn meshAddTexCoord(Number handle, Number u, Number v) // Two threads must not access the same mesh handle at the same time.
+fn meshAddIndex(Number handle, Number index) // Two threads must not access the same mesh handle at the same time.
+fn meshRemoveVertex(Number handle, Number index) // Two threads must not access the same mesh handle at the same time.
+fn meshRemoveColor(Number handle, Number index) // Two threads must not access the same mesh handle at the same time.
+fn meshRemoveTexCoord(Number handle, Number index) // Two threads must not access the same mesh handle at the same time.
+fn meshRemoveIndex(Number handle, Number index) // Two threads must not access the same mesh handle at the same time.
+fn meshClear(Number handle) // Two threads must not access the same mesh handle at the same time.
+fn meshClearVertices(Number handle) // Two threads must not access the same mesh handle at the same time.
+fn meshClearColors(Number handle) // Two threads must not access the same mesh handle at the same time.
+fn meshClearTexCoords(Number handle) // Two threads must not access the same mesh handle at the same time.
+fn meshClearIndices(Number handle) // Two threads must not access the same mesh handle at the same time.
+fn meshGetVerticesPointer(Number handle) -> Number pointer // Two threads must not access the same mesh handle at the same time.
+fn meshGetColorsPointer(Number handle) -> Number pointer // Two threads must not access the same mesh handle at the same time.
+fn meshGetTexCoordsPointer(Number handle) -> Number pointer // Two threads must not access the same mesh handle at the same time.
+fn meshGetIndicesPointer(Number handle) -> Number pointer // Two threads must not access the same mesh handle at the same time.
+fn meshMergeDuplicateVertices(Number handle) // Two threads must not access the same mesh handle at the same time.
+fn meshSetupIndicesAuto(Number handle) // Two threads must not access the same mesh handle at the same time.
+fn meshAddTriangle(Number handle, Number verticesArrayIndex1, Number verticesArrayIndex2, Number verticesArrayIndex3) // Two threads must not access the same mesh handle at the same time.
+fn imageGetWidth(Number handle) -> Number width // Two threads must not access the same image handle at the same time.
+fn imageGetHeight(Number handle) -> Number height // Two threads must not access the same image handle at the same time.
+fn imageGetBitsPerPixel(Number handle) -> Number bitsPerPixel // Two threads must not access the same image handle at the same time.
+fn imageGetImageType(Number handle) -> Number imageType // Two threads must not access the same image handle at the same time.
+fn imageGetPixelsPointer(Number handle) -> Number pointerToPixels // Two threads must not access the same image handle at the same time.
+fn profileBegin(String mark) // Thread-safe.
+fn profileEnd(String mark) // Thread-safe.
+fn systemCommand(String command) -> String output
+fn githubR_lyehLz4xEncode(Number pointer, Number pointerBytesFirst, Number pointerBytesCount, Number outPointer, Number outPointerBytesFirst, Number outPointerBytesCount, Number flags) -> Number value
+fn githubR_lyehLz4xDecode(Number pointer, Number pointerBytesFirst, Number pointerBytesCount, Number outPointer, Number outPointerBytesFirst, Number outPointerBytesCount) -> Number value
+fn githubR_lyehLz4xBoundsEncodeOutBytesCount(Number bytesCount, Number flags) -> Number value
+fn githubR_lyehUlzEncode(Number pointer, Number pointerBytesFirst, Number pointerBytesCount, Number outPointer, Number outPointerBytesFirst, Number outPointerBytesCount, Number flags) -> Number value
+fn githubR_lyehUlzDecode(Number pointer, Number pointerBytesFirst, Number pointerBytesCount, Number outPointer, Number outPointerBytesFirst, Number outPointerBytesCount) -> Number value
+fn githubR_lyehUlzBoundsEncodeOutBytesCount(Number bytesCount, Number flags) -> Number value
+fn libGameScriptExternalProcedureSet(Number parameter1, Number parameter2)
+fn libGameScriptExternalProcedureCall()
 ```
 
 Currently, Game Script uses the Ape programming language v0.14.0 by Krzysztof Gabis, you can read more about it in my public fork of his Github repo here:
