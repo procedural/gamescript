@@ -336,6 +336,14 @@ fn githubR_lyehUlzEncode(Number pointer, Number pointerBytesFirst, Number pointe
 fn githubR_lyehUlzDecode(Number pointer, Number pointerBytesFirst, Number pointerBytesCount, Number outPointer, Number outPointerBytesFirst, Number outPointerBytesCount) -> Number value
 fn githubR_lyehUlzBoundsEncodeOutBytesCount(Number bytesCount, Number flags) -> Number value
 fn thread2Run()
+fn thread2StopAndWaitFor()
+fn thread2IsRunning() -> Bool isRunning
+fn getGameScriptString() -> String script
+fn setGameScriptStringForNextFrame(String string)
+fn setGameScriptStringForNextFrameFromPointer(String pointer, Number pointerBytesFirst)
+fn getThread2ScriptString() -> String script
+fn setThread2ScriptStringForNextFrame(String string)
+fn setThread2ScriptStringForNextFrameFromPointer(String pointer, Number pointerBytesFirst)
 fn libGameScriptExternalProcedureReload()
 fn libGameScriptExternalProcedureSet(Number parameter1, Number parameter2)
 fn libGameScriptExternalProcedureCall()
@@ -463,6 +471,9 @@ fn githubR_lyehLz4xBoundsEncodeOutBytesCount(Number bytesCount, Number flags) ->
 fn githubR_lyehUlzEncode(Number pointer, Number pointerBytesFirst, Number pointerBytesCount, Number outPointer, Number outPointerBytesFirst, Number outPointerBytesCount, Number flags) -> Number value
 fn githubR_lyehUlzDecode(Number pointer, Number pointerBytesFirst, Number pointerBytesCount, Number outPointer, Number outPointerBytesFirst, Number outPointerBytesCount) -> Number value
 fn githubR_lyehUlzBoundsEncodeOutBytesCount(Number bytesCount, Number flags) -> Number value
+fn getThread2ScriptString() -> String script
+fn setThread2ScriptStringForNextFrame(String string)
+fn setThread2ScriptStringForNextFrameFromPointer(String pointer, Number pointerBytesFirst)
 fn libGameScriptExternalProcedureSet(Number parameter1, Number parameter2)
 fn libGameScriptExternalProcedureCall()
 ```
