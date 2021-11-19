@@ -38,7 +38,7 @@ List of available script functions
 ----------------------------------
 
 ```javascript
-fn print(String string)
+fn printConsole(String string)
 fn printDraw(String string)
 fn windowSetTitle(String title)
 fn windowGetWidth() -> Number width
@@ -329,6 +329,7 @@ fn soundUpdate()
 fn profileBegin(String mark)
 fn profileEnd(String mark)
 fn systemCommand(String command) -> String output
+fn glGetIntegerv(Number enum, Number outPointer, Number outPointerBytesFirst) -> Bool success
 fn githubR_lyehLz4xEncode(Number pointer, Number pointerBytesFirst, Number pointerBytesCount, Number outPointer, Number outPointerBytesFirst, Number outPointerBytesCount, Number flags) -> Number value
 fn githubR_lyehLz4xDecode(Number pointer, Number pointerBytesFirst, Number pointerBytesCount, Number outPointer, Number outPointerBytesFirst, Number outPointerBytesCount) -> Number value
 fn githubR_lyehLz4xBoundsEncodeOutBytesCount(Number bytesCount, Number flags) -> Number value
@@ -345,8 +346,8 @@ fn getThread2ScriptString() -> String script
 fn setThread2ScriptStringForNextFrame(String string)
 fn setThread2ScriptStringForNextFrameFromPointer(String pointer, Number pointerBytesFirst)
 fn libGameScriptExternalProcedureReload()
-fn libGameScriptExternalProcedureSet(Number parameter1, Number parameter2)
-fn libGameScriptExternalProcedureCall()
+fn libGameScriptExternalProcedureCall2(Number parameter1, Number parameter2)
+fn libGameScriptExternalProcedureCall3(Number parameter1, Number parameter2, Number parameter3)
 ```
 
 List of constants
@@ -381,7 +382,7 @@ List of available script functions of thread 2
 ```javascript
 fn getCurrentFrameThread2() -> Number frameOfThread2
 fn setCurrentFrameThread2(Number frameOfThread2)
-fn print(String string) // Thread-safe.
+fn printConsole(String string) // Thread-safe.
 fn getExeDirectoryPath() -> String path // Thread-safe.
 fn globalSharedArrayPersistentNew8Bit(String label, Number count) -> Number pointer // Thread-safe.
 fn globalSharedArrayPersistentGetBytesCount(String label) -> Number bytesCount // Thread-safe.
@@ -474,8 +475,8 @@ fn githubR_lyehUlzBoundsEncodeOutBytesCount(Number bytesCount, Number flags) -> 
 fn getThread2ScriptString() -> String script
 fn setThread2ScriptStringForNextFrame(String string)
 fn setThread2ScriptStringForNextFrameFromPointer(String pointer, Number pointerBytesFirst)
-fn libGameScriptExternalProcedureSet(Number parameter1, Number parameter2)
-fn libGameScriptExternalProcedureCall()
+fn libGameScriptExternalProcedureCall2(Number parameter1, Number parameter2)
+fn libGameScriptExternalProcedureCall3(Number parameter1, Number parameter2, Number parameter3)
 ```
 
 Currently, Game Script uses the Ape programming language v0.14.0 by Krzysztof Gabis, you can read more about it in my public fork of his Github repo here:
