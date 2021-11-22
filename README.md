@@ -482,6 +482,9 @@ fn setThread2ScriptStringForNextFrame(String string)
 fn setThread2ScriptStringForNextFrameFromPointer(String pointer, Number pointerBytesFirst)
 fn libGameScriptExternalProcedureCall2(Number parameter1, Number parameter2)
 fn libGameScriptExternalProcedureCall3(Number parameter1, Number parameter2, Number parameter3)
+fn programGetArgumentsCount() -> Number argumentsCount
+fn programGetArgument(Number index) -> String argument
+fn programClose()
 ```
 
 Currently, Game Script uses the Ape programming language v0.14.0 by Krzysztof Gabis, you can read more about it in my public fork of his Github repo here:
