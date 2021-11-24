@@ -76,6 +76,7 @@ fn defaultCameraGetVector() -> Number position [3] {x, y, z}
 fn defaultCameraGetVersor() -> Number quaternion [4] {x, y, z, w}
 fn defaultCameraSetVector(Number x, Number y, Number z)
 fn defaultCameraSetVersor(Number x, Number y, Number z, Number w)
+fn defaultCameraRotate(Number rotationAxisX, Number rotationAxisY, Number rotationAxisZ, Number rotationAngleDeg)
 fn defaultCameraLookAt(Number x, Number y, Number z, Number upX, Number upY, Number upZ)
 fn defaultCameraSetFOV(Number fov)
 fn defaultCameraSetNearClip(Number near)
@@ -259,7 +260,7 @@ fn meshGetIndicesPointer(Number handle) -> Number pointer
 fn meshMergeDuplicateVertices(Number handle)
 fn meshSetupIndicesAuto(Number handle)
 fn meshAddTriangle(Number handle, Number verticesArrayIndex1, Number verticesArrayIndex2, Number verticesArrayIndex3)
-fn meshDraw(Number handle, Number renderMode, Number scaleX, Number scaleY, Number scaleZ, Number vectorX, Number vectorY, Number vectorZ, Number rotationX, Number rotationY, Number rotationZ, Number rotationDeg)
+fn meshDraw(Number handle, Number renderMode, Number scaleX, Number scaleY, Number scaleZ, Number vectorX, Number vectorY, Number vectorZ, Number rotationAxisX, Number rotationAxisY, Number rotationAxisZ, Number rotationAngleDeg)
 fn meshDrawDebugVertices(String label)
 fn meshDrawDebugColors(String label)
 fn meshDrawDebugTexCoords(String label)
