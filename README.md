@@ -72,6 +72,7 @@ fn defaultCameraDefaultControlEnable()
 fn defaultCameraDefaultControlForceEnable()
 fn defaultCameraSetMoveSpeed(Number speed)
 fn defaultCameraSetRollSpeed(Number speed)
+fn defaultCameraSetMouseSensivity(Number sensivity)
 fn defaultCameraGetVector() -> Number position [3] {x, y, z}
 fn defaultCameraGetVersor() -> Number quaternion [4] {x, y, z, w}
 fn defaultCameraSetVector(Number x, Number y, Number z)
