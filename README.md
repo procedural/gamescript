@@ -72,7 +72,7 @@ fn defaultCameraDefaultControlEnable()
 fn defaultCameraDefaultControlForceEnable()
 fn defaultCameraSetMoveSpeed(Number speed)
 fn defaultCameraSetRollSpeed(Number speed)
-fn defaultCameraSetMouseSensivity(Number sensivity)
+fn defaultCameraSetMouseSensitivity(Number sensitivity)
 fn defaultCameraGetVector() -> Number position [3] {x, y, z}
 fn defaultCameraGetVersor() -> Number quaternion [4] {x, y, z, w}
 fn defaultCameraSetVector(Number x, Number y, Number z)
@@ -135,14 +135,14 @@ fn pointerSetSubstring(Number pointer, Number pointerCharsFirst, String string, 
 fn pointerSetNumber(Number pointerTo32BitFloats, Number index, Number value)
 fn pointerSetUnsignedInteger(Number pointerTo32BitUints, Number index, Number value)
 fn pointerSetUnsignedInteger8Bit(Number pointerTo8BitUints, Number index, Number value)
-fn pointerGetRaw8Bit(Number pointer, Number bytesFirst) -> Number raw8Bit
-fn pointerGetRaw16Bit(Number pointer, Number bytesFirst) -> Number raw16Bit
-fn pointerGetRaw32Bit(Number pointer, Number bytesFirst) -> Number raw32Bit
-fn pointerGetRaw64Bit(Number pointer, Number bytesFirst) -> Number raw64Bit
-fn pointerSetRaw8Bit(Number pointer, Number bytesFirst, Number rawBitsAsDouble)
-fn pointerSetRaw16Bit(Number pointer, Number bytesFirst, Number rawBitsAsDouble)
-fn pointerSetRaw32Bit(Number pointer, Number bytesFirst, Number rawBitsAsDouble)
-fn pointerSetRaw64Bit(Number pointer, Number bytesFirst, Number rawBitsAsDouble)
+fn pointerGetRaw8Bit(Number pointer, Number bytesFirst) -> Number raw8BitsAsDouble
+fn pointerGetRaw16Bit(Number pointer, Number bytesFirst) -> Number raw16BitsAsDouble
+fn pointerGetRaw32Bit(Number pointer, Number bytesFirst) -> Number raw32BitsAsDouble
+fn pointerGetRaw64Bit(Number pointer, Number bytesFirst) -> Number raw64BitsAsDouble
+fn pointerSetRaw8Bit(Number pointer, Number bytesFirst, Number raw8BitsAsDouble)
+fn pointerSetRaw16Bit(Number pointer, Number bytesFirst, Number raw16BitsAsDouble)
+fn pointerSetRaw32Bit(Number pointer, Number bytesFirst, Number raw32BitsAsDouble)
+fn pointerSetRaw64Bit(Number pointer, Number bytesFirst, Number raw64BitsAsDouble)
 fn memset(Number pointer, Number pointerBytesFirst, Number value8Bit, Number bytesCount)
 fn memcpy(Number pointerTarget, Number pointerTargetBytesFirst, Number pointerSource, Number pointerSourceBytesFirst, Number bytesCount)
 fn memcmp(Number pointerA, Number pointerABytesFirst, Number pointerB, Number pointerBBytesFirst, Number bytesCount) -> Bool areEqual
@@ -347,7 +347,7 @@ fn setGameScriptStringForNextFrameFromPointer(String pointer, Number pointerByte
 fn getThread2ScriptString() -> String script
 fn setThread2ScriptStringForNextFrame(String string)
 fn setThread2ScriptStringForNextFrameFromPointer(String pointer, Number pointerBytesFirst)
-fn libGameScriptExternalProcedureReload()
+fn libGameScriptExternalProcedureReload(Bool printErrors)
 fn libGameScriptExternalProcedureCall2(Number parameter1, Number parameter2)
 fn libGameScriptExternalProcedureCall3(Number parameter1, Number parameter2, Number parameter3)
 fn programGetArgumentsCount() -> Number argumentsCount
