@@ -343,7 +343,7 @@ fn thread2StopAndWaitFor()
 fn thread2IsRunning() -> Bool isRunning
 fn getGameScriptString() -> String script
 fn setGameScriptStringForNextFrame(String string)
-fn setGameScriptStringForNextFrameFromPointer(String pointer, Number pointerBytesFirst)
+fn setGameScriptStringForNextFrameFromPointer(Number pointer, Number pointerBytesFirst)
 fn getThread2ScriptString() -> String script
 fn setThread2ScriptStringForNextFrame(String string)
 fn setThread2ScriptStringForNextFrameFromPointer(String pointer, Number pointerBytesFirst)
