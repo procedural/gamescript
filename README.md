@@ -275,8 +275,8 @@ fn imageNew(String label, Number width, Number height) -> Number handle
 fn imagePersistentNew(String label, Number width, Number height) -> Number handle
 fn imageNewFromFile(String label, String filepath) -> Number handle
 fn imagePersistentNewFromFile(String label, String filepath) -> Number handle
-fn imageDelete(Number handle)
-fn imagePersistentDelete(Number handle)
+fn imageDelete(String label)
+fn imagePersistentDelete(String label)
 fn imageDeleteAll()
 fn imagePersistentDeleteAll()
 fn imageGetHandle(String label) -> Number handle
@@ -303,6 +303,8 @@ fn shaderSetUniformImage(String label, String uniformName, Number imageHandle, N
 fn shaderDelete(String label)
 fn shaderDeleteAll()
 fn soundPlayerNew(String label) -> Number handle
+fn soundPlayerDelete(String label)
+fn soundPlayerDeleteAll()
 fn soundPlayerLoad(Number handle, String filepath, Bool streamDefaultIsFalse) -> Bool success
 fn soundPlayerUnload(Number handle)
 fn soundPlayerPlay(Number handle)
@@ -322,8 +324,6 @@ fn soundPlayerGetSpeed(Number handle) -> Number speed
 fn soundPlayerGetPan(Number handle) -> Number pan
 fn soundPlayerGetVolume(Number handle) -> Number volume
 fn soundPlayerIsLoaded(Number handle) -> Bool isLoaded
-fn soundPlayerDelete(Number handle)
-fn soundPlayerDeleteAll()
 fn soundSetVolume(Number volume0to1)
 fn soundShutdown()
 fn soundStopAll()
