@@ -346,7 +346,7 @@ fn setGameScriptStringForNextFrame(String string)
 fn setGameScriptStringForNextFrameFromPointer(Number pointer, Number pointerBytesFirst)
 fn getThread2ScriptString() -> String script
 fn setThread2ScriptStringForNextFrame(String string)
-fn setThread2ScriptStringForNextFrameFromPointer(String pointer, Number pointerBytesFirst)
+fn setThread2ScriptStringForNextFrameFromPointer(Number pointer, Number pointerBytesFirst)
 fn libGameScriptExternalProcedureReload(Bool printErrors)
 fn libGameScriptExternalProcedureCall2(Number parameter1, Number parameter2)
 fn libGameScriptExternalProcedureCall3(Number parameter1, Number parameter2, Number parameter3)
@@ -516,7 +516,7 @@ fn githubR_lyehUlzDecode(Number pointer, Number pointerBytesFirst, Number pointe
 fn githubR_lyehUlzBoundsEncodeOutBytesCount(Number bytesCount, Number flags) -> Number value
 fn getThread2ScriptString() -> String script
 fn setThread2ScriptStringForNextFrame(String string)
-fn setThread2ScriptStringForNextFrameFromPointer(String pointer, Number pointerBytesFirst)
+fn setThread2ScriptStringForNextFrameFromPointer(Number pointer, Number pointerBytesFirst)
 fn libGameScriptExternalProcedureCall2(Number parameter1, Number parameter2)
 fn libGameScriptExternalProcedureCall3(Number parameter1, Number parameter2, Number parameter3)
 ```
