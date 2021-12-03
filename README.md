@@ -525,4 +525,4 @@ fn libGameScriptExternalProcedureCall3(Number parameter1, Number parameter2, Num
 
 [Game Script](https://procedural.itch.io/gamescript) uses the Ape programming language v0.14.0 by Krzysztof Gabis, you can read more about it in my public fork of his Github repo here: https://github.com/procedural/script
 
-[Game Script Native](https://procedural.itch.io/gamescriptnative) uses C++14.
+[Game Script Native](https://procedural.itch.io/gamescriptnative) uses standard C++14.
