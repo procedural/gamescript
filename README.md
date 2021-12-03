@@ -97,7 +97,6 @@ fn defaultCameraGetLookAtVector() -> Number lookAtVector [3] {x, y, z}
 fn defaultCameraSetControlKeys(Number up, Number down, Number left, Number right, Number forward, Number backward, Number rollLeft, Number rollRight, Number rollReset)
 fn setBackgroundColor(Number r0to255, Number g0to255, Number b0to255, Number a0to255)
 fn setViewport(Number x, Number y, Number width, Number height, Bool vflip)
-fn setColorMask(Bool r, Bool g, Bool b, Bool a)
 fn alphaBlendingEnable()
 fn alphaBlendingDisable()
 fn blendModeEnable(Number mode)
@@ -108,6 +107,7 @@ fn cullingEnable(Number mode)
 fn cullingDisable()
 fn clear(Number r0to1, Number g0to1, Number b0to1, Number a0to1)
 fn clearAlpha()
+fn clearDepth()
 fn saveScreenRawToMemory(Number x, Number y, Number width, Number height, Number out8BitRGBAPixels)
 fn globalArrayNew8Bit(String label, Number count) -> Number pointer
 fn globalArrayPersistentNew8Bit(String label, Number count) -> Number pointer
@@ -266,6 +266,7 @@ fn meshDrawDebugVertices(String label)
 fn meshDrawDebugColors(String label)
 fn meshDrawDebugTexCoords(String label)
 fn meshDrawDebugIndices(String label)
+fn meshDrawDebugRayTraceIndices(String label, Number maxShowDistanceToDefaultCamera, Bool raytraceHighlightTrianglesDefaultCameraLooksAt)
 fn meshImporterGetMeshesCount(String meshFilepath) -> Number count
 fn meshImporterGetMeshName(String meshFilepath, Number meshIndex) -> String name
 fn meshImporterGetMesh(String meshFilepath, Number meshIndex, Number writeToMesh)
