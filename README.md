@@ -4,7 +4,7 @@
 
 # Download here: [procedural.itch.io/gamescript](https://procedural.itch.io/gamescript)
 
-## Join the official Game Script Discord server for news, updates, code and more! https://discord.gg/D7pKPw4kFf
+## Join the official Game Script Discord server for news, updates, code examples and more! https://discord.gg/D7pKPw4kFf
 
 Install
 -------
