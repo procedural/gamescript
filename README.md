@@ -19,7 +19,7 @@ Hotkeys
 
 * `F3`: toggle between script and game mode.
 * `F5`: rerun the script.
-* `F7`: stop running the script.
+* `F7`: pause running the script.
 * `F9`: continue running the script.
 * `F11`: toggle fullscreen mode.
 * `Ctrl` + `Tab`: switch between windows in script mode.
