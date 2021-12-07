@@ -431,27 +431,27 @@ fn getExeDirectoryPath() -> String path // Thread-safe.
 fn globalSharedArrayPersistentNew8Bit(String label, Number count) -> Number pointer // Thread-safe.
 fn globalSharedArrayPersistentGetBytesCount(String label) -> Number bytesCount // Thread-safe.
 fn globalSharedArrayPersistentGetPointer(String label) -> Number pointer // Thread-safe.
-fn pointerGetBool(Number pointer, Number index) -> Bool value
+fn pointerGetBool(Number pointerTo8BitBools, Number index) -> Bool value
 fn pointerGetString(Number pointer) -> String string
 fn pointerGetSubstring(Number pointer, Number pointerCharsFirst, Number charsCount) -> String string
-fn pointerGetNumber(Number pointer, Number index) -> Number value
-fn pointerGetUnsignedInteger(Number pointer, Number index) -> Number value
-fn pointerGetUnsignedInteger8Bit(Number pointer, Number index) -> Number value
-fn pointerSetBool(Number pointer, Number index, Bool value)
+fn pointerGetNumber(Number pointerTo32BitFloats, Number index) -> Number value
+fn pointerGetUnsignedInteger(Number pointerTo32BitUints, Number index) -> Number value
+fn pointerGetUnsignedInteger8Bit(Number pointerTo8BitUints, Number index) -> Number value
+fn pointerSetBool(Number pointerTo8BitBools, Number index, Bool value)
 fn pointerSetString(Number pointer, Number pointerCharsFirst, String string)
 fn pointerSetStringExcludingNullChar(Number pointer, Number pointerCharsFirst, String string)
 fn pointerSetSubstring(Number pointer, Number pointerCharsFirst, String string, Number stringCharsFirst, Number stringCharsCount)
-fn pointerSetNumber(Number pointer, Number index, Number value)
-fn pointerSetUnsignedInteger(Number pointer, Number index, Number value)
-fn pointerSetUnsignedInteger8Bit(Number pointer, Number index, Number value)
-fn pointerGetRaw8Bit(Number pointer, Number bytesFirst) -> Number raw8Bit
-fn pointerGetRaw16Bit(Number pointer, Number bytesFirst) -> Number raw16Bit
-fn pointerGetRaw32Bit(Number pointer, Number bytesFirst) -> Number raw32Bit
-fn pointerGetRaw64Bit(Number pointer, Number bytesFirst) -> Number raw64Bit
-fn pointerSetRaw8Bit(Number pointer, Number bytesFirst, Number rawBitsAsDouble)
-fn pointerSetRaw16Bit(Number pointer, Number bytesFirst, Number rawBitsAsDouble)
-fn pointerSetRaw32Bit(Number pointer, Number bytesFirst, Number rawBitsAsDouble)
-fn pointerSetRaw64Bit(Number pointer, Number bytesFirst, Number rawBitsAsDouble)
+fn pointerSetNumber(Number pointerTo32BitFloats, Number index, Number value)
+fn pointerSetUnsignedInteger(Number pointerTo32BitUints, Number index, Number value)
+fn pointerSetUnsignedInteger8Bit(Number pointerTo8BitUints, Number index, Number value)
+fn pointerGetRaw8Bit(Number pointer, Number bytesFirst) -> Number raw8BitsAsDouble
+fn pointerGetRaw16Bit(Number pointer, Number bytesFirst) -> Number raw16BitsAsDouble
+fn pointerGetRaw32Bit(Number pointer, Number bytesFirst) -> Number raw32BitsAsDouble
+fn pointerGetRaw64Bit(Number pointer, Number bytesFirst) -> Number raw64BitsAsDouble
+fn pointerSetRaw8Bit(Number pointer, Number bytesFirst, Number raw8BitsAsDouble)
+fn pointerSetRaw16Bit(Number pointer, Number bytesFirst, Number raw16BitsAsDouble)
+fn pointerSetRaw32Bit(Number pointer, Number bytesFirst, Number raw32BitsAsDouble)
+fn pointerSetRaw64Bit(Number pointer, Number bytesFirst, Number raw64BitsAsDouble)
 fn memset(Number pointer, Number pointerBytesFirst, Number value8Bit, Number bytesCount)
 fn memcpy(Number pointerTarget, Number pointerTargetBytesFirst, Number pointerSource, Number pointerSourceBytesFirst, Number bytesCount)
 fn memcmp(Number pointerA, Number pointerABytesFirst, Number pointerB, Number pointerBBytesFirst, Number bytesCount) -> Bool areEqual
