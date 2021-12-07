@@ -126,6 +126,7 @@ fn pointerGetBool(Number pointerTo8BitBools, Number index) -> Bool value
 fn pointerGetString(Number pointer) -> String string
 fn pointerGetSubstring(Number pointer, Number pointerCharsFirst, Number charsCount) -> String string
 fn pointerGetNumber(Number pointerTo32BitFloats, Number index) -> Number value
+fn pointerGetInteger(Number pointerTo32BitInts, Number index) -> Number value
 fn pointerGetUnsignedInteger(Number pointerTo32BitUints, Number index) -> Number value
 fn pointerGetUnsignedInteger8Bit(Number pointerTo8BitUints, Number index) -> Number value
 fn pointerSetBool(Number pointerTo8BitBools, Number index, Bool value)
@@ -133,6 +134,7 @@ fn pointerSetString(Number pointer, Number pointerCharsFirst, String string)
 fn pointerSetStringExcludingNullChar(Number pointer, Number pointerCharsFirst, String string)
 fn pointerSetSubstring(Number pointer, Number pointerCharsFirst, String string, Number stringCharsFirst, Number stringCharsCount)
 fn pointerSetNumber(Number pointerTo32BitFloats, Number index, Number value)
+fn pointerSetInteger(Number pointerTo32BitInts, Number index, Number value)
 fn pointerSetUnsignedInteger(Number pointerTo32BitUints, Number index, Number value)
 fn pointerSetUnsignedInteger8Bit(Number pointerTo8BitUints, Number index, Number value)
 fn pointerGetRaw8Bit(Number pointer, Number bytesFirst) -> Number raw8BitsAsDouble
@@ -435,6 +437,7 @@ fn pointerGetBool(Number pointerTo8BitBools, Number index) -> Bool value
 fn pointerGetString(Number pointer) -> String string
 fn pointerGetSubstring(Number pointer, Number pointerCharsFirst, Number charsCount) -> String string
 fn pointerGetNumber(Number pointerTo32BitFloats, Number index) -> Number value
+fn pointerGetInteger(Number pointerTo32BitInts, Number index) -> Number value
 fn pointerGetUnsignedInteger(Number pointerTo32BitUints, Number index) -> Number value
 fn pointerGetUnsignedInteger8Bit(Number pointerTo8BitUints, Number index) -> Number value
 fn pointerSetBool(Number pointerTo8BitBools, Number index, Bool value)
@@ -442,6 +445,7 @@ fn pointerSetString(Number pointer, Number pointerCharsFirst, String string)
 fn pointerSetStringExcludingNullChar(Number pointer, Number pointerCharsFirst, String string)
 fn pointerSetSubstring(Number pointer, Number pointerCharsFirst, String string, Number stringCharsFirst, Number stringCharsCount)
 fn pointerSetNumber(Number pointerTo32BitFloats, Number index, Number value)
+fn pointerSetInteger(Number pointerTo32BitInts, Number index, Number value)
 fn pointerSetUnsignedInteger(Number pointerTo32BitUints, Number index, Number value)
 fn pointerSetUnsignedInteger8Bit(Number pointerTo8BitUints, Number index, Number value)
 fn pointerGetRaw8Bit(Number pointer, Number bytesFirst) -> Number raw8BitsAsDouble
