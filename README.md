@@ -46,6 +46,7 @@ fn windowGetHeight() -> Number height
 fn windowSetWidthHeight(Number width, Number height)
 fn windowSetFullscreen(Bool fullscreen)
 fn windowIsFocused() -> Bool isFocused
+fn windowIsHovered() -> Bool isHovered
 fn windowIsMinimized() -> Bool isMinimized
 fn windowIsHidden() -> Bool isHidden
 fn windowHide()
