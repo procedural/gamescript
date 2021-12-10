@@ -71,6 +71,7 @@ fn isInGameMode() -> Bool isInGameMode
 fn defaultCameraDefaultControlDisable()
 fn defaultCameraDefaultControlEnable()
 fn defaultCameraDefaultControlForceEnable()
+fn defaultCameraDefaultControlIsEnabled() -> Bool isEnabled
 fn defaultCameraSetMoveSpeed(Number speed)
 fn defaultCameraSetRollSpeed(Number speed)
 fn defaultCameraSetMouseSensitivity(Number sensitivity)
@@ -146,6 +147,20 @@ fn pointerSetRaw8Bit(Number pointer, Number bytesFirst, Number raw8BitsAsDouble)
 fn pointerSetRaw16Bit(Number pointer, Number bytesFirst, Number raw16BitsAsDouble)
 fn pointerSetRaw32Bit(Number pointer, Number bytesFirst, Number raw32BitsAsDouble)
 fn pointerSetRaw64Bit(Number pointer, Number bytesFirst, Number raw64BitsAsDouble)
+fn globalDynamicArrayNew(String label) -> Number handle
+fn globalDynamicArrayPersistentNew(String label) -> Number handle
+fn globalDynamicArrayDelete(String label)
+fn globalDynamicArrayPersistentDelete(String label)
+fn globalDynamicArrayDeleteAll()
+fn globalDynamicArrayPersistentDeleteAll()
+fn globalDynamicArrayGetHandle(String label) -> Number handle
+fn globalDynamicArrayPersistentGetHandle(String label) -> Number handle
+fn dynamicArrayGet(Number handle, Number index) -> Number value
+fn dynamicArraySet(Number handle, Number index, Number value)
+fn dynamicArrayAppend(Number handle, Number value)
+fn dynamicArrayRemoveAt(Number handle, Number index) -> Bool success
+fn dynamicArrayRemoveLast(Number handle)
+fn dynamicArrayGetSize(Number handle) -> Number size
 fn memset(Number pointer, Number pointerBytesFirst, Number value8Bit, Number bytesCount)
 fn memcpy(Number pointerTarget, Number pointerTargetBytesFirst, Number pointerSource, Number pointerSourceBytesFirst, Number bytesCount)
 fn memcmp(Number pointerA, Number pointerABytesFirst, Number pointerB, Number pointerBBytesFirst, Number bytesCount) -> Bool areEqual
@@ -182,6 +197,7 @@ fn numberToString(Number number) -> String string
 fn numberToBinaryString(Number number) -> String string
 fn numberWholePartToString(Number number) -> String string
 fn stringCharToNumber(String string) -> Number charNumber
+fn stringToNumberArray(String string) -> Number array []
 fn interpretStringToInteger(String string) -> Number integer
 fn interpretStringToFloat(String string) -> Number float
 fn interpretStringToDouble(String string) -> Number double
@@ -333,6 +349,15 @@ fn soundSetVolume(Number volume0to1)
 fn soundShutdown()
 fn soundStopAll()
 fn soundUpdate()
+fn imguiBegin()
+fn imguiEnd()
+fn imguiWindowBegin(String windowName, Number outPointerToWindowIsOpenBool, Number outPointerToWindowIsOpenBoolBytesFirst) -> Bool state
+fn imguiWindowEnd()
+fn imguiButton(String buttonName, Number buttonWidth, Number buttonHeight) -> Bool state
+fn imguiText(String text)
+fn imguiTextMultiline(String textFieldName, String text, Number textFieldWidth, Number textFieldHeight) -> Bool state
+fn imguiInputText(String textFieldName, Number outPointerToString, Number outPointerToStringBytesFirst, Number outPointerToStringBytesCountMax) -> Bool state
+fn imguiInputTextMultiline(String textFieldName, Number outPointerToString, Number outPointerToStringBytesFirst, Number outPointerToStringBytesCountMax, Number textFieldWidth, Number textFieldHeight) -> Bool state
 fn profileBegin(String mark)
 fn profileEnd(String mark)
 fn systemCommand(String command) -> String output
@@ -478,6 +503,7 @@ fn numberToString(Number number) -> String string
 fn numberToBinaryString(Number number) -> String string
 fn numberWholePartToString(Number number) -> String string
 fn stringCharToNumber(String string) -> Number charNumber
+fn stringToNumberArray(String string) -> Number array []
 fn interpretStringToInteger(String string) -> Number integer
 fn interpretStringToFloat(String string) -> Number float
 fn interpretStringToDouble(String string) -> Number double
