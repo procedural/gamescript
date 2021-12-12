@@ -281,6 +281,7 @@ fn meshMergeDuplicateVertices(Number handle)
 fn meshSetupIndicesAuto(Number handle)
 fn meshAddTriangle(Number handle, Number verticesArrayIndex1, Number verticesArrayIndex2, Number verticesArrayIndex3)
 fn meshDraw(Number handle, Number renderMode, Number scaleX, Number scaleY, Number scaleZ, Number vectorX, Number vectorY, Number vectorZ, Number rotationAxisX, Number rotationAxisY, Number rotationAxisZ, Number rotationAngleDeg)
+fn meshDrawWithColor(Number handle, Number renderMode, Number scaleX, Number scaleY, Number scaleZ, Number vectorX, Number vectorY, Number vectorZ, Number rotationAxisX, Number rotationAxisY, Number rotationAxisZ, Number rotationAngleDeg, Number r0to255, Number g0to255, Number b0to255, Number a0to255)
 fn meshDrawDebugVertices(String label)
 fn meshDrawDebugColors(String label)
 fn meshDrawDebugTexCoords(String label)
@@ -323,9 +324,13 @@ fn shaderSetUniformImage(String label, String uniformName, Number imageHandle, N
 fn shaderDelete(String label)
 fn shaderDeleteAll()
 fn soundPlayerNew(String label) -> Number handle
+fn soundPlayerPersistentNew(String label) -> Number handle
 fn soundPlayerDelete(String label)
+fn soundPlayerPersistentDelete(String label)
 fn soundPlayerDeleteAll()
+fn soundPlayerPersistentDeleteAll()
 fn soundPlayerGetHandle(String label) -> Number handle
+fn soundPlayerPersistentGetHandle(String label) -> Number handle
 fn soundPlayerLoad(Number handle, String filepath, Bool streamDefaultIsFalse) -> Bool success
 fn soundPlayerUnload(Number handle)
 fn soundPlayerPlay(Number handle)
