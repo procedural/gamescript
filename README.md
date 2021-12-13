@@ -304,8 +304,13 @@ fn imageGetHandle(String label) -> Number handle
 fn imagePersistentGetHandle(String label) -> Number handle
 fn imageLoadFromMemory(Number handle, Number pointer, Number pointerBytesFirst, Number pointerBytesCount) -> Bool success
 fn imageClear(Number handle, Number alpha0to255)
+fn imageHasMipmap(Number handle) -> Bool hasMipmap
+fn imageMipmapDisable(Number handle)
+fn imageMipmapEnable(Number handle)
+fn imageMipmapGenerate(Number handle)
 fn imageSetTextureMinMagFilter(Number handle, Number minFilter, Number magFilter)
 fn imageSetTextureWrap(Number handle, Number wrapX, Number wrapY)
+fn imageSetTextureMaxAnisotropy(Number handle, Number maxAnisotropy)
 fn imageGetWidth(Number handle) -> Number width
 fn imageGetHeight(Number handle) -> Number height
 fn imageGetBitsPerPixel(Number handle) -> Number bitsPerPixel
