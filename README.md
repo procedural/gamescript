@@ -96,6 +96,9 @@ fn defaultCameraWorldToScreen(Number worldX, Number worldY, Number worldZ) -> Nu
 fn defaultCameraGetSideVector() -> Number sideVector [3] {x, y, z}
 fn defaultCameraGetUpVector() -> Number upVector [3] {x, y, z}
 fn defaultCameraGetLookAtVector() -> Number lookAtVector [3] {x, y, z}
+fn defaultCameraGetProjectionMatrix(Number outPointer)
+fn defaultCameraGetModelViewMatrix(Number outPointer)
+fn defaultCameraGetModelViewProjectionMatrix(Number outPointer)
 fn defaultCameraSetControlKeys(Number up, Number down, Number left, Number right, Number forward, Number backward, Number rollLeft, Number rollRight, Number rollReset)
 fn setBackgroundColor(Number r0to255, Number g0to255, Number b0to255, Number a0to255)
 fn setViewport(Number x, Number y, Number width, Number height, Bool vflip)
@@ -325,6 +328,8 @@ fn imageUnbind(Number handle)
 fn shaderBegin(String label, String filepathShaderVert, String filepathShaderFrag) -> Bool shadersAreValid
 fn shaderEnd(String label)
 fn shaderSetUniform4f(String label, String uniformName, Number x, Number y, Number z, Number w)
+fn shaderSetUniform4fv(String label, String uniformName, Number pointer, Number count)
+fn shaderSetUniformMatrix4f(String label, String uniformName, Number pointer)
 fn shaderSetUniformImage(String label, String uniformName, Number imageHandle, Number textureLocation)
 fn shaderDelete(String label)
 fn shaderDeleteAll()
