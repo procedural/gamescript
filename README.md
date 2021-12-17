@@ -227,7 +227,7 @@ fn getLastFrameTime() -> Number lastFrameTime
 fn getSystemTimeMillis() -> Number ms
 fn getSystemTimeMicros() -> Number us
 fn getUnixTime() -> Number unixTime
-fn framebufferBegin(String label, Number width, Number height, Bool setupScreenDefaultIs1) -> Bool framebufferIsValid
+fn framebufferBegin(String label, Number width, Number height, Bool setupScreenDefaultIsTrue) -> Bool framebufferIsValid
 fn framebufferEnd(String label)
 fn framebufferDraw(String label, Number x, Number y, Number width, Number height)
 fn framebufferClear(String label)
