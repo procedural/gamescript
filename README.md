@@ -2,6 +2,8 @@
 
 ![game_script_screenshot](https://user-images.githubusercontent.com/28234322/141370424-192f786b-2ea2-4ae0-91a2-e0b2333a0edb.png)
 
+![game_script_ray tracing screenshot](https://user-images.githubusercontent.com/28234322/147890504-471ad97d-9e3a-43f3-83b0-3c4aaab883c2.png)
+
 # Download here: [procedural.itch.io/gamescript](https://procedural.itch.io/gamescript)
 
 ## Join the official Game Script Discord server for news, updates, code examples and more! https://discord.gg/D7pKPw4kFf
@@ -150,6 +152,11 @@ fn pointerSetRaw8Bit(Number pointer, Number bytesFirst, Number raw8BitsAsDouble)
 fn pointerSetRaw16Bit(Number pointer, Number bytesFirst, Number raw16BitsAsDouble)
 fn pointerSetRaw32Bit(Number pointer, Number bytesFirst, Number raw32BitsAsDouble)
 fn pointerSetRaw64Bit(Number pointer, Number bytesFirst, Number raw64BitsAsDouble)
+fn pointerIsNull(Number pointer) -> Bool isNull
+fn pointerGetNull() -> Number nullPointer
+fn pointersAreEqual(Number pointerA, Number pointerB) -> Bool areEqual
+fn pointerOffsetByBytes(Number pointer, Number bytesOffset) -> Number offsettedPointer
+fn pointerDrawPixels(Number pointer, Number pointerBytesOffset, Number pixelsWidth, Number pixelsHeight, Number pixelsFormat, Number pixelsType) -> Bool success
 fn globalDynamicArrayNew(String label) -> Number handle
 fn globalDynamicArrayPersistentNew(String label) -> Number handle
 fn globalDynamicArrayDelete(String label)
@@ -398,6 +405,76 @@ fn libGameScriptExternalProcedureCall3(Number parameter1, Number parameter2, Num
 fn programGetArgumentsCount() -> Number argumentsCount
 fn programGetArgument(Number index) -> String argument
 fn programClose()
+fn ertAffineSpace3fGetSizeOfInBytes() -> Number sizeOfInBytes
+fn ertAffineSpace3fSetDefaultInitialize(Number outPointer, Number outPointerBytesFirst)
+fn ertAffineSpace3fSetInitialize(Number outPointer, Number outPointerBytesFirst, Number v0, Number v1, Number v2, Number v3, Number v4, Number v5, Number v6, Number v7, Number v8, Number v9, Number v10, Number v11)
+fn ertAffineSpace3fSetLookAtPoint(Number outPointer, Number outPointerBytesFirst, Number posX, Number posY, Number posZ, Number targetX, Number targetY, Number targetZ, Number upX, Number upY, Number upZ)
+fn ertAffineSpace3fScale(Number outPointer, Number outPointerBytesFirst, Number scaleX, Number scaleY, Number scaleZ)
+fn ertAffineSpace3fTranslate(Number outPointer, Number outPointerBytesFirst, Number translateX, Number translateY, Number translateZ)
+fn ertAffineSpace3fRotate(Number outPointer, Number outPointerBytesFirst, Number rotatePosX, Number rotatePosY, Number rotatePosZ, Number rotateAxisX, Number rotateAxisY, Number rotateAxisZ, Number rotateAngle)
+fn ertAffineSpace3fGetLVXX(Number pointer, Number pointerBytesFirst) -> Number l_vx_x
+fn ertAffineSpace3fGetLVXY(Number pointer, Number pointerBytesFirst) -> Number l_vx_y
+fn ertAffineSpace3fGetLVXZ(Number pointer, Number pointerBytesFirst) -> Number l_vx_z
+fn ertAffineSpace3fGetLVYX(Number pointer, Number pointerBytesFirst) -> Number l_vy_x
+fn ertAffineSpace3fGetLVYY(Number pointer, Number pointerBytesFirst) -> Number l_vy_y
+fn ertAffineSpace3fGetLVYZ(Number pointer, Number pointerBytesFirst) -> Number l_vy_z
+fn ertAffineSpace3fGetLVZX(Number pointer, Number pointerBytesFirst) -> Number l_vz_x
+fn ertAffineSpace3fGetLVZY(Number pointer, Number pointerBytesFirst) -> Number l_vz_y
+fn ertAffineSpace3fGetLVZZ(Number pointer, Number pointerBytesFirst) -> Number l_vz_z
+fn ertAffineSpace3fGetPX(Number pointer, Number pointerBytesFirst) -> Number p_x
+fn ertAffineSpace3fGetPY(Number pointer, Number pointerBytesFirst) -> Number p_y
+fn ertAffineSpace3fGetPZ(Number pointer, Number pointerBytesFirst) -> Number p_z
+fn ertAffineSpace3fCopyFromArray(Number in12FloatsPointer, Number in12FloatsPointerBytesFirst, Number outAffineSpace3fPointer, Number outAffineSpace3fPointerBytesFirst)
+fn ertAffineSpace3fCopyToArray(Number inAffineSpace3fPointer, Number inAffineSpace3fPointerBytesFirst, Number out12FloatsPointer, Number out12FloatsPointerBytesFirst)
+fn ertCreateDevice(String typeDefaultIsdefault, Number numThreadsDefaultIs0) -> Number deviceHandle
+fn ertDestroyDevice(Number deviceHandle)
+fn ertNewCamera(Number deviceHandle, String type) -> Number cameraHandle
+fn ertNewData(Number deviceHandle, String type, Number bytes, Number dataPointer, Number dataPointerBytesFirst) -> Number dataHandle
+fn ertNewDataFromFile(Number deviceHandle, String type, String file, Number offset, Number bytes) -> Number dataHandle
+fn ertNewImage(Number deviceHandle, String type, Number width, Number height, Number dataPointer, Number dataPointerBytesFirst) -> Number imageHandle
+fn ertNewImageFromFile(Number deviceHandle, String file) -> Number imageHandle
+fn ertNewTexture(Number deviceHandle, String type) -> Number textureHandle
+fn ertNewMaterial(Number deviceHandle, String type) -> Number materialHandle
+fn ertNewShape(Number deviceHandle, String type) -> Number shapeHandle
+fn ertNewLight(Number deviceHandle, String type) -> Number lightHandle
+fn ertNewShapePrimitive(Number deviceHandle, Number shapeHandle, Number materialHandle, Number transformPointer, Number transformPointerBytesFirst) -> Number primitiveHandle
+fn ertNewLightPrimitive(Number deviceHandle, Number lightHandle, Number transformPointer, Number transformPointerBytesFirst) -> Number primitiveHandle
+fn ertTransformPrimitive(Number deviceHandle, Number primitiveHandle, Number transformPointer, Number transformPointerBytesFirst) -> Number primitiveHandle
+fn ertNewScene(Number deviceHandle, String type, Number primitiveHandlesPointer, Number primitiveHandlesPointerBytesFirst, Number size) -> Number sceneHandle
+fn ertNewToneMapper(Number deviceHandle, String type) -> Number toneMapperHandle
+fn ertNewRenderer(Number deviceHandle, String type) -> Number rendererHandle
+fn ertNewFrameBuffer(Number deviceHandle, String type, Number width, Number height, Number buffersDefaultIs1) -> Number frameBufferHandle
+fn ertGetFrameBufferWidth(Number deviceHandle, Number frameBufferHandle) -> Number width
+fn ertGetFrameBufferHeight(Number deviceHandle, Number frameBufferHandle) -> Number height
+fn ertMapFrameBuffer(Number deviceHandle, Number frameBufferHandle) -> Number pointer
+fn ertUnmapFrameBuffer(Number deviceHandle, Number frameBufferHandle)
+fn ertSwapBuffers(Number deviceHandle, Number frameBufferHandle)
+fn ertIncRef(Number deviceHandle, Number handle)
+fn ertDecRef(Number deviceHandle, Number handle)
+fn ertSetBool1(Number deviceHandle, Number handle, String property, Bool x)
+fn ertSetBool2(Number deviceHandle, Number handle, String property, Bool x, Bool y)
+fn ertSetBool3(Number deviceHandle, Number handle, String property, Bool x, Bool y, Bool z)
+fn ertSetBool4(Number deviceHandle, Number handle, String property, Bool x, Bool y, Bool z, Bool w)
+fn ertSetInt1(Number deviceHandle, Number handle, String property, Number x)
+fn ertSetInt2(Number deviceHandle, Number handle, String property, Number x, Number y)
+fn ertSetInt3(Number deviceHandle, Number handle, String property, Number x, Number y, Number z)
+fn ertSetInt4(Number deviceHandle, Number handle, String property, Number x, Number y, Number z, Number w)
+fn ertSetFloat1(Number deviceHandle, Number handle, String property, Number x)
+fn ertSetFloat2(Number deviceHandle, Number handle, String property, Number x, Number y)
+fn ertSetFloat3(Number deviceHandle, Number handle, String property, Number x, Number y, Number z)
+fn ertSetFloat4(Number deviceHandle, Number handle, String property, Number x, Number y, Number z, Number w)
+fn ertSetArray(Number deviceHandle, Number handle, String property, String type, Number dataHandle, Number size, Number stride, Number ofs)
+fn ertSetString(Number deviceHandle, Number handle, String property, String str)
+fn ertSetImage(Number deviceHandle, Number handle, String property, Number imageHandle)
+fn ertSetTexture(Number deviceHandle, Number handle, String property, Number textureHandle)
+fn ertSetTransform(Number deviceHandle, Number handle, String property, Number transformPointer, Number transformPointerBytesFirst)
+fn ertClear(Number deviceHandle, Number handle)
+fn ertCommit(Number deviceHandle, Number handle)
+fn ertRenderFrame(Number deviceHandle, Number rendererHandle, Number cameraHandle, Number sceneHandle, Number toneMapperHandle, Number frameBufferHandle, Number accumulate)
+fn ertPick(Number deviceHandle, Number cameraHandle, Number x, Number y, Number sceneHandle) -> Number point [4] {x, y, z, isHit}
+fn ertInitializeRayStruct(Number deviceHandle, Number orgX, Number orgY, Number orgZ, Number dirX, Number dirY, Number dirZ, Number nearDefaultIs0, Number farDefaultIsEmbreeInf, Number timeDefaultIs0, Number outRayStructPointer, Number outRayStructPointerBytesFirst)
+fn ertInitializeRayStructForCameraPixelSample(Number deviceHandle, Number cameraHandle, Number pixelXFrom0To1, Number pixelYFrom0To1, Number pixelSamplePosXFrom0ToExcluded1DefaultIs0Point5, Number pixelSamplePosYFrom0ToExcluded1DefaultIs0Point5, Number outRayStructPointer, Number outRayStructPointerBytesFirst)
+fn ertSceneIntersectRayStructToHitStruct(Number deviceHandle, Number sceneHandle, Number inRayStructPointer, Number inRayStructPointerBytesFirst, Number outHitStructPointer, Number outHitStructPointerBytesFirst)
 ```
 
 List of constants
@@ -514,6 +591,10 @@ fn pointerSetRaw8Bit(Number pointer, Number bytesFirst, Number raw8BitsAsDouble)
 fn pointerSetRaw16Bit(Number pointer, Number bytesFirst, Number raw16BitsAsDouble)
 fn pointerSetRaw32Bit(Number pointer, Number bytesFirst, Number raw32BitsAsDouble)
 fn pointerSetRaw64Bit(Number pointer, Number bytesFirst, Number raw64BitsAsDouble)
+fn pointerIsNull(Number pointer) -> Bool isNull
+fn pointerGetNull() -> Number nullPointer
+fn pointersAreEqual(Number pointerA, Number pointerB) -> Bool areEqual
+fn pointerOffsetByBytes(Number pointer, Number bytesOffset) -> Number offsettedPointer
 fn memset(Number pointer, Number pointerBytesFirst, Number value8Bit, Number bytesCount)
 fn memcpy(Number pointerTarget, Number pointerTargetBytesFirst, Number pointerSource, Number pointerSourceBytesFirst, Number bytesCount)
 fn memcmp(Number pointerA, Number pointerABytesFirst, Number pointerB, Number pointerBBytesFirst, Number bytesCount) -> Bool areEqual
@@ -584,6 +665,76 @@ fn setThread2ScriptStringForNextFrame(String string)
 fn setThread2ScriptStringForNextFrameFromPointer(Number pointer, Number pointerBytesFirst)
 fn libGameScriptExternalProcedureCall2(Number parameter1, Number parameter2)
 fn libGameScriptExternalProcedureCall3(Number parameter1, Number parameter2, Number parameter3)
+fn ertAffineSpace3fGetSizeOfInBytes() -> Number sizeOfInBytes
+fn ertAffineSpace3fSetDefaultInitialize(Number outPointer, Number outPointerBytesFirst)
+fn ertAffineSpace3fSetInitialize(Number outPointer, Number outPointerBytesFirst, Number v0, Number v1, Number v2, Number v3, Number v4, Number v5, Number v6, Number v7, Number v8, Number v9, Number v10, Number v11)
+fn ertAffineSpace3fSetLookAtPoint(Number outPointer, Number outPointerBytesFirst, Number posX, Number posY, Number posZ, Number targetX, Number targetY, Number targetZ, Number upX, Number upY, Number upZ)
+fn ertAffineSpace3fScale(Number outPointer, Number outPointerBytesFirst, Number scaleX, Number scaleY, Number scaleZ)
+fn ertAffineSpace3fTranslate(Number outPointer, Number outPointerBytesFirst, Number translateX, Number translateY, Number translateZ)
+fn ertAffineSpace3fRotate(Number outPointer, Number outPointerBytesFirst, Number rotatePosX, Number rotatePosY, Number rotatePosZ, Number rotateAxisX, Number rotateAxisY, Number rotateAxisZ, Number rotateAngle)
+fn ertAffineSpace3fGetLVXX(Number pointer, Number pointerBytesFirst) -> Number l_vx_x
+fn ertAffineSpace3fGetLVXY(Number pointer, Number pointerBytesFirst) -> Number l_vx_y
+fn ertAffineSpace3fGetLVXZ(Number pointer, Number pointerBytesFirst) -> Number l_vx_z
+fn ertAffineSpace3fGetLVYX(Number pointer, Number pointerBytesFirst) -> Number l_vy_x
+fn ertAffineSpace3fGetLVYY(Number pointer, Number pointerBytesFirst) -> Number l_vy_y
+fn ertAffineSpace3fGetLVYZ(Number pointer, Number pointerBytesFirst) -> Number l_vy_z
+fn ertAffineSpace3fGetLVZX(Number pointer, Number pointerBytesFirst) -> Number l_vz_x
+fn ertAffineSpace3fGetLVZY(Number pointer, Number pointerBytesFirst) -> Number l_vz_y
+fn ertAffineSpace3fGetLVZZ(Number pointer, Number pointerBytesFirst) -> Number l_vz_z
+fn ertAffineSpace3fGetPX(Number pointer, Number pointerBytesFirst) -> Number p_x
+fn ertAffineSpace3fGetPY(Number pointer, Number pointerBytesFirst) -> Number p_y
+fn ertAffineSpace3fGetPZ(Number pointer, Number pointerBytesFirst) -> Number p_z
+fn ertAffineSpace3fCopyFromArray(Number in12FloatsPointer, Number in12FloatsPointerBytesFirst, Number outAffineSpace3fPointer, Number outAffineSpace3fPointerBytesFirst)
+fn ertAffineSpace3fCopyToArray(Number inAffineSpace3fPointer, Number inAffineSpace3fPointerBytesFirst, Number out12FloatsPointer, Number out12FloatsPointerBytesFirst)
+fn ertCreateDevice(String typeDefaultIsdefault, Number numThreadsDefaultIs0) -> Number deviceHandle
+fn ertDestroyDevice(Number deviceHandle)
+fn ertNewCamera(Number deviceHandle, String type) -> Number cameraHandle
+fn ertNewData(Number deviceHandle, String type, Number bytes, Number dataPointer, Number dataPointerBytesFirst) -> Number dataHandle
+fn ertNewDataFromFile(Number deviceHandle, String type, String file, Number offset, Number bytes) -> Number dataHandle
+fn ertNewImage(Number deviceHandle, String type, Number width, Number height, Number dataPointer, Number dataPointerBytesFirst) -> Number imageHandle
+fn ertNewImageFromFile(Number deviceHandle, String file) -> Number imageHandle
+fn ertNewTexture(Number deviceHandle, String type) -> Number textureHandle
+fn ertNewMaterial(Number deviceHandle, String type) -> Number materialHandle
+fn ertNewShape(Number deviceHandle, String type) -> Number shapeHandle
+fn ertNewLight(Number deviceHandle, String type) -> Number lightHandle
+fn ertNewShapePrimitive(Number deviceHandle, Number shapeHandle, Number materialHandle, Number transformPointer, Number transformPointerBytesFirst) -> Number primitiveHandle
+fn ertNewLightPrimitive(Number deviceHandle, Number lightHandle, Number transformPointer, Number transformPointerBytesFirst) -> Number primitiveHandle
+fn ertTransformPrimitive(Number deviceHandle, Number primitiveHandle, Number transformPointer, Number transformPointerBytesFirst) -> Number primitiveHandle
+fn ertNewScene(Number deviceHandle, String type, Number primitiveHandlesPointer, Number primitiveHandlesPointerBytesFirst, Number size) -> Number sceneHandle
+fn ertNewToneMapper(Number deviceHandle, String type) -> Number toneMapperHandle
+fn ertNewRenderer(Number deviceHandle, String type) -> Number rendererHandle
+fn ertNewFrameBuffer(Number deviceHandle, String type, Number width, Number height, Number buffersDefaultIs1) -> Number frameBufferHandle
+fn ertGetFrameBufferWidth(Number deviceHandle, Number frameBufferHandle) -> Number width
+fn ertGetFrameBufferHeight(Number deviceHandle, Number frameBufferHandle) -> Number height
+fn ertMapFrameBuffer(Number deviceHandle, Number frameBufferHandle) -> Number pointer
+fn ertUnmapFrameBuffer(Number deviceHandle, Number frameBufferHandle)
+fn ertSwapBuffers(Number deviceHandle, Number frameBufferHandle)
+fn ertIncRef(Number deviceHandle, Number handle)
+fn ertDecRef(Number deviceHandle, Number handle)
+fn ertSetBool1(Number deviceHandle, Number handle, String property, Bool x)
+fn ertSetBool2(Number deviceHandle, Number handle, String property, Bool x, Bool y)
+fn ertSetBool3(Number deviceHandle, Number handle, String property, Bool x, Bool y, Bool z)
+fn ertSetBool4(Number deviceHandle, Number handle, String property, Bool x, Bool y, Bool z, Bool w)
+fn ertSetInt1(Number deviceHandle, Number handle, String property, Number x)
+fn ertSetInt2(Number deviceHandle, Number handle, String property, Number x, Number y)
+fn ertSetInt3(Number deviceHandle, Number handle, String property, Number x, Number y, Number z)
+fn ertSetInt4(Number deviceHandle, Number handle, String property, Number x, Number y, Number z, Number w)
+fn ertSetFloat1(Number deviceHandle, Number handle, String property, Number x)
+fn ertSetFloat2(Number deviceHandle, Number handle, String property, Number x, Number y)
+fn ertSetFloat3(Number deviceHandle, Number handle, String property, Number x, Number y, Number z)
+fn ertSetFloat4(Number deviceHandle, Number handle, String property, Number x, Number y, Number z, Number w)
+fn ertSetArray(Number deviceHandle, Number handle, String property, String type, Number dataHandle, Number size, Number stride, Number ofs)
+fn ertSetString(Number deviceHandle, Number handle, String property, String str)
+fn ertSetImage(Number deviceHandle, Number handle, String property, Number imageHandle)
+fn ertSetTexture(Number deviceHandle, Number handle, String property, Number textureHandle)
+fn ertSetTransform(Number deviceHandle, Number handle, String property, Number transformPointer, Number transformPointerBytesFirst)
+fn ertClear(Number deviceHandle, Number handle)
+fn ertCommit(Number deviceHandle, Number handle)
+fn ertRenderFrame(Number deviceHandle, Number rendererHandle, Number cameraHandle, Number sceneHandle, Number toneMapperHandle, Number frameBufferHandle, Number accumulate)
+fn ertPick(Number deviceHandle, Number cameraHandle, Number x, Number y, Number sceneHandle) -> Number point [4] {x, y, z, isHit}
+fn ertInitializeRayStruct(Number deviceHandle, Number orgX, Number orgY, Number orgZ, Number dirX, Number dirY, Number dirZ, Number nearDefaultIs0, Number farDefaultIsEmbreeInf, Number timeDefaultIs0, Number outRayStructPointer, Number outRayStructPointerBytesFirst)
+fn ertInitializeRayStructForCameraPixelSample(Number deviceHandle, Number cameraHandle, Number pixelXFrom0To1, Number pixelYFrom0To1, Number pixelSamplePosXFrom0ToExcluded1DefaultIs0Point5, Number pixelSamplePosYFrom0ToExcluded1DefaultIs0Point5, Number outRayStructPointer, Number outRayStructPointerBytesFirst)
+fn ertSceneIntersectRayStructToHitStruct(Number deviceHandle, Number sceneHandle, Number inRayStructPointer, Number inRayStructPointerBytesFirst, Number outHitStructPointer, Number outHitStructPointerBytesFirst)
 ```
 
 [Game Script](https://procedural.itch.io/gamescript) uses the Ape programming language v0.14.0 by Krzysztof Gabis, you can read more about it in my public fork of his Github repo here: https://github.com/procedural/script
