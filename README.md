@@ -742,3 +742,5 @@ fn ertSceneIntersectRayStructToHitStruct(Number deviceHandle, Number sceneHandle
 [Game Script](https://procedural.itch.io/gamescript) uses the Ape programming language v0.14.0 by Krzysztof Gabis, you can read more about it in my public fork of his Github repo here: https://github.com/procedural/script
 
 [Game Script Native](https://procedural.itch.io/gamescriptnative) uses standard C++14.
+
+[Game Script Native Swift](github.com/procedural/gamescript_native_swift) uses latest available Swift programming language.
