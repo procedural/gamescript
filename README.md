@@ -743,4 +743,4 @@ fn ertSceneIntersectRayStructToHitStruct(Number deviceHandle, Number sceneHandle
 
 [Game Script Native](https://procedural.itch.io/gamescriptnative) uses standard C++14.
 
-[Game Script Native Swift](github.com/procedural/gamescript_native_swift) uses latest available Swift programming language.
+[Game Script Native Swift](https://github.com/procedural/gamescript_native_swift) uses latest available Swift programming language.
