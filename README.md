@@ -137,7 +137,16 @@ fn pointerGetSubstring(Number pointer, Number pointerCharsFirst, Number charsCou
 fn pointerGetNumber(Number pointerTo32BitFloats, Number index) -> Number value
 fn pointerGetInteger(Number pointerTo32BitInts, Number index) -> Number value
 fn pointerGetUnsignedInteger(Number pointerTo32BitUints, Number index) -> Number value
+fn pointerGetInteger8Bit(Number pointerTo8BitInts, Number index) -> Number value
 fn pointerGetUnsignedInteger8Bit(Number pointerTo8BitUints, Number index) -> Number value
+fn pointerGetAtOffsetNumber(Number pointer, Number bytesFirst) -> Number value
+fn pointerGetAtOffsetInteger(Number pointer, Number bytesFirst) -> Number value
+fn pointerGetAtOffsetUnsignedInteger(Number pointer, Number bytesFirst) -> Number value
+fn pointerGetAtOffsetInteger16Bit(Number pointer, Number bytesFirst) -> Number value
+fn pointerGetAtOffsetUnsignedInteger16Bit(Number pointer, Number bytesFirst) -> Number value
+fn pointerGetAtOffsetNumber64Bit(Number pointer, Number bytesFirst) -> Number value
+fn pointerGetAtOffsetInteger64Bit(Number pointer, Number bytesFirst) -> Number value
+fn pointerGetAtOffsetUnsignedInteger64Bit(Number pointer, Number bytesFirst) -> Number value
 fn pointerSetBool(Number pointerTo8BitBools, Number index, Bool value)
 fn pointerSetString(Number pointer, Number pointerCharsFirst, String string)
 fn pointerSetStringExcludingNullChar(Number pointer, Number pointerCharsFirst, String string)
@@ -145,7 +154,16 @@ fn pointerSetSubstring(Number pointer, Number pointerCharsFirst, String string, 
 fn pointerSetNumber(Number pointerTo32BitFloats, Number index, Number value)
 fn pointerSetInteger(Number pointerTo32BitInts, Number index, Number value)
 fn pointerSetUnsignedInteger(Number pointerTo32BitUints, Number index, Number value)
+fn pointerSetInteger8Bit(Number pointerTo8BitInts, Number index, Number value)
 fn pointerSetUnsignedInteger8Bit(Number pointerTo8BitUints, Number index, Number value)
+fn pointerSetAtOffsetNumber(Number pointer, Number bytesFirst, Number value)
+fn pointerSetAtOffsetInteger(Number pointer, Number bytesFirst, Number value)
+fn pointerSetAtOffsetUnsignedInteger(Number pointer, Number bytesFirst, Number value)
+fn pointerSetAtOffsetInteger16Bit(Number pointer, Number bytesFirst, Number value)
+fn pointerSetAtOffsetUnsignedInteger16Bit(Number pointer, Number bytesFirst, Number value)
+fn pointerSetAtOffsetNumber64Bit(Number pointer, Number bytesFirst, Number value)
+fn pointerSetAtOffsetInteger64Bit(Number pointer, Number bytesFirst, Number value)
+fn pointerSetAtOffsetUnsignedInteger64Bit(Number pointer, Number bytesFirst, Number value)
 fn pointerGetRaw8Bit(Number pointer, Number bytesFirst) -> Number raw8BitsAsDouble
 fn pointerGetRaw16Bit(Number pointer, Number bytesFirst) -> Number raw16BitsAsDouble
 fn pointerGetRaw32Bit(Number pointer, Number bytesFirst) -> Number raw32BitsAsDouble
@@ -204,6 +222,15 @@ fn gamepadGetGUID(Number gamepadId0to15) -> String GUID
 fn gamepadUpdateGamecontrollerdbTxt(Number gamepadId0to15, String mappings) -> Bool success
 fn boolToNumber(Bool boolean) -> Number number
 fn boolToString(Bool boolean) -> String string
+fn numberFromRaw8BitInteger(Number raw8BitInteger) -> Number number
+fn numberFromRaw8BitUnsignedInteger(Number raw8BitUnsignedInteger) -> Number number
+fn numberFromRaw16BitInteger(Number raw16BitInteger) -> Number number
+fn numberFromRaw16BitUnsignedInteger(Number raw16BitUnsignedInteger) -> Number number
+fn numberFromRaw32BitInteger(Number raw32BitInteger) -> Number number
+fn numberFromRaw32BitUnsignedInteger(Number raw32BitUnsignedInteger) -> Number number
+fn numberFromRaw32BitFloat(Number raw32BitFloat) -> Number number
+fn numberFromRaw64BitInteger(Number raw64BitInteger) -> Number number
+fn numberFromRaw64BitUnsignedInteger(Number raw64BitUnsignedInteger) -> Number number
 fn numberToBool(Number number) -> Bool boolean
 fn numberToString(Number number) -> String string
 fn numberToBinaryString(Number number) -> String string
@@ -386,6 +413,8 @@ fn profileBegin(String mark)
 fn profileEnd(String mark)
 fn systemCommand(String command) -> String output
 fn glGetIntegerv(Number enum, Number outPointer, Number outPointerBytesFirst) -> Bool success
+fn getUniqueNumber() -> Number uniqueNumber
+fn getUint64Max() -> Number uint64Max
 fn githubR_lyehLz4xEncode(Number pointer, Number pointerBytesFirst, Number pointerBytesCount, Number outPointer, Number outPointerBytesFirst, Number outPointerBytesCount, Number flags) -> Number value
 fn githubR_lyehLz4xDecode(Number pointer, Number pointerBytesFirst, Number pointerBytesCount, Number outPointer, Number outPointerBytesFirst, Number outPointerBytesCount) -> Number value
 fn githubR_lyehLz4xBoundsEncodeOutBytesCount(Number bytesCount, Number flags) -> Number value
@@ -477,6 +506,162 @@ fn ertPick(Number deviceHandle, Number cameraHandle, Number x, Number y, Number 
 fn ertInitializeRayStruct(Number deviceHandle, Number orgX, Number orgY, Number orgZ, Number dirX, Number dirY, Number dirZ, Number nearDefaultIs0, Number farDefaultIsEmbreeInf, Number timeDefaultIs0, Number outRayStructPointer, Number outRayStructPointerBytesFirst)
 fn ertInitializeRayStructForCameraPixelSample(Number deviceHandle, Number cameraHandle, Number pixelXFrom0To1, Number pixelYFrom0To1, Number pixelSamplePosXFrom0ToExcluded1DefaultIs0Point5, Number pixelSamplePosYFrom0ToExcluded1DefaultIs0Point5, Number outRayStructPointer, Number outRayStructPointerBytesFirst)
 fn ertSceneIntersectRayStructToHitStruct(Number deviceHandle, Number sceneHandle, Number inRayStructPointer, Number inRayStructPointerBytesFirst, Number outHitStructPointer, Number outHitStructPointerBytesFirst)
+fn onRerunCallErtDecRef(Number deviceHandle, Number handle)
+fn onRerunCallErtDestroyDevice(Number deviceHandle)
+fn redStructSizeof(String structName) -> Number bytesCount // See structs of redgpu.h, redgpu_array_timestamp.h, redgpu_computing_language.h
+fn redStructOffsetof(String structName, String structMemberName) -> Number bytesFirst // See structs of redgpu.h, redgpu_array_timestamp.h, redgpu_computing_language.h
+fn redCreateContext(Bool enableDebugMode) -> Number context
+fn redCreateContextWithRayTracingFeatureLevel1(Bool enableDebugMode) -> Number context
+fn redCreateContextWithRayTracingFeatureLevel2(Bool enableDebugMode) -> Number context
+fn redHandleContextGetProcAddr(Number contextHandle, String procedureName) -> Number address
+fn redMemoryGetBudget(Number context, Number gpuHandle, Number outMemoryBudget, Number outStatuses)
+fn redMemoryAllocate(Number context, Number gpuHandle, String handleName, Number bytesCount, Number memoryTypeIndex, Number dedicateToArray, Number dedicateToImage, Number memoryBitflags, Number outStatuses) -> Number memoryHandle
+fn redMemoryAllocateMappable(Number context, Number gpuHandle, String handleName, Bool dedicate, Number array, Number arrayMemoryBytesCount, Number memoryTypeIndex, Number memoryBitflags, Number outStatuses) -> Number memoryHandle
+fn redMemoryFree(Number context, Number gpuHandle, Number memory)
+fn redMemorySet(Number context, Number gpuHandle, Number memoryArraysCount, Number memoryArrays, Number memoryImagesCount, Number memoryImages, Number outStatuses)
+fn redMemoryMap(Number context, Number gpuHandle, Number mappableMemory, Number mappableMemoryBytesFirst, Number mappableMemoryBytesCount, Number outStatuses) -> Number pointer
+fn redMemoryUnmap(Number context, Number gpuHandle, Number mappableMemory)
+fn redMemoryNonCoherentFlush(Number context, Number gpuHandle, Number mappableMemoryRangesCount, Number mappableMemoryRanges, Number outStatuses)
+fn redMemoryNonCoherentInvalidate(Number context, Number gpuHandle, Number mappableMemoryRangesCount, Number mappableMemoryRanges, Number outStatuses)
+fn redStructsMemoryAllocate(Number context, Number gpuHandle, String handleName, Number maxStructsCount, Number maxStructsMembersOfTypeArrayROConstantCount, Number maxStructsMembersOfTypeArrayROOrArrayRWCount, Number maxStructsMembersOfTypeTextureROCount, Number maxStructsMembersOfTypeTextureRWCount, Number outStatuses) -> Number structsMemoryHandle
+fn redStructsMemoryAllocateSamplers(Number context, Number gpuHandle, String handleName, Number maxStructsCount, Number maxStructsMembersOfTypeSamplerCount, Number outStatuses) -> Number structsMemoryHandle
+fn redStructsMemorySuballocateStructs(Number context, Number gpuHandle, Number handleNames, Number structsMemory, Number structsDeclarationsCount, Number structsDeclarations, Number outStructs, Number outStatuses)
+fn redStructsMemoryReset(Number context, Number gpuHandle, Number structsMemory, Number outStatuses)
+fn redStructsMemoryFree(Number context, Number gpuHandle, Number structsMemory)
+fn redStructsSet(Number context, Number gpuHandle, Number structsMembersCount, Number structsMembers)
+fn redCreateArray(Number context, Number gpuHandle, String handleName, Number type, Number bytesCount, Number structuredBufferElementBytesCount, Number initialAccess, Number initialQueueFamilyIndex, Bool dedicate, Number outArray, Number outStatuses) -> Number arrayHandle
+fn redCreateImage(Number context, Number gpuHandle, String handleName, Number dimensions, Number format, Number width, Number height, Number depth, Number levelsCount, Number layersCount, Number multisampleCount, Number restrictToAccess, Number initialAccess, Number initialQueueFamilyIndex, Bool dedicate, Number outImage, Number outStatuses) -> Number imageHandle
+fn redCreateSampler(Number context, Number gpuHandle, String handleName, Number filteringMag, Number filteringMin, Number filteringMip, Number behaviorOutsideTextureCoordinateU, Number behaviorOutsideTextureCoordinateV, Number behaviorOutsideTextureCoordinateW, Number mipLodBias, Bool enableAnisotropy, Number maxAnisotropy, Bool enableCompare, Number compareOp, Number minLod, Number maxLod, Number outStatuses) -> Number samplerHandle
+fn redCreateTexture(Number context, Number gpuHandle, String handleName, Number image, Number parts, Number dimensions, Number format, Number levelsFirst, Number levelsCount, Number layersFirst, Number layersCount, Number restrictToAccess, Number outStatuses) -> Number textureHandle
+fn redCreateGpuCode(Number context, Number gpuHandle, String handleName, Number irBytesCount, Number ir, Number outStatuses) -> Number gpuCodeHandle
+fn redCreateOutputDeclaration(Number context, Number gpuHandle, String handleName, Number outputDeclarationMembers, Number outputDeclarationMembersResolveSources, Bool dependencyByRegion, Bool dependencyByRegionAllowUsageAliasOrderBarriers, Number outStatuses) -> Number outputDeclarationHandle
+fn redCreateStructDeclaration(Number context, Number gpuHandle, String handleName, Number structDeclarationMembersCount, Number structDeclarationMembers, Number structDeclarationMembersArrayROCount, Number structDeclarationMembersArrayRO, Bool procedureParametersHandlesDeclaration, Number outStatuses) -> Number structDeclarationHandle
+fn redCreateProcedureParameters(Number context, Number gpuHandle, String handleName, Number procedureParametersDeclaration, Number outStatuses) -> Number procedureParametersHandle
+fn redCreateProcedureCache(Number context, Number gpuHandle, String handleName, Number fromBlobBytesCount, Number fromBlob, Number outStatuses) -> Number procedureCacheHandle
+fn redCreateProcedure(Number context, Number gpuHandle, String handleName, Number procedureCache, Number outputDeclaration, Number procedureParameters, String gpuCodeVertexMainProcedureName, Number gpuCodeVertex, String gpuCodeFragmentMainProcedureName, Number gpuCodeFragment, Number state, Number stateExtension, Bool deriveBase, Number deriveFrom, Number outStatuses) -> Number procedureHandle
+fn redCreateProcedureCompute(Number context, Number gpuHandle, String handleName, Number procedureCache, Number procedureParameters, String gpuCodeMainProcedureName, Number gpuCode, Number outStatuses) -> Number procedureHandle
+fn redCreateOutput(Number context, Number gpuHandle, String handleName, Number outputDeclaration, Number outputMembers, Number outputMembersResolveTargets, Number width, Number height, Number outOutput, Number outStatuses) -> Number outputHandle
+fn redCreateCpuSignal(Number context, Number gpuHandle, String handleName, Bool createSignaled, Number outStatuses) -> Number cpuSignalHandle
+fn redCreateGpuSignal(Number context, Number gpuHandle, String handleName, Number outStatuses) -> Number gpuSignalHandle
+fn redCreateGpuToCpuSignal(Number context, Number gpuHandle, String handleName, Number outStatuses) -> Number gpuToCpuHandle
+fn redCreateCalls(Number context, Number gpuHandle, String handleName, Number queueFamilyIndex, Number outCalls, Number outStatuses)
+fn redCreateCallsReusable(Number context, Number gpuHandle, String handleName, Number queueFamilyIndex, Number outCalls, Number outStatuses)
+fn redDestroyContext(Number context)
+fn redDestroyArray(Number context, Number gpuHandle, Number array)
+fn redDestroyImage(Number context, Number gpuHandle, Number image)
+fn redDestroySampler(Number context, Number gpuHandle, Number sampler)
+fn redDestroyTexture(Number context, Number gpuHandle, Number texture)
+fn redDestroyGpuCode(Number context, Number gpuHandle, Number gpuCode)
+fn redDestroyOutputDeclaration(Number context, Number gpuHandle, Number outputDeclaration)
+fn redDestroyStructDeclaration(Number context, Number gpuHandle, Number structDeclaration)
+fn redDestroyProcedureParameters(Number context, Number gpuHandle, Number procedureParameters)
+fn redDestroyProcedureCache(Number context, Number gpuHandle, Number procedureCache)
+fn redDestroyProcedure(Number context, Number gpuHandle, Number procedure)
+fn redDestroyOutput(Number context, Number gpuHandle, Number output)
+fn redDestroyCpuSignal(Number context, Number gpuHandle, Number cpuSignal)
+fn redDestroyGpuSignal(Number context, Number gpuHandle, Number gpuSignal)
+fn redDestroyGpuToCpuSignal(Number context, Number gpuHandle, Number gpuToCpuSignal)
+fn redDestroyCalls(Number context, Number gpuHandle, Number calls, Number callsMemory)
+fn redProcedureCacheGetBlob(Number context, Number gpuHandle, Number procedureCache, Number outBlobBytesCount, Number outBlob, Number outStatuses)
+fn redProcedureCacheMergeCaches(Number context, Number gpuHandle, Number sourceProcedureCachesCount, Number sourceProcedureCaches, Number targetProcedureCache, Number outStatuses)
+fn redCpuSignalGetStatus(Number context, Number gpuHandle, Number cpuSignal) -> Number status
+fn redCpuSignalWait(Number context, Number gpuHandle, Number cpuSignalsCount, Number cpuSignals, Bool waitAll, Number outStatuses)
+fn redCpuSignalUnsignal(Number context, Number gpuHandle, Number cpuSignalsCount, Number cpuSignals, Number outStatuses)
+fn redGpuToCpuSignalGetStatus(Number context, Number gpuHandle, Number gpuToCpuSignal) -> Number status
+fn redGpuToCpuSignalUnsignal(Number context, Number gpuHandle, Number gpuToCpuSignal, Number outStatuses)
+fn redCallsSet(Number context, Number gpuHandle, Number calls, Number callsMemory, Bool callsReusable, Number outStatuses)
+fn redCallsEnd(Number context, Number gpuHandle, Number calls, Number callsMemory, Number outStatuses)
+fn redGetCallProceduresAndAddresses(Number context, Number gpuHandle, Number outCallProceduresAndAddresses, Number outStatuses)
+fn redCallGpuToCpuSignalSignal(Number callProceduresAndAddresses, Number calls, Number signalGpuToCpuSignal, Number setTo8192)
+fn redCallCopyArrayToArray(Number callProceduresAndAddresses, Number calls, Number arrayR, Number arrayW, Number rangesCount, Number ranges)
+fn redCallCopyImageToImage(Number callProceduresAndAddresses, Number calls, Number imageR, Number setTo1, Number imageW, Number setTo01, Number rangesCount, Number ranges)
+fn redCallCopyArrayToImage(Number callProceduresAndAddresses, Number calls, Number arrayR, Number imageW, Number setTo1, Number rangesCount, Number ranges)
+fn redCallCopyImageToArray(Number callProceduresAndAddresses, Number calls, Number imageR, Number setTo1, Number arrayW, Number rangesCount, Number ranges)
+fn redCallProcedure(Number callProceduresAndAddresses, Number calls, Number vertexCount, Number instanceCount, Number vertexFirst, Number instanceFirst)
+fn redCallProcedureIndexed(Number callProceduresAndAddresses, Number calls, Number indexCount, Number instanceCount, Number indexFirst, Number vertexBase, Number instanceFirst)
+fn redCallProcedureCompute(Number callProceduresAndAddresses, Number calls, Number workgroupsCountX, Number workgroupsCountY, Number workgroupsCountZ)
+fn redCallSetProcedure(Number callProceduresAndAddresses, Number calls, Number procedureType, Number procedure)
+fn redCallSetProcedureIndices(Number callProceduresAndAddresses, Number calls, Number array, Number setTo0, Number setTo1)
+fn redCallSetProcedureParametersVariables(Number callProceduresAndAddresses, Number calls, Number procedureParameters, Number visibleToStages, Number variablesBytesFirst, Number dataBytesCount, Number data)
+fn redCallSetProcedureParametersStructs(Number callProceduresAndAddresses, Number calls, Number procedureType, Number procedureParameters, Number procedureParametersDeclarationStructsDeclarationsFirst, Number structsCount, Number structs, Number setTo0, Number setTo00)
+fn redCallSetProcedureParametersHandles(Number callProceduresAndAddresses, Number calls, Number procedureType, Number procedureParameters, Number procedureParametersDeclarationStructsDeclarationsCount, Number handlesCount, Number handles)
+fn redCallSetDynamicDepthBias(Number callProceduresAndAddresses, Number calls, Number constantFactor, Number clamp, Number slopeFactor)
+fn redCallSetDynamicDepthBounds(Number callProceduresAndAddresses, Number calls, Number min, Number max)
+fn redCallSetDynamicStencilCompareMask(Number callProceduresAndAddresses, Number calls, Number face, Number compareMask)
+fn redCallSetDynamicStencilWriteMask(Number callProceduresAndAddresses, Number calls, Number face, Number writeMask)
+fn redCallSetDynamicStencilReference(Number callProceduresAndAddresses, Number calls, Number face, Number reference)
+fn redCallSetDynamicBlendConstants(Number callProceduresAndAddresses, Number calls, Number blendConstants)
+fn redCallSetDynamicViewport(Number callProceduresAndAddresses, Number calls, Number x, Number y, Number width, Number height, Number depthMin, Number depthMax)
+fn redCallSetDynamicScissor(Number callProceduresAndAddresses, Number calls, Number x, Number y, Number width, Number height)
+fn redCallSetStructsMemory(Number callProceduresAndAddresses, Number calls, Number structsMemory, Number structsMemorySamplers)
+fn redCallSetProcedureParameters(Number callProceduresAndAddresses, Number calls, Number procedureType, Number procedureParameters)
+fn redCallSetProcedureOutput(Number callProceduresAndAddresses, Number calls, Number outputDeclaration, Number output, Number inlineOutput, Number outputWidth, Number outputHeight, Bool outputDepthStencilEnable, Number outputColorsCount, Number depthClearValue, Number stencilClearValue, Number colorsClearValuesFloat, Number colorsClearValuesSint, Number colorsClearValuesUint)
+fn redCallEndProcedureOutput(Number callProceduresAndAddresses, Number calls)
+fn redCallUsageAliasOrderBarrier(Number callProceduresAndAddresses, Number calls, Number context, Number arrayUsagesCount, Number arrayUsages, Number imageUsagesCount, Number imageUsages, Number aliasesCount, Number aliases, Number ordersCount, Number orders, Bool dependencyByRegion)
+fn redCallMark(Number callProceduresAndAddresses, Number calls, String mark)
+fn redCallMarkSet(Number callProceduresAndAddresses, Number calls, String mark)
+fn redCallMarkEnd(Number callProceduresAndAddresses, Number calls)
+fn redQueueSubmit(Number context, Number gpuHandle, Number queue, Number timelinesCount, Number timelines, Number signalCpuSignal, Number outStatuses)
+fn redMark(String mark)
+fn redMarkSet(String mark)
+fn redMarkEnd()
+fn redCreateProcedureComputingLanguage(Number context, Number gpuHandle, String handleName, Number procedureCache, Number procedureParameters, String gpuCodeMainProcedureName, Number gpuCode, Number stateExtension, Number outStatuses) -> Number procedureHandle
+fn redCreateArrayTimestamp(Number context, Number gpuHandle, String handleName, Number count, Number outStatuses) -> Number arrayTimestampHandle
+fn redDestroyArrayTimestamp(Number context, Number gpuHandle, Number arrayTimestamp)
+fn redCallArrayTimestampWrite(Number calls, Number context, Number arrayTimestamp, Number index)
+fn redArrayTimestampRead(Number context, Number gpuHandle, Number arrayTimestamp, Number rangeFirst, Number rangeCount, Number out64BitTicksCounts, Number outStatuses)
+fn rrtStructSizeof(String structName) -> Number bytesCount // See structs of radeonrays.h, radeonrays_redgpu.h
+fn rrtStructOffsetof(String structName, String structMemberName) -> Number bytesFirst // See structs of radeonrays.h, radeonrays_redgpu.h
+fn rrtCreateContext(Number apiVersion, Number api, Number outContext) -> Number rrerror
+fn rrtDestroyContext(Number context) -> Number rrerror
+fn rrtSetLogLevel(Number logLevel) -> Number rrerror
+fn rrtSetLogFile(String filename) -> Number rrerror
+fn rrtCmdBuildGeometry(Number context, Number buildOperation, Number buildInput, Number buildOptions, Number temporaryBuffer, Number geometryBuffer, Number commandStream) -> Number rrerror
+fn rrtGetGeometryBuildMemoryRequirements(Number context, Number buildInput, Number buildOptions, Number outMemoryRequirements) -> Number rrerror
+fn rrtCmdBuildScene(Number context, Number buildInput, Number buildOptions, Number temporaryBuffer, Number sceneBuffer, Number commandStream) -> Number rrerror
+fn rrtGetSceneBuildMemoryRequirements(Number context, Number buildInput, Number buildOptions, Number outMemoryRequirements) -> Number rrerror
+fn rrtCmdIntersect(Number context, Number sceneBuffer, Number query, Number rays, Number rayCount, Number indirectRayCount, Number queryOutput, Number hits, Number scratch, Number commandStream) -> Number rrerror
+fn rrtGetTraceMemoryRequirements(Number context, Number rayCount, Number outScratchSize) -> Number rrerror
+fn rrtAllocateCommandStream(Number context, Number outCommandStream) -> Number rrerror
+fn rrtReleaseCommandStream(Number context, Number commandStream) -> Number rrerror
+fn rrtSumbitCommandStream(Number context, Number commandStream, Number waitEvent, Number outEvent) -> Number rrerror
+fn rrtReleaseEvent(Number context, Number event) -> Number rrerror
+fn rrtWaitEvent(Number context, Number event) -> Number rrerror
+fn rrtReleaseDevicePtr(Number context, Number devicePointer) -> Number rrerror
+fn rrtReleaseExternalCommandStream(Number context, Number commandStream) -> Number rrerror
+fn rrtGetDevicePtrFromVkBuffer(Number context, Number resource, Number offset, Number outDevicePointer) -> Number rrerror
+fn rrtCreateContextVk(Number apiVersion, Number device, Number physicalDevice, Number commandQueue, Number queueFamilyIndex, Number outContext) -> Number rrerror
+fn rrtGetCommandStreamFromVkCommandBuffer(Number context, Number commandBuffer, Number outCommandStream) -> Number rrerror
+fn rrtAllocateDeviceBuffer(Number context, Number size, Number outDevicePointer)
+fn rrtMapDevicePtr(Number context, Number devicePointer, Number outMappingPointer) -> Number rrerror
+fn rrtUnmapDevicePtr(Number context, Number devicePointer, Number outMappingPointer) -> Number rrerror
+fn onRerunCallRedCpuSignalWait(Number context, Number gpuHandle, Number handle)
+fn onRerunCallRedMemoryFree(Number context, Number gpuHandle, Number handle)
+fn onRerunCallRedStructsMemoryFree(Number context, Number gpuHandle, Number handle)
+fn onRerunCallRedDestroyContext(Number context)
+fn onRerunCallRedDestroyArray(Number context, Number gpuHandle, Number handle)
+fn onRerunCallRedDestroyImage(Number context, Number gpuHandle, Number handle)
+fn onRerunCallRedDestroySampler(Number context, Number gpuHandle, Number handle)
+fn onRerunCallRedDestroyTexture(Number context, Number gpuHandle, Number handle)
+fn onRerunCallRedDestroyGpuCode(Number context, Number gpuHandle, Number handle)
+fn onRerunCallRedDestroyOutputDeclaration(Number context, Number gpuHandle, Number handle)
+fn onRerunCallRedDestroyStructDeclaration(Number context, Number gpuHandle, Number handle)
+fn onRerunCallRedDestroyProcedureParameters(Number context, Number gpuHandle, Number handle)
+fn onRerunCallRedDestroyProcedureCache(Number context, Number gpuHandle, Number handle)
+fn onRerunCallRedDestroyProcedure(Number context, Number gpuHandle, Number handle)
+fn onRerunCallRedDestroyOutput(Number context, Number gpuHandle, Number handle)
+fn onRerunCallRedDestroyCpuSignal(Number context, Number gpuHandle, Number handle)
+fn onRerunCallRedDestroyGpuSignal(Number context, Number gpuHandle, Number handle)
+fn onRerunCallRedDestroyGpuToCpuSignal(Number context, Number gpuHandle, Number handle)
+fn onRerunCallRedDestroyCalls(Number context, Number gpuHandle, Number callsHandle, Number callsMemoryHandle)
+fn onRerunCallRedDestroyArrayTimestamp(Number context, Number gpuHandle, Number handle)
+fn onRerunCallRrtWaitEvent(Number rrcontext, Number rrevent)
+fn onRerunCallRrtDestroyContext(Number rrcontext)
+fn onRerunCallRrtReleaseCommandStream(Number rrcontext, Number rrcommandStream)
+fn onRerunCallRrtReleaseEvent(Number rrcontext, Number rrevent)
+fn onRerunCallRrtReleaseDevicePtr(Number rrcontext, Number rrdevicePointer)
+fn onRerunCallRrtReleaseExternalCommandStream(Number rrcontext, Number rrcommandStream)
+fn onRerunCallRrtUnmapDevicePtr(Number rrcontext, Number rrdevicePointer, Number outMappingPointer)
 ```
 
 List of constants
@@ -576,7 +761,16 @@ fn pointerGetSubstring(Number pointer, Number pointerCharsFirst, Number charsCou
 fn pointerGetNumber(Number pointerTo32BitFloats, Number index) -> Number value
 fn pointerGetInteger(Number pointerTo32BitInts, Number index) -> Number value
 fn pointerGetUnsignedInteger(Number pointerTo32BitUints, Number index) -> Number value
+fn pointerGetInteger8Bit(Number pointerTo8BitInts, Number index) -> Number value
 fn pointerGetUnsignedInteger8Bit(Number pointerTo8BitUints, Number index) -> Number value
+fn pointerGetAtOffsetNumber(Number pointer, Number bytesFirst) -> Number value
+fn pointerGetAtOffsetInteger(Number pointer, Number bytesFirst) -> Number value
+fn pointerGetAtOffsetUnsignedInteger(Number pointer, Number bytesFirst) -> Number value
+fn pointerGetAtOffsetInteger16Bit(Number pointer, Number bytesFirst) -> Number value
+fn pointerGetAtOffsetUnsignedInteger16Bit(Number pointer, Number bytesFirst) -> Number value
+fn pointerGetAtOffsetNumber64Bit(Number pointer, Number bytesFirst) -> Number value
+fn pointerGetAtOffsetInteger64Bit(Number pointer, Number bytesFirst) -> Number value
+fn pointerGetAtOffsetUnsignedInteger64Bit(Number pointer, Number bytesFirst) -> Number value
 fn pointerSetBool(Number pointerTo8BitBools, Number index, Bool value)
 fn pointerSetString(Number pointer, Number pointerCharsFirst, String string)
 fn pointerSetStringExcludingNullChar(Number pointer, Number pointerCharsFirst, String string)
@@ -584,7 +778,16 @@ fn pointerSetSubstring(Number pointer, Number pointerCharsFirst, String string, 
 fn pointerSetNumber(Number pointerTo32BitFloats, Number index, Number value)
 fn pointerSetInteger(Number pointerTo32BitInts, Number index, Number value)
 fn pointerSetUnsignedInteger(Number pointerTo32BitUints, Number index, Number value)
+fn pointerSetInteger8Bit(Number pointerTo8BitInts, Number index, Number value)
 fn pointerSetUnsignedInteger8Bit(Number pointerTo8BitUints, Number index, Number value)
+fn pointerSetAtOffsetNumber(Number pointer, Number bytesFirst, Number value)
+fn pointerSetAtOffsetInteger(Number pointer, Number bytesFirst, Number value)
+fn pointerSetAtOffsetUnsignedInteger(Number pointer, Number bytesFirst, Number value)
+fn pointerSetAtOffsetInteger16Bit(Number pointer, Number bytesFirst, Number value)
+fn pointerSetAtOffsetUnsignedInteger16Bit(Number pointer, Number bytesFirst, Number value)
+fn pointerSetAtOffsetNumber64Bit(Number pointer, Number bytesFirst, Number value)
+fn pointerSetAtOffsetInteger64Bit(Number pointer, Number bytesFirst, Number value)
+fn pointerSetAtOffsetUnsignedInteger64Bit(Number pointer, Number bytesFirst, Number value)
 fn pointerGetRaw8Bit(Number pointer, Number bytesFirst) -> Number raw8BitsAsDouble
 fn pointerGetRaw16Bit(Number pointer, Number bytesFirst) -> Number raw16BitsAsDouble
 fn pointerGetRaw32Bit(Number pointer, Number bytesFirst) -> Number raw32BitsAsDouble
@@ -597,6 +800,12 @@ fn pointerIsNull(Number pointer) -> Bool isNull
 fn pointerGetNull() -> Number nullPointer
 fn pointersAreEqual(Number pointerA, Number pointerB) -> Bool areEqual
 fn pointerOffsetByBytes(Number pointer, Number bytesOffset) -> Number offsettedPointer
+fn dynamicArrayGet(Number handle, Number index) -> Number value
+fn dynamicArraySet(Number handle, Number index, Number value) // Two threads must not modify the same dynamic array element at the same time.
+fn dynamicArrayAppend(Number handle, Number value) // Two threads must not modify the same dynamic array at the same time.
+fn dynamicArrayRemoveAt(Number handle, Number index) -> Bool success // Two threads must not modify the same dynamic array at the same time.
+fn dynamicArrayRemoveLast(Number handle) // Two threads must not modify the same dynamic array at the same time.
+fn dynamicArrayGetSize(Number handle) -> Number size
 fn memset(Number pointer, Number pointerBytesFirst, Number value8Bit, Number bytesCount)
 fn memcpy(Number pointerTarget, Number pointerTargetBytesFirst, Number pointerSource, Number pointerSourceBytesFirst, Number bytesCount)
 fn memcmp(Number pointerA, Number pointerABytesFirst, Number pointerB, Number pointerBBytesFirst, Number bytesCount) -> Bool areEqual
@@ -609,6 +818,15 @@ fn threadWaitForThread1FrameToFinish(Number thread1Frame) -> Bool trueIfFinished
 fn strlenWithNullChar(String string) -> Number length
 fn boolToNumber(Bool boolean) -> Number number
 fn boolToString(Bool boolean) -> String string
+fn numberFromRaw8BitInteger(Number raw8BitInteger) -> Number number
+fn numberFromRaw8BitUnsignedInteger(Number raw8BitUnsignedInteger) -> Number number
+fn numberFromRaw16BitInteger(Number raw16BitInteger) -> Number number
+fn numberFromRaw16BitUnsignedInteger(Number raw16BitUnsignedInteger) -> Number number
+fn numberFromRaw32BitInteger(Number raw32BitInteger) -> Number number
+fn numberFromRaw32BitUnsignedInteger(Number raw32BitUnsignedInteger) -> Number number
+fn numberFromRaw32BitFloat(Number raw32BitFloat) -> Number number
+fn numberFromRaw64BitInteger(Number raw64BitInteger) -> Number number
+fn numberFromRaw64BitUnsignedInteger(Number raw64BitUnsignedInteger) -> Number number
 fn numberToBool(Number number) -> Bool boolean
 fn numberToString(Number number) -> String string
 fn numberToBinaryString(Number number) -> String string
@@ -656,6 +874,8 @@ fn imageGetPixelsPointer(Number handle) -> Number pointerToPixels // Two threads
 fn profileBegin(String mark) // Thread-safe.
 fn profileEnd(String mark) // Thread-safe.
 fn systemCommand(String command) -> String output
+fn getUniqueNumber() -> Number uniqueNumber // Thread-safe.
+fn getUint64Max() -> Number uint64Max // Thread-safe.
 fn githubR_lyehLz4xEncode(Number pointer, Number pointerBytesFirst, Number pointerBytesCount, Number outPointer, Number outPointerBytesFirst, Number outPointerBytesCount, Number flags) -> Number value
 fn githubR_lyehLz4xDecode(Number pointer, Number pointerBytesFirst, Number pointerBytesCount, Number outPointer, Number outPointerBytesFirst, Number outPointerBytesCount) -> Number value
 fn githubR_lyehLz4xBoundsEncodeOutBytesCount(Number bytesCount, Number flags) -> Number value
@@ -737,6 +957,162 @@ fn ertPick(Number deviceHandle, Number cameraHandle, Number x, Number y, Number 
 fn ertInitializeRayStruct(Number deviceHandle, Number orgX, Number orgY, Number orgZ, Number dirX, Number dirY, Number dirZ, Number nearDefaultIs0, Number farDefaultIsEmbreeInf, Number timeDefaultIs0, Number outRayStructPointer, Number outRayStructPointerBytesFirst)
 fn ertInitializeRayStructForCameraPixelSample(Number deviceHandle, Number cameraHandle, Number pixelXFrom0To1, Number pixelYFrom0To1, Number pixelSamplePosXFrom0ToExcluded1DefaultIs0Point5, Number pixelSamplePosYFrom0ToExcluded1DefaultIs0Point5, Number outRayStructPointer, Number outRayStructPointerBytesFirst)
 fn ertSceneIntersectRayStructToHitStruct(Number deviceHandle, Number sceneHandle, Number inRayStructPointer, Number inRayStructPointerBytesFirst, Number outHitStructPointer, Number outHitStructPointerBytesFirst)
+fn onRerunCallErtDecRef(Number deviceHandle, Number handle) // Not thread-safe.
+fn onRerunCallErtDestroyDevice(Number deviceHandle) // Not thread-safe.
+fn redStructSizeof(String structName) -> Number bytesCount // See structs of redgpu.h, redgpu_array_timestamp.h, redgpu_computing_language.h
+fn redStructOffsetof(String structName, String structMemberName) -> Number bytesFirst // See structs of redgpu.h, redgpu_array_timestamp.h, redgpu_computing_language.h
+fn redCreateContext(Bool enableDebugMode) -> Number context
+fn redCreateContextWithRayTracingFeatureLevel1(Bool enableDebugMode) -> Number context
+fn redCreateContextWithRayTracingFeatureLevel2(Bool enableDebugMode) -> Number context
+fn redHandleContextGetProcAddr(Number contextHandle, String procedureName) -> Number address
+fn redMemoryGetBudget(Number context, Number gpuHandle, Number outMemoryBudget, Number outStatuses)
+fn redMemoryAllocate(Number context, Number gpuHandle, String handleName, Number bytesCount, Number memoryTypeIndex, Number dedicateToArray, Number dedicateToImage, Number memoryBitflags, Number outStatuses) -> Number memoryHandle
+fn redMemoryAllocateMappable(Number context, Number gpuHandle, String handleName, Bool dedicate, Number array, Number arrayMemoryBytesCount, Number memoryTypeIndex, Number memoryBitflags, Number outStatuses) -> Number memoryHandle
+fn redMemoryFree(Number context, Number gpuHandle, Number memory)
+fn redMemorySet(Number context, Number gpuHandle, Number memoryArraysCount, Number memoryArrays, Number memoryImagesCount, Number memoryImages, Number outStatuses)
+fn redMemoryMap(Number context, Number gpuHandle, Number mappableMemory, Number mappableMemoryBytesFirst, Number mappableMemoryBytesCount, Number outStatuses) -> Number pointer
+fn redMemoryUnmap(Number context, Number gpuHandle, Number mappableMemory)
+fn redMemoryNonCoherentFlush(Number context, Number gpuHandle, Number mappableMemoryRangesCount, Number mappableMemoryRanges, Number outStatuses)
+fn redMemoryNonCoherentInvalidate(Number context, Number gpuHandle, Number mappableMemoryRangesCount, Number mappableMemoryRanges, Number outStatuses)
+fn redStructsMemoryAllocate(Number context, Number gpuHandle, String handleName, Number maxStructsCount, Number maxStructsMembersOfTypeArrayROConstantCount, Number maxStructsMembersOfTypeArrayROOrArrayRWCount, Number maxStructsMembersOfTypeTextureROCount, Number maxStructsMembersOfTypeTextureRWCount, Number outStatuses) -> Number structsMemoryHandle
+fn redStructsMemoryAllocateSamplers(Number context, Number gpuHandle, String handleName, Number maxStructsCount, Number maxStructsMembersOfTypeSamplerCount, Number outStatuses) -> Number structsMemoryHandle
+fn redStructsMemorySuballocateStructs(Number context, Number gpuHandle, Number handleNames, Number structsMemory, Number structsDeclarationsCount, Number structsDeclarations, Number outStructs, Number outStatuses)
+fn redStructsMemoryReset(Number context, Number gpuHandle, Number structsMemory, Number outStatuses)
+fn redStructsMemoryFree(Number context, Number gpuHandle, Number structsMemory)
+fn redStructsSet(Number context, Number gpuHandle, Number structsMembersCount, Number structsMembers)
+fn redCreateArray(Number context, Number gpuHandle, String handleName, Number type, Number bytesCount, Number structuredBufferElementBytesCount, Number initialAccess, Number initialQueueFamilyIndex, Bool dedicate, Number outArray, Number outStatuses) -> Number arrayHandle
+fn redCreateImage(Number context, Number gpuHandle, String handleName, Number dimensions, Number format, Number width, Number height, Number depth, Number levelsCount, Number layersCount, Number multisampleCount, Number restrictToAccess, Number initialAccess, Number initialQueueFamilyIndex, Bool dedicate, Number outImage, Number outStatuses) -> Number imageHandle
+fn redCreateSampler(Number context, Number gpuHandle, String handleName, Number filteringMag, Number filteringMin, Number filteringMip, Number behaviorOutsideTextureCoordinateU, Number behaviorOutsideTextureCoordinateV, Number behaviorOutsideTextureCoordinateW, Number mipLodBias, Bool enableAnisotropy, Number maxAnisotropy, Bool enableCompare, Number compareOp, Number minLod, Number maxLod, Number outStatuses) -> Number samplerHandle
+fn redCreateTexture(Number context, Number gpuHandle, String handleName, Number image, Number parts, Number dimensions, Number format, Number levelsFirst, Number levelsCount, Number layersFirst, Number layersCount, Number restrictToAccess, Number outStatuses) -> Number textureHandle
+fn redCreateGpuCode(Number context, Number gpuHandle, String handleName, Number irBytesCount, Number ir, Number outStatuses) -> Number gpuCodeHandle
+fn redCreateOutputDeclaration(Number context, Number gpuHandle, String handleName, Number outputDeclarationMembers, Number outputDeclarationMembersResolveSources, Bool dependencyByRegion, Bool dependencyByRegionAllowUsageAliasOrderBarriers, Number outStatuses) -> Number outputDeclarationHandle
+fn redCreateStructDeclaration(Number context, Number gpuHandle, String handleName, Number structDeclarationMembersCount, Number structDeclarationMembers, Number structDeclarationMembersArrayROCount, Number structDeclarationMembersArrayRO, Bool procedureParametersHandlesDeclaration, Number outStatuses) -> Number structDeclarationHandle
+fn redCreateProcedureParameters(Number context, Number gpuHandle, String handleName, Number procedureParametersDeclaration, Number outStatuses) -> Number procedureParametersHandle
+fn redCreateProcedureCache(Number context, Number gpuHandle, String handleName, Number fromBlobBytesCount, Number fromBlob, Number outStatuses) -> Number procedureCacheHandle
+fn redCreateProcedure(Number context, Number gpuHandle, String handleName, Number procedureCache, Number outputDeclaration, Number procedureParameters, String gpuCodeVertexMainProcedureName, Number gpuCodeVertex, String gpuCodeFragmentMainProcedureName, Number gpuCodeFragment, Number state, Number stateExtension, Bool deriveBase, Number deriveFrom, Number outStatuses) -> Number procedureHandle
+fn redCreateProcedureCompute(Number context, Number gpuHandle, String handleName, Number procedureCache, Number procedureParameters, String gpuCodeMainProcedureName, Number gpuCode, Number outStatuses) -> Number procedureHandle
+fn redCreateOutput(Number context, Number gpuHandle, String handleName, Number outputDeclaration, Number outputMembers, Number outputMembersResolveTargets, Number width, Number height, Number outOutput, Number outStatuses) -> Number outputHandle
+fn redCreateCpuSignal(Number context, Number gpuHandle, String handleName, Bool createSignaled, Number outStatuses) -> Number cpuSignalHandle
+fn redCreateGpuSignal(Number context, Number gpuHandle, String handleName, Number outStatuses) -> Number gpuSignalHandle
+fn redCreateGpuToCpuSignal(Number context, Number gpuHandle, String handleName, Number outStatuses) -> Number gpuToCpuHandle
+fn redCreateCalls(Number context, Number gpuHandle, String handleName, Number queueFamilyIndex, Number outCalls, Number outStatuses)
+fn redCreateCallsReusable(Number context, Number gpuHandle, String handleName, Number queueFamilyIndex, Number outCalls, Number outStatuses)
+fn redDestroyContext(Number context)
+fn redDestroyArray(Number context, Number gpuHandle, Number array)
+fn redDestroyImage(Number context, Number gpuHandle, Number image)
+fn redDestroySampler(Number context, Number gpuHandle, Number sampler)
+fn redDestroyTexture(Number context, Number gpuHandle, Number texture)
+fn redDestroyGpuCode(Number context, Number gpuHandle, Number gpuCode)
+fn redDestroyOutputDeclaration(Number context, Number gpuHandle, Number outputDeclaration)
+fn redDestroyStructDeclaration(Number context, Number gpuHandle, Number structDeclaration)
+fn redDestroyProcedureParameters(Number context, Number gpuHandle, Number procedureParameters)
+fn redDestroyProcedureCache(Number context, Number gpuHandle, Number procedureCache)
+fn redDestroyProcedure(Number context, Number gpuHandle, Number procedure)
+fn redDestroyOutput(Number context, Number gpuHandle, Number output)
+fn redDestroyCpuSignal(Number context, Number gpuHandle, Number cpuSignal)
+fn redDestroyGpuSignal(Number context, Number gpuHandle, Number gpuSignal)
+fn redDestroyGpuToCpuSignal(Number context, Number gpuHandle, Number gpuToCpuSignal)
+fn redDestroyCalls(Number context, Number gpuHandle, Number calls, Number callsMemory)
+fn redProcedureCacheGetBlob(Number context, Number gpuHandle, Number procedureCache, Number outBlobBytesCount, Number outBlob, Number outStatuses)
+fn redProcedureCacheMergeCaches(Number context, Number gpuHandle, Number sourceProcedureCachesCount, Number sourceProcedureCaches, Number targetProcedureCache, Number outStatuses)
+fn redCpuSignalGetStatus(Number context, Number gpuHandle, Number cpuSignal) -> Number status
+fn redCpuSignalWait(Number context, Number gpuHandle, Number cpuSignalsCount, Number cpuSignals, Bool waitAll, Number outStatuses)
+fn redCpuSignalUnsignal(Number context, Number gpuHandle, Number cpuSignalsCount, Number cpuSignals, Number outStatuses)
+fn redGpuToCpuSignalGetStatus(Number context, Number gpuHandle, Number gpuToCpuSignal) -> Number status
+fn redGpuToCpuSignalUnsignal(Number context, Number gpuHandle, Number gpuToCpuSignal, Number outStatuses)
+fn redCallsSet(Number context, Number gpuHandle, Number calls, Number callsMemory, Bool callsReusable, Number outStatuses)
+fn redCallsEnd(Number context, Number gpuHandle, Number calls, Number callsMemory, Number outStatuses)
+fn redGetCallProceduresAndAddresses(Number context, Number gpuHandle, Number outCallProceduresAndAddresses, Number outStatuses)
+fn redCallGpuToCpuSignalSignal(Number callProceduresAndAddresses, Number calls, Number signalGpuToCpuSignal, Number setTo8192)
+fn redCallCopyArrayToArray(Number callProceduresAndAddresses, Number calls, Number arrayR, Number arrayW, Number rangesCount, Number ranges)
+fn redCallCopyImageToImage(Number callProceduresAndAddresses, Number calls, Number imageR, Number setTo1, Number imageW, Number setTo01, Number rangesCount, Number ranges)
+fn redCallCopyArrayToImage(Number callProceduresAndAddresses, Number calls, Number arrayR, Number imageW, Number setTo1, Number rangesCount, Number ranges)
+fn redCallCopyImageToArray(Number callProceduresAndAddresses, Number calls, Number imageR, Number setTo1, Number arrayW, Number rangesCount, Number ranges)
+fn redCallProcedure(Number callProceduresAndAddresses, Number calls, Number vertexCount, Number instanceCount, Number vertexFirst, Number instanceFirst)
+fn redCallProcedureIndexed(Number callProceduresAndAddresses, Number calls, Number indexCount, Number instanceCount, Number indexFirst, Number vertexBase, Number instanceFirst)
+fn redCallProcedureCompute(Number callProceduresAndAddresses, Number calls, Number workgroupsCountX, Number workgroupsCountY, Number workgroupsCountZ)
+fn redCallSetProcedure(Number callProceduresAndAddresses, Number calls, Number procedureType, Number procedure)
+fn redCallSetProcedureIndices(Number callProceduresAndAddresses, Number calls, Number array, Number setTo0, Number setTo1)
+fn redCallSetProcedureParametersVariables(Number callProceduresAndAddresses, Number calls, Number procedureParameters, Number visibleToStages, Number variablesBytesFirst, Number dataBytesCount, Number data)
+fn redCallSetProcedureParametersStructs(Number callProceduresAndAddresses, Number calls, Number procedureType, Number procedureParameters, Number procedureParametersDeclarationStructsDeclarationsFirst, Number structsCount, Number structs, Number setTo0, Number setTo00)
+fn redCallSetProcedureParametersHandles(Number callProceduresAndAddresses, Number calls, Number procedureType, Number procedureParameters, Number procedureParametersDeclarationStructsDeclarationsCount, Number handlesCount, Number handles)
+fn redCallSetDynamicDepthBias(Number callProceduresAndAddresses, Number calls, Number constantFactor, Number clamp, Number slopeFactor)
+fn redCallSetDynamicDepthBounds(Number callProceduresAndAddresses, Number calls, Number min, Number max)
+fn redCallSetDynamicStencilCompareMask(Number callProceduresAndAddresses, Number calls, Number face, Number compareMask)
+fn redCallSetDynamicStencilWriteMask(Number callProceduresAndAddresses, Number calls, Number face, Number writeMask)
+fn redCallSetDynamicStencilReference(Number callProceduresAndAddresses, Number calls, Number face, Number reference)
+fn redCallSetDynamicBlendConstants(Number callProceduresAndAddresses, Number calls, Number blendConstants)
+fn redCallSetDynamicViewport(Number callProceduresAndAddresses, Number calls, Number x, Number y, Number width, Number height, Number depthMin, Number depthMax)
+fn redCallSetDynamicScissor(Number callProceduresAndAddresses, Number calls, Number x, Number y, Number width, Number height)
+fn redCallSetStructsMemory(Number callProceduresAndAddresses, Number calls, Number structsMemory, Number structsMemorySamplers)
+fn redCallSetProcedureParameters(Number callProceduresAndAddresses, Number calls, Number procedureType, Number procedureParameters)
+fn redCallSetProcedureOutput(Number callProceduresAndAddresses, Number calls, Number outputDeclaration, Number output, Number inlineOutput, Number outputWidth, Number outputHeight, Bool outputDepthStencilEnable, Number outputColorsCount, Number depthClearValue, Number stencilClearValue, Number colorsClearValuesFloat, Number colorsClearValuesSint, Number colorsClearValuesUint)
+fn redCallEndProcedureOutput(Number callProceduresAndAddresses, Number calls)
+fn redCallUsageAliasOrderBarrier(Number callProceduresAndAddresses, Number calls, Number context, Number arrayUsagesCount, Number arrayUsages, Number imageUsagesCount, Number imageUsages, Number aliasesCount, Number aliases, Number ordersCount, Number orders, Bool dependencyByRegion)
+fn redCallMark(Number callProceduresAndAddresses, Number calls, String mark)
+fn redCallMarkSet(Number callProceduresAndAddresses, Number calls, String mark)
+fn redCallMarkEnd(Number callProceduresAndAddresses, Number calls)
+fn redQueueSubmit(Number context, Number gpuHandle, Number queue, Number timelinesCount, Number timelines, Number signalCpuSignal, Number outStatuses)
+fn redMark(String mark)
+fn redMarkSet(String mark)
+fn redMarkEnd()
+fn redCreateProcedureComputingLanguage(Number context, Number gpuHandle, String handleName, Number procedureCache, Number procedureParameters, String gpuCodeMainProcedureName, Number gpuCode, Number stateExtension, Number outStatuses) -> Number procedureHandle
+fn redCreateArrayTimestamp(Number context, Number gpuHandle, String handleName, Number count, Number outStatuses) -> Number arrayTimestampHandle
+fn redDestroyArrayTimestamp(Number context, Number gpuHandle, Number arrayTimestamp)
+fn redCallArrayTimestampWrite(Number calls, Number context, Number arrayTimestamp, Number index)
+fn redArrayTimestampRead(Number context, Number gpuHandle, Number arrayTimestamp, Number rangeFirst, Number rangeCount, Number out64BitTicksCounts, Number outStatuses)
+fn rrtStructSizeof(String structName) -> Number bytesCount // See structs of radeonrays.h, radeonrays_redgpu.h
+fn rrtStructOffsetof(String structName, String structMemberName) -> Number bytesFirst // See structs of radeonrays.h, radeonrays_redgpu.h
+fn rrtCreateContext(Number apiVersion, Number api, Number outContext) -> Number rrerror
+fn rrtDestroyContext(Number context) -> Number rrerror
+fn rrtSetLogLevel(Number logLevel) -> Number rrerror
+fn rrtSetLogFile(String filename) -> Number rrerror
+fn rrtCmdBuildGeometry(Number context, Number buildOperation, Number buildInput, Number buildOptions, Number temporaryBuffer, Number geometryBuffer, Number commandStream) -> Number rrerror
+fn rrtGetGeometryBuildMemoryRequirements(Number context, Number buildInput, Number buildOptions, Number outMemoryRequirements) -> Number rrerror
+fn rrtCmdBuildScene(Number context, Number buildInput, Number buildOptions, Number temporaryBuffer, Number sceneBuffer, Number commandStream) -> Number rrerror
+fn rrtGetSceneBuildMemoryRequirements(Number context, Number buildInput, Number buildOptions, Number outMemoryRequirements) -> Number rrerror
+fn rrtCmdIntersect(Number context, Number sceneBuffer, Number query, Number rays, Number rayCount, Number indirectRayCount, Number queryOutput, Number hits, Number scratch, Number commandStream) -> Number rrerror
+fn rrtGetTraceMemoryRequirements(Number context, Number rayCount, Number outScratchSize) -> Number rrerror
+fn rrtAllocateCommandStream(Number context, Number outCommandStream) -> Number rrerror
+fn rrtReleaseCommandStream(Number context, Number commandStream) -> Number rrerror
+fn rrtSumbitCommandStream(Number context, Number commandStream, Number waitEvent, Number outEvent) -> Number rrerror
+fn rrtReleaseEvent(Number context, Number event) -> Number rrerror
+fn rrtWaitEvent(Number context, Number event) -> Number rrerror
+fn rrtReleaseDevicePtr(Number context, Number devicePointer) -> Number rrerror
+fn rrtReleaseExternalCommandStream(Number context, Number commandStream) -> Number rrerror
+fn rrtGetDevicePtrFromVkBuffer(Number context, Number resource, Number offset, Number outDevicePointer) -> Number rrerror
+fn rrtCreateContextVk(Number apiVersion, Number device, Number physicalDevice, Number commandQueue, Number queueFamilyIndex, Number outContext) -> Number rrerror
+fn rrtGetCommandStreamFromVkCommandBuffer(Number context, Number commandBuffer, Number outCommandStream) -> Number rrerror
+fn rrtAllocateDeviceBuffer(Number context, Number size, Number outDevicePointer)
+fn rrtMapDevicePtr(Number context, Number devicePointer, Number outMappingPointer) -> Number rrerror
+fn rrtUnmapDevicePtr(Number context, Number devicePointer, Number outMappingPointer) -> Number rrerror
+fn onRerunCallRedCpuSignalWait(Number context, Number gpuHandle, Number handle) // Not thread-safe.
+fn onRerunCallRedMemoryFree(Number context, Number gpuHandle, Number handle) // Not thread-safe.
+fn onRerunCallRedStructsMemoryFree(Number context, Number gpuHandle, Number handle) // Not thread-safe.
+fn onRerunCallRedDestroyContext(Number context) // Not thread-safe.
+fn onRerunCallRedDestroyArray(Number context, Number gpuHandle, Number handle) // Not thread-safe.
+fn onRerunCallRedDestroyImage(Number context, Number gpuHandle, Number handle) // Not thread-safe.
+fn onRerunCallRedDestroySampler(Number context, Number gpuHandle, Number handle) // Not thread-safe.
+fn onRerunCallRedDestroyTexture(Number context, Number gpuHandle, Number handle) // Not thread-safe.
+fn onRerunCallRedDestroyGpuCode(Number context, Number gpuHandle, Number handle) // Not thread-safe.
+fn onRerunCallRedDestroyOutputDeclaration(Number context, Number gpuHandle, Number handle) // Not thread-safe.
+fn onRerunCallRedDestroyStructDeclaration(Number context, Number gpuHandle, Number handle) // Not thread-safe.
+fn onRerunCallRedDestroyProcedureParameters(Number context, Number gpuHandle, Number handle) // Not thread-safe.
+fn onRerunCallRedDestroyProcedureCache(Number context, Number gpuHandle, Number handle) // Not thread-safe.
+fn onRerunCallRedDestroyProcedure(Number context, Number gpuHandle, Number handle) // Not thread-safe.
+fn onRerunCallRedDestroyOutput(Number context, Number gpuHandle, Number handle) // Not thread-safe.
+fn onRerunCallRedDestroyCpuSignal(Number context, Number gpuHandle, Number handle) // Not thread-safe.
+fn onRerunCallRedDestroyGpuSignal(Number context, Number gpuHandle, Number handle) // Not thread-safe.
+fn onRerunCallRedDestroyGpuToCpuSignal(Number context, Number gpuHandle, Number handle) // Not thread-safe.
+fn onRerunCallRedDestroyCalls(Number context, Number gpuHandle, Number callsHandle, Number callsMemoryHandle) // Not thread-safe.
+fn onRerunCallRedDestroyArrayTimestamp(Number context, Number gpuHandle, Number handle) // Not thread-safe.
+fn onRerunCallRrtWaitEvent(Number rrcontext, Number rrevent) // Not thread-safe.
+fn onRerunCallRrtDestroyContext(Number rrcontext) // Not thread-safe.
+fn onRerunCallRrtReleaseCommandStream(Number rrcontext, Number rrcommandStream) // Not thread-safe.
+fn onRerunCallRrtReleaseEvent(Number rrcontext, Number rrevent) // Not thread-safe.
+fn onRerunCallRrtReleaseDevicePtr(Number rrcontext, Number rrdevicePointer) // Not thread-safe.
+fn onRerunCallRrtReleaseExternalCommandStream(Number rrcontext, Number rrcommandStream) // Not thread-safe.
+fn onRerunCallRrtUnmapDevicePtr(Number rrcontext, Number rrdevicePointer, Number outMappingPointer) // Not thread-safe.
 ```
 
 [Game Script](https://procedural.itch.io/gamescript) uses the Ape programming language v0.14.0 by Krzysztof Gabis, you can read more about it in my public fork of his Github repo here: https://github.com/procedural/script
