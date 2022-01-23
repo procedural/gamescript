@@ -436,6 +436,44 @@ fn libGameScriptExternalProcedureCall3(Number parameter1, Number parameter2, Num
 fn programGetArgumentsCount() -> Number argumentsCount
 fn programGetArgument(Number index) -> String argument
 fn programClose()
+fn globalMeshesGetCount() -> Number count
+fn globalMeshesPersistentGetCount() -> Number count
+fn globalMeshesGetMeshLabelByMeshIndex(Number index) -> String label
+fn globalMeshesPersistentGetMeshLabelByMeshIndex(Number index) -> String label
+fn globalMeshesGetMeshHandleByMeshIndex(Number index) -> Number handle
+fn globalMeshesPersistentGetMeshHandleByMeshIndex(Number index) -> Number handle
+fn globalMeshesGetHaveVerticesChangedMeshIndexesCount() -> Number count
+fn globalMeshesGetHaveColorsChangedMeshIndexesCount() -> Number count
+fn globalMeshesGetHaveTexCoordsChangedMeshIndexesCount() -> Number count
+fn globalMeshesGetHaveIndicesChangedMeshIndexesCount() -> Number count
+fn globalMeshesPersistentGetHaveVerticesChangedMeshIndexesCount() -> Number count
+fn globalMeshesPersistentGetHaveColorsChangedMeshIndexesCount() -> Number count
+fn globalMeshesPersistentGetHaveTexCoordsChangedMeshIndexesCount() -> Number count
+fn globalMeshesPersistentGetHaveIndicesChangedMeshIndexesCount() -> Number count
+fn globalMeshesGetHaveVerticesChangedMeshIndexes(Number count) -> Number indexes []
+fn globalMeshesGetHaveColorsChangedMeshIndexes(Number count) -> Number indexes []
+fn globalMeshesGetHaveTexCoordsChangedMeshIndexes(Number count) -> Number indexes []
+fn globalMeshesGetHaveIndicesChangedMeshIndexes(Number count) -> Number indexes []
+fn globalMeshesPersistentGetHaveVerticesChangedMeshIndexes(Number count) -> Number indexes []
+fn globalMeshesPersistentGetHaveColorsChangedMeshIndexes(Number count) -> Number indexes []
+fn globalMeshesPersistentGetHaveTexCoordsChangedMeshIndexes(Number count) -> Number indexes []
+fn globalMeshesPersistentGetHaveIndicesChangedMeshIndexes(Number count) -> Number indexes []
+fn globalKeyPropertyGetKeyLabelsCount() -> Number count
+fn globalKeyPropertyIsKeyLabelExists(String key) -> Bool exists
+fn globalKeyPropertyGetKeyLabelByKeyIndex(Number index) -> String label
+fn globalKeyPropertyGetKeyPropertyLabelsCount(String key) -> Number count
+fn globalKeyPropertyIsKeyPropertyLabelExists(String key, String property) -> Bool exists
+fn globalKeyPropertyGetKeyPropertyLabelByPropertyIndex(String key, Number index) -> String label
+fn globalKeyPropertyRemoveKey(String key)
+fn globalKeyPropertyRemoveAllKeys()
+fn globalKeyPropertyRemoveProperty(String key, String property)
+fn globalKeyPropertyRemoveAllProperties(String key)
+fn globalKeyPropertySetString(String key, String property, String value)
+fn globalKeyPropertySetNumber(String key, String property, Number value)
+fn globalKeyPropertySetBool(String key, String property, Bool value)
+fn globalKeyPropertyGetString(String key, String property) -> String value
+fn globalKeyPropertyGetNumber(String key, String property) -> Number value
+fn globalKeyPropertyGetBool(String key, String property) -> Bool value
 fn ertAffineSpace3fGetSizeOfInBytes() -> Number sizeOfInBytes
 fn ertAffineSpace3fSetDefaultInitialize(Number outPointer, Number outPointerBytesFirst)
 fn ertAffineSpace3fSetInitialize(Number outPointer, Number outPointerBytesFirst, Number v0, Number v1, Number v2, Number v3, Number v4, Number v5, Number v6, Number v7, Number v8, Number v9, Number v10, Number v11)
@@ -887,6 +925,44 @@ fn setThread2ScriptStringForNextFrame(String string)
 fn setThread2ScriptStringForNextFrameFromPointer(Number pointer, Number pointerBytesFirst)
 fn libGameScriptExternalProcedureCall2(Number parameter1, Number parameter2)
 fn libGameScriptExternalProcedureCall3(Number parameter1, Number parameter2, Number parameter3)
+fn globalMeshesGetCount() -> Number count // Not thread-safe.
+fn globalMeshesPersistentGetCount() -> Number count // Not thread-safe.
+fn globalMeshesGetMeshLabelByMeshIndex(Number index) -> String label // Not thread-safe.
+fn globalMeshesPersistentGetMeshLabelByMeshIndex(Number index) -> String label // Not thread-safe.
+fn globalMeshesGetMeshHandleByMeshIndex(Number index) -> Number handle // Not thread-safe.
+fn globalMeshesPersistentGetMeshHandleByMeshIndex(Number index) -> Number handle // Not thread-safe.
+fn globalMeshesGetHaveVerticesChangedMeshIndexesCount() -> Number count // Not thread-safe.
+fn globalMeshesGetHaveColorsChangedMeshIndexesCount() -> Number count // Not thread-safe.
+fn globalMeshesGetHaveTexCoordsChangedMeshIndexesCount() -> Number count // Not thread-safe.
+fn globalMeshesGetHaveIndicesChangedMeshIndexesCount() -> Number count // Not thread-safe.
+fn globalMeshesPersistentGetHaveVerticesChangedMeshIndexesCount() -> Number count // Not thread-safe.
+fn globalMeshesPersistentGetHaveColorsChangedMeshIndexesCount() -> Number count // Not thread-safe.
+fn globalMeshesPersistentGetHaveTexCoordsChangedMeshIndexesCount() -> Number count // Not thread-safe.
+fn globalMeshesPersistentGetHaveIndicesChangedMeshIndexesCount() -> Number count // Not thread-safe.
+fn globalMeshesGetHaveVerticesChangedMeshIndexes(Number count) -> Number indexes [] // Not thread-safe.
+fn globalMeshesGetHaveColorsChangedMeshIndexes(Number count) -> Number indexes [] // Not thread-safe.
+fn globalMeshesGetHaveTexCoordsChangedMeshIndexes(Number count) -> Number indexes [] // Not thread-safe.
+fn globalMeshesGetHaveIndicesChangedMeshIndexes(Number count) -> Number indexes [] // Not thread-safe.
+fn globalMeshesPersistentGetHaveVerticesChangedMeshIndexes(Number count) -> Number indexes [] // Not thread-safe.
+fn globalMeshesPersistentGetHaveColorsChangedMeshIndexes(Number count) -> Number indexes [] // Not thread-safe.
+fn globalMeshesPersistentGetHaveTexCoordsChangedMeshIndexes(Number count) -> Number indexes [] // Not thread-safe.
+fn globalMeshesPersistentGetHaveIndicesChangedMeshIndexes(Number count) -> Number indexes [] // Not thread-safe.
+fn globalKeyPropertyGetKeyLabelsCount() -> Number count // Thread-safe.
+fn globalKeyPropertyIsKeyLabelExists(String key) -> Bool exists // Thread-safe.
+fn globalKeyPropertyGetKeyLabelByKeyIndex(Number index) -> String label // Thread-safe.
+fn globalKeyPropertyGetKeyPropertyLabelsCount(String key) -> Number count // Thread-safe.
+fn globalKeyPropertyIsKeyPropertyLabelExists(String key, String property) -> Bool exists // Thread-safe.
+fn globalKeyPropertyGetKeyPropertyLabelByPropertyIndex(String key, Number index) -> String label // Thread-safe.
+fn globalKeyPropertyRemoveKey(String key) // Thread-safe.
+fn globalKeyPropertyRemoveAllKeys() // Thread-safe.
+fn globalKeyPropertyRemoveProperty(String key, String property) // Thread-safe.
+fn globalKeyPropertyRemoveAllProperties(String key) // Thread-safe.
+fn globalKeyPropertySetString(String key, String property, String value) // Thread-safe.
+fn globalKeyPropertySetNumber(String key, String property, Number value) // Thread-safe.
+fn globalKeyPropertySetBool(String key, String property, Bool value) // Thread-safe.
+fn globalKeyPropertyGetString(String key, String property) -> String value // Thread-safe.
+fn globalKeyPropertyGetNumber(String key, String property) -> Number value // Thread-safe.
+fn globalKeyPropertyGetBool(String key, String property) -> Bool value // Thread-safe.
 fn ertAffineSpace3fGetSizeOfInBytes() -> Number sizeOfInBytes
 fn ertAffineSpace3fSetDefaultInitialize(Number outPointer, Number outPointerBytesFirst)
 fn ertAffineSpace3fSetInitialize(Number outPointer, Number outPointerBytesFirst, Number v0, Number v1, Number v2, Number v3, Number v4, Number v5, Number v6, Number v7, Number v8, Number v9, Number v10, Number v11)
