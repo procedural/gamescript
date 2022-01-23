@@ -700,6 +700,21 @@ fn onRerunCallRrtReleaseEvent(Number rrcontext, Number rrevent)
 fn onRerunCallRrtReleaseDevicePtr(Number rrcontext, Number rrdevicePointer)
 fn onRerunCallRrtReleaseExternalCommandStream(Number rrcontext, Number rrcommandStream)
 fn onRerunCallRrtUnmapDevicePtr(Number rrcontext, Number rrdevicePointer, Number outMappingPointer)
+fn xatlasStructSizeof(String structName) -> Number bytesCount
+fn xatlasStructOffsetof(String structName, String structMemberName) -> Number bytesFirst
+fn xatlasMeshDeclInit(Number pointerToXatlasMeshDecl)
+fn xatlasUvMeshDeclInit(Number pointerToXatlasUvMeshDecl)
+fn xatlasChartOptionsInit(Number pointerToXatlasChartOptions)
+fn xatlasPackOptionsInit(Number pointerToXatlasPackOptions)
+fn xatlasCreate() -> Number xatlas
+fn xatlasDestroy(Number xatlas)
+fn xatlasAddMesh(Number xatlas, Number pointerToXatlasMeshDecl, Number meshCountHint) -> Number status
+fn xatlasAddMeshJoin(Number xatlas)
+fn xatlasAddUvMesh(Number xatlas, Number pointerToXatlasUvMeshDecl) -> Number status
+fn xatlasComputeCharts(Number xatlas, Number pointerToXatlasChartOptions)
+fn xatlasPackCharts(Number xatlas, Number pointerToXatlasPackOptions)
+fn xatlasGenerate(Number xatlas, Number pointerToXatlasChartOptions, Number pointerToXatlasPackOptions)
+fn onRerunCallXatlasDestroy(Number xatlas)
 ```
 
 List of constants
@@ -1189,6 +1204,21 @@ fn onRerunCallRrtReleaseEvent(Number rrcontext, Number rrevent) // Not thread-sa
 fn onRerunCallRrtReleaseDevicePtr(Number rrcontext, Number rrdevicePointer) // Not thread-safe.
 fn onRerunCallRrtReleaseExternalCommandStream(Number rrcontext, Number rrcommandStream) // Not thread-safe.
 fn onRerunCallRrtUnmapDevicePtr(Number rrcontext, Number rrdevicePointer, Number outMappingPointer) // Not thread-safe.
+fn xatlasStructSizeof(String structName) -> Number bytesCount
+fn xatlasStructOffsetof(String structName, String structMemberName) -> Number bytesFirst
+fn xatlasMeshDeclInit(Number pointerToXatlasMeshDecl)
+fn xatlasUvMeshDeclInit(Number pointerToXatlasUvMeshDecl)
+fn xatlasChartOptionsInit(Number pointerToXatlasChartOptions)
+fn xatlasPackOptionsInit(Number pointerToXatlasPackOptions)
+fn xatlasCreate() -> Number xatlas
+fn xatlasDestroy(Number xatlas)
+fn xatlasAddMesh(Number xatlas, Number pointerToXatlasMeshDecl, Number meshCountHint) -> Number status
+fn xatlasAddMeshJoin(Number xatlas)
+fn xatlasAddUvMesh(Number xatlas, Number pointerToXatlasUvMeshDecl) -> Number status
+fn xatlasComputeCharts(Number xatlas, Number pointerToXatlasChartOptions)
+fn xatlasPackCharts(Number xatlas, Number pointerToXatlasPackOptions)
+fn xatlasGenerate(Number xatlas, Number pointerToXatlasChartOptions, Number pointerToXatlasPackOptions)
+fn onRerunCallXatlasDestroy(Number xatlas) // Not thread-safe.
 ```
 
 [Game Script](https://procedural.itch.io/gamescript) uses the Ape programming language v0.14.0 by Krzysztof Gabis, you can read more about it in my public fork of his Github repo here: https://github.com/procedural/script
