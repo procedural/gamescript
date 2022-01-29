@@ -717,6 +717,35 @@ fn xatlasComputeCharts(Number xatlas, Number pointerToXatlasChartOptions)
 fn xatlasPackCharts(Number xatlas, Number pointerToXatlasPackOptions)
 fn xatlasGenerate(Number xatlas, Number pointerToXatlasChartOptions, Number pointerToXatlasPackOptions)
 fn onRerunCallXatlasDestroy(Number xatlas)
+fn fbxNew(String label) -> Number handle
+fn fbxNewFromFile(String label, String filepath) -> Number handle
+fn fbxDelete(String label)
+fn fbxDeleteAll()
+fn fbxCopyToFbx(Number handleCopyFrom, Number handleCopyTo)
+fn fbxClear(Number handle)
+fn fbxEarlyUpdate(Number handle)
+fn fbxLateUpdate(Number handle)
+fn fbxGetMeshesCount(Number handle) -> Number count
+fn fbxGetMesh(Number handle, Number meshIndex) -> Number meshHandle
+fn fbxGetMeshName(Number handle, Number meshIndex) -> String meshName
+fn fbxGetRootBonesCount(Number handle) -> Number count
+fn fbxGetRootBone(Number handle, Number rootBoneIndex) -> Number boneHandle
+fn fbxBoneGetName(Number handle) -> String boneName
+fn fbxBoneGetChildBonesCount(Number handle) -> Number count
+fn fbxBoneGetChildBone(Number handle, Number childBoneIndex) -> Number boneHandle
+fn fbxBoneGetChildBoneByNameRecursively(Number handle, String boneName) -> Number boneHandle
+fn fbxBoneGetVector(Number handle) -> Number position [3] {x, y, z}
+fn fbxBoneGetVersor(Number handle) -> Number quaternion [4] {x, y, z, w}
+fn fbxBoneGetScale(Number handle) -> Number scale [3] {x, y, z}
+fn fbxBoneGetSideVector(Number handle) -> Number sideVector [3] {x, y, z}
+fn fbxBoneGetUpVector(Number handle) -> Number upVector [3] {x, y, z}
+fn fbxBoneGetLookAtVector(Number handle) -> Number lookAtVector [3] {x, y, z}
+fn fbxBoneGetTransformMatrix(Number handle, Number outPointer)
+fn fbxBoneSetVector(Number handle, Number x, Number y, Number z)
+fn fbxBoneSetVersor(Number handle, Number x, Number y, Number z, Number w)
+fn fbxBoneSetScale(Number handle, Number x, Number y, Number z)
+fn fbxBoneRotate(Number handle, Number rotationX, Number rotationY, Number rotationZ, Number rotationDeg)
+fn fbxBoneLookAt(Number handle, Number x, Number y, Number z, Number upX, Number upY, Number upZ)
 ```
 
 List of constants
@@ -1221,6 +1250,35 @@ fn xatlasComputeCharts(Number xatlas, Number pointerToXatlasChartOptions)
 fn xatlasPackCharts(Number xatlas, Number pointerToXatlasPackOptions)
 fn xatlasGenerate(Number xatlas, Number pointerToXatlasChartOptions, Number pointerToXatlasPackOptions)
 fn onRerunCallXatlasDestroy(Number xatlas) // Not thread-safe.
+fn fbxNew(String label) -> Number handle // Not thread-safe.
+fn fbxNewFromFile(String label, String filepath) -> Number handle // Not thread-safe.
+fn fbxDelete(String label) // Not thread-safe.
+fn fbxDeleteAll() // Not thread-safe.
+fn fbxCopyToFbx(Number handleCopyFrom, Number handleCopyTo)
+fn fbxClear(Number handle)
+fn fbxEarlyUpdate(Number handle)
+fn fbxLateUpdate(Number handle)
+fn fbxGetMeshesCount(Number handle) -> Number count
+fn fbxGetMesh(Number handle, Number meshIndex) -> Number meshHandle
+fn fbxGetMeshName(Number handle, Number meshIndex) -> String meshName
+fn fbxGetRootBonesCount(Number handle) -> Number count
+fn fbxGetRootBone(Number handle, Number rootBoneIndex) -> Number boneHandle
+fn fbxBoneGetName(Number handle) -> String boneName
+fn fbxBoneGetChildBonesCount(Number handle) -> Number count
+fn fbxBoneGetChildBone(Number handle, Number childBoneIndex) -> Number boneHandle
+fn fbxBoneGetChildBoneByNameRecursively(Number handle, String boneName) -> Number boneHandle
+fn fbxBoneGetVector(Number handle) -> Number position [3] {x, y, z}
+fn fbxBoneGetVersor(Number handle) -> Number quaternion [4] {x, y, z, w}
+fn fbxBoneGetScale(Number handle) -> Number scale [3] {x, y, z}
+fn fbxBoneGetSideVector(Number handle) -> Number sideVector [3] {x, y, z}
+fn fbxBoneGetUpVector(Number handle) -> Number upVector [3] {x, y, z}
+fn fbxBoneGetLookAtVector(Number handle) -> Number lookAtVector [3] {x, y, z}
+fn fbxBoneGetTransformMatrix(Number handle, Number outPointer)
+fn fbxBoneSetVector(Number handle, Number x, Number y, Number z)
+fn fbxBoneSetVersor(Number handle, Number x, Number y, Number z, Number w)
+fn fbxBoneSetScale(Number handle, Number x, Number y, Number z)
+fn fbxBoneRotate(Number handle, Number rotationX, Number rotationY, Number rotationZ, Number rotationDeg)
+fn fbxBoneLookAt(Number handle, Number x, Number y, Number z, Number upX, Number upY, Number upZ)
 ```
 
 [Game Script](https://procedural.itch.io/gamescript) uses the Ape programming language v0.14.0 by Krzysztof Gabis, you can read more about it in my public fork of his Github repo here: https://github.com/procedural/script
