@@ -548,8 +548,14 @@ fn ertInitializeRayStructForCameraPixelSample(Number deviceHandle, Number camera
 fn ertSceneIntersectRayStructToHitStruct(Number deviceHandle, Number sceneHandle, Number inRayStructPointer, Number inRayStructPointerBytesFirst, Number outHitStructPointer, Number outHitStructPointerBytesFirst)
 fn onRerunCallErtDecRef(Number deviceHandle, Number handle)
 fn onRerunCallErtDestroyDevice(Number deviceHandle)
-fn redStructSizeof(String structName) -> Number bytesCount // See structs of redgpu.h, redgpu_array_timestamp.h, redgpu_computing_language.h
-fn redStructOffsetof(String structName, String structMemberName) -> Number bytesFirst // See structs of redgpu.h, redgpu_array_timestamp.h, redgpu_computing_language.h
+fn getRedStructsCount() -> Number count // See structs of redgpu.h, redgpu_array_timestamp.h, redgpu_computing_language.h
+fn getRedStructName(Number index) -> String name
+fn getRedStructMembersCount() -> Number count
+fn getRedStructMemberName(Number index) -> String name
+fn redStructSizeof(String structName) -> Number bytesCount
+fn redStructMemberSizeof(String structName, String structMemberName) -> Number bytesCount
+fn redStructMemberOffsetof(String structName, String structMemberName) -> Number bytesFirst
+fn redStructMemberTypeof(String structName, String structMemberName) -> Number structMemberType
 fn redCreateContext(Bool enableDebugMode) -> Number context
 fn redCreateContextWithRayTracingFeatureLevel1(Bool enableDebugMode) -> Number context
 fn redCreateContextWithRayTracingFeatureLevel2(Bool enableDebugMode) -> Number context
@@ -650,8 +656,14 @@ fn redCreateArrayTimestamp(Number context, Number gpuHandle, String handleName, 
 fn redDestroyArrayTimestamp(Number context, Number gpuHandle, Number arrayTimestamp)
 fn redCallArrayTimestampWrite(Number calls, Number context, Number arrayTimestamp, Number index)
 fn redArrayTimestampRead(Number context, Number gpuHandle, Number arrayTimestamp, Number rangeFirst, Number rangeCount, Number out64BitTicksCounts, Number outStatuses)
-fn rrtStructSizeof(String structName) -> Number bytesCount // See structs of radeonrays.h, radeonrays_redgpu.h
-fn rrtStructOffsetof(String structName, String structMemberName) -> Number bytesFirst // See structs of radeonrays.h, radeonrays_redgpu.h
+fn getRrtStructsCount() -> Number count // See structs of radeonrays.h, radeonrays_redgpu.h
+fn getRrtStructName(Number index) -> String name
+fn getRrtStructMembersCount() -> Number count
+fn getRrtStructMemberName(Number index) -> String name
+fn rrtStructSizeof(String structName) -> Number bytesCount
+fn rrtStructMemberSizeof(String structName, String structMemberName) -> Number bytesCount
+fn rrtStructMemberOffsetof(String structName, String structMemberName) -> Number bytesFirst
+fn rrtStructMemberTypeof(String structName, String structMemberName) -> Number structMemberType
 fn rrtCreateContext(Number apiVersion, Number api, Number outContext) -> Number rrerror
 fn rrtDestroyContext(Number context) -> Number rrerror
 fn rrtSetLogLevel(Number logLevel) -> Number rrerror
@@ -702,8 +714,14 @@ fn onRerunCallRrtReleaseEvent(Number rrcontext, Number rrevent)
 fn onRerunCallRrtReleaseDevicePtr(Number rrcontext, Number rrdevicePointer)
 fn onRerunCallRrtReleaseExternalCommandStream(Number rrcontext, Number rrcommandStream)
 fn onRerunCallRrtUnmapDevicePtr(Number rrcontext, Number rrdevicePointer, Number outMappingPointer)
+fn getXatlasStructsCount() -> Number count
+fn getXatlasStructName(Number index) -> String name
+fn getXatlasStructMembersCount() -> Number count
+fn getXatlasStructMemberName(Number index) -> String name
 fn xatlasStructSizeof(String structName) -> Number bytesCount
-fn xatlasStructOffsetof(String structName, String structMemberName) -> Number bytesFirst
+fn xatlasStructMemberSizeof(String structName, String structMemberName) -> Number bytesCount
+fn xatlasStructMemberOffsetof(String structName, String structMemberName) -> Number bytesFirst
+fn xatlasStructMemberTypeof(String structName, String structMemberName) -> Number structMemberType
 fn xatlasMeshDeclInit(Number pointerToXatlasMeshDecl)
 fn xatlasUvMeshDeclInit(Number pointerToXatlasUvMeshDecl)
 fn xatlasChartOptionsInit(Number pointerToXatlasChartOptions)
@@ -721,6 +739,7 @@ fn fbxNew(String label) -> Number handle
 fn fbxNewFromFile(String label, String filepath) -> Number handle
 fn fbxDelete(String label)
 fn fbxDeleteAll()
+fn fbxGetHandle(String label) -> Number handle
 fn fbxCopyToFbx(Number handleCopyFrom, Number handleCopyTo)
 fn fbxClear(Number handle)
 fn fbxEarlyUpdate(Number handle)
@@ -826,6 +845,19 @@ let IMAGE_GET_IMAGE_TYPE_GRAYSCALE        = 0;
 let IMAGE_GET_IMAGE_TYPE_COLOR_RGB        = 1;
 let IMAGE_GET_IMAGE_TYPE_COLOR_ALPHA_RGBA = 2;
 let IMAGE_GET_IMAGE_TYPE_UNDEFINED        = 3;
+
+let STRUCT_MEMBER_TYPE_INVALID      = 0;
+let STRUCT_MEMBER_TYPE_STRUCT       = 1;
+let STRUCT_MEMBER_TYPE_VOID_POINTER = 2;
+let STRUCT_MEMBER_TYPE_CHAR_POINTER = 3;
+let STRUCT_MEMBER_TYPE_UCHAR        = 4;
+let STRUCT_MEMBER_TYPE_CHAR         = 5;
+let STRUCT_MEMBER_TYPE_BOOL         = 6;
+let STRUCT_MEMBER_TYPE_U32          = 7;
+let STRUCT_MEMBER_TYPE_I32          = 8;
+let STRUCT_MEMBER_TYPE_F32          = 9;
+let STRUCT_MEMBER_TYPE_SIZE_T       = 10;
+let STRUCT_MEMBER_TYPE_U64          = 11;
 ```
 
 List of available script functions of thread 2
@@ -1081,8 +1113,14 @@ fn ertInitializeRayStructForCameraPixelSample(Number deviceHandle, Number camera
 fn ertSceneIntersectRayStructToHitStruct(Number deviceHandle, Number sceneHandle, Number inRayStructPointer, Number inRayStructPointerBytesFirst, Number outHitStructPointer, Number outHitStructPointerBytesFirst)
 fn onRerunCallErtDecRef(Number deviceHandle, Number handle) // Not thread-safe.
 fn onRerunCallErtDestroyDevice(Number deviceHandle) // Not thread-safe.
-fn redStructSizeof(String structName) -> Number bytesCount // See structs of redgpu.h, redgpu_array_timestamp.h, redgpu_computing_language.h
-fn redStructOffsetof(String structName, String structMemberName) -> Number bytesFirst // See structs of redgpu.h, redgpu_array_timestamp.h, redgpu_computing_language.h
+fn getRedStructsCount() -> Number count // See structs of redgpu.h, redgpu_array_timestamp.h, redgpu_computing_language.h
+fn getRedStructName(Number index) -> String name
+fn getRedStructMembersCount() -> Number count
+fn getRedStructMemberName(Number index) -> String name
+fn redStructSizeof(String structName) -> Number bytesCount
+fn redStructMemberSizeof(String structName, String structMemberName) -> Number bytesCount
+fn redStructMemberOffsetof(String structName, String structMemberName) -> Number bytesFirst
+fn redStructMemberTypeof(String structName, String structMemberName) -> Number structMemberType
 fn redCreateContext(Bool enableDebugMode) -> Number context
 fn redCreateContextWithRayTracingFeatureLevel1(Bool enableDebugMode) -> Number context
 fn redCreateContextWithRayTracingFeatureLevel2(Bool enableDebugMode) -> Number context
@@ -1183,8 +1221,14 @@ fn redCreateArrayTimestamp(Number context, Number gpuHandle, String handleName, 
 fn redDestroyArrayTimestamp(Number context, Number gpuHandle, Number arrayTimestamp)
 fn redCallArrayTimestampWrite(Number calls, Number context, Number arrayTimestamp, Number index)
 fn redArrayTimestampRead(Number context, Number gpuHandle, Number arrayTimestamp, Number rangeFirst, Number rangeCount, Number out64BitTicksCounts, Number outStatuses)
-fn rrtStructSizeof(String structName) -> Number bytesCount // See structs of radeonrays.h, radeonrays_redgpu.h
-fn rrtStructOffsetof(String structName, String structMemberName) -> Number bytesFirst // See structs of radeonrays.h, radeonrays_redgpu.h
+fn getRrtStructsCount() -> Number count // See structs of radeonrays.h, radeonrays_redgpu.h
+fn getRrtStructName(Number index) -> String name
+fn getRrtStructMembersCount() -> Number count
+fn getRrtStructMemberName(Number index) -> String name
+fn rrtStructSizeof(String structName) -> Number bytesCount
+fn rrtStructMemberSizeof(String structName, String structMemberName) -> Number bytesCount
+fn rrtStructMemberOffsetof(String structName, String structMemberName) -> Number bytesFirst
+fn rrtStructMemberTypeof(String structName, String structMemberName) -> Number structMemberType
 fn rrtCreateContext(Number apiVersion, Number api, Number outContext) -> Number rrerror
 fn rrtDestroyContext(Number context) -> Number rrerror
 fn rrtSetLogLevel(Number logLevel) -> Number rrerror
@@ -1235,8 +1279,14 @@ fn onRerunCallRrtReleaseEvent(Number rrcontext, Number rrevent) // Not thread-sa
 fn onRerunCallRrtReleaseDevicePtr(Number rrcontext, Number rrdevicePointer) // Not thread-safe.
 fn onRerunCallRrtReleaseExternalCommandStream(Number rrcontext, Number rrcommandStream) // Not thread-safe.
 fn onRerunCallRrtUnmapDevicePtr(Number rrcontext, Number rrdevicePointer, Number outMappingPointer) // Not thread-safe.
+fn getXatlasStructsCount() -> Number count
+fn getXatlasStructName(Number index) -> String name
+fn getXatlasStructMembersCount() -> Number count
+fn getXatlasStructMemberName(Number index) -> String name
 fn xatlasStructSizeof(String structName) -> Number bytesCount
-fn xatlasStructOffsetof(String structName, String structMemberName) -> Number bytesFirst
+fn xatlasStructMemberSizeof(String structName, String structMemberName) -> Number bytesCount
+fn xatlasStructMemberOffsetof(String structName, String structMemberName) -> Number bytesFirst
+fn xatlasStructMemberTypeof(String structName, String structMemberName) -> Number structMemberType
 fn xatlasMeshDeclInit(Number pointerToXatlasMeshDecl)
 fn xatlasUvMeshDeclInit(Number pointerToXatlasUvMeshDecl)
 fn xatlasChartOptionsInit(Number pointerToXatlasChartOptions)
@@ -1250,10 +1300,11 @@ fn xatlasComputeCharts(Number xatlas, Number pointerToXatlasChartOptions)
 fn xatlasPackCharts(Number xatlas, Number pointerToXatlasPackOptions)
 fn xatlasGenerate(Number xatlas, Number pointerToXatlasChartOptions, Number pointerToXatlasPackOptions)
 fn onRerunCallXatlasDestroy(Number xatlas) // Not thread-safe.
-fn fbxNew(String label) -> Number handle // Not thread-safe.
-fn fbxNewFromFile(String label, String filepath) -> Number handle // Not thread-safe.
-fn fbxDelete(String label) // Not thread-safe.
-fn fbxDeleteAll() // Not thread-safe.
+fn fbxNew(String label) -> Number handle
+fn fbxNewFromFile(String label, String filepath) -> Number handle
+fn fbxDelete(String label)
+fn fbxDeleteAll()
+fn fbxGetHandle(String label) -> Number handle
 fn fbxCopyToFbx(Number handleCopyFrom, Number handleCopyTo)
 fn fbxClear(Number handle)
 fn fbxEarlyUpdate(Number handle)
