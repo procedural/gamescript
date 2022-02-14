@@ -39,6 +39,8 @@ Hotkeys
 * `T`: roll camera left in game mode.
 * `Y`: roll camera right in game mode.
 * `R`: reset camera roll in game mode.
+* `F1`: run system script.
+* `F2`: toggle rerun output text window.
 
 List of available script functions
 ----------------------------------
@@ -417,6 +419,14 @@ fn systemCommand(String command) -> String output
 fn glGetIntegerv(Number enum, Number outPointer, Number outPointerBytesFirst) -> Bool success
 fn getUniqueNumber() -> Number uniqueNumber
 fn getUint64Max() -> Number uint64Max
+fn getLibGameHandle() -> Number handle
+fn getLibThread2Handle() -> Number handle
+fn getGlfwWindowHandle() -> Number handle
+fn getLastDragAndDropCounter() -> Number counter
+fn getLastDragAndDropFilepathsCount() -> Number count
+fn getLastDragAndDropFilepath(Number index) -> String filepath
+fn getLastDragAndDropPositionX() -> Number x
+fn getLastDragAndDropPositionY() -> Number y
 fn githubR_lyehLz4xEncode(Number pointer, Number pointerBytesFirst, Number pointerBytesCount, Number outPointer, Number outPointerBytesFirst, Number outPointerBytesCount, Number flags) -> Number value
 fn githubR_lyehLz4xDecode(Number pointer, Number pointerBytesFirst, Number pointerBytesCount, Number outPointer, Number outPointerBytesFirst, Number outPointerBytesCount) -> Number value
 fn githubR_lyehLz4xBoundsEncodeOutBytesCount(Number bytesCount, Number flags) -> Number value
@@ -992,6 +1002,9 @@ fn profileEnd(String mark) // Thread-safe.
 fn systemCommand(String command) -> String output
 fn getUniqueNumber() -> Number uniqueNumber // Thread-safe.
 fn getUint64Max() -> Number uint64Max // Thread-safe.
+fn getLibGameHandle() -> Number handle
+fn getLibThread2Handle() -> Number handle
+fn getGlfwWindowHandle() -> Number handle
 fn githubR_lyehLz4xEncode(Number pointer, Number pointerBytesFirst, Number pointerBytesCount, Number outPointer, Number outPointerBytesFirst, Number outPointerBytesCount, Number flags) -> Number value
 fn githubR_lyehLz4xDecode(Number pointer, Number pointerBytesFirst, Number pointerBytesCount, Number outPointer, Number outPointerBytesFirst, Number outPointerBytesCount) -> Number value
 fn githubR_lyehLz4xBoundsEncodeOutBytesCount(Number bytesCount, Number flags) -> Number value
