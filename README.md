@@ -1350,3 +1350,8 @@ fn fbxBoneLookAt(Number handle, Number x, Number y, Number z, Number upX, Number
 [Game Script Native](https://procedural.itch.io/gamescriptnative) uses standard C++14.
 
 [Game Script Native Swift](https://github.com/procedural/gamescript_native_swift) uses latest available Swift programming language.
+
+## Other useful repos:
+
+* https://github.com/procedural/gamescript_native_swift
+* https://github.com/procedural/gamescript_native_clang_for_windows
