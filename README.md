@@ -180,7 +180,7 @@ fn pointerIsNull(Number pointer) -> Bool isNull
 fn pointerGetNull() -> Number nullPointer
 fn pointersAreEqual(Number pointerA, Number pointerB) -> Bool areEqual
 fn pointerOffsetByBytes(Number pointer, Number bytesOffset) -> Number offsettedPointer
-fn pointerDrawPixels(Number pointer, Number pointerBytesOffset, Number pixelsWidth, Number pixelsHeight, Number pixelsFormat, Number pixelsType) -> Bool success
+fn pointerDrawPixels(Number pointer, Number pointerBytesOffset, Number pixelsWidth, Number pixelsHeight, Number pixelsFormat, Number pixelsType) -> Bool success // Works only with --enable-opengl21 command line flag enabled.
 fn globalDynamicArrayNew(String label) -> Number handle
 fn globalDynamicArrayPersistentNew(String label) -> Number handle
 fn globalDynamicArrayDelete(String label)
@@ -365,6 +365,8 @@ fn imageGammaCorrect(Number handle)
 fn imageUpdate(Number handle)
 fn imageBind(Number handle)
 fn imageUnbind(Number handle)
+fn imageDraw(Number handle, Number x, Number y, Number z, Number w, Number h)
+fn imageDrawSubsection(Number handle, Number x, Number y, Number z, Number w, Number h, Number sx, Number sy, Number sw, Number sh)
 fn shaderBegin(String label, String filepathShaderVert, String filepathShaderFrag) -> Bool shadersAreValid
 fn shaderEnd(String label)
 fn shaderSetUniform4f(String label, String uniformName, Number x, Number y, Number z, Number w)
@@ -1005,6 +1007,11 @@ fn getUint64Max() -> Number uint64Max // Thread-safe.
 fn getLibGameHandle() -> Number handle
 fn getLibThread2Handle() -> Number handle
 fn getGlfwWindowHandle() -> Number handle
+fn getLastDragAndDropCounter() -> Number counter
+fn getLastDragAndDropFilepathsCount() -> Number count
+fn getLastDragAndDropFilepath(Number index) -> String filepath
+fn getLastDragAndDropPositionX() -> Number x
+fn getLastDragAndDropPositionY() -> Number y
 fn githubR_lyehLz4xEncode(Number pointer, Number pointerBytesFirst, Number pointerBytesCount, Number outPointer, Number outPointerBytesFirst, Number outPointerBytesCount, Number flags) -> Number value
 fn githubR_lyehLz4xDecode(Number pointer, Number pointerBytesFirst, Number pointerBytesCount, Number outPointer, Number outPointerBytesFirst, Number outPointerBytesCount) -> Number value
 fn githubR_lyehLz4xBoundsEncodeOutBytesCount(Number bytesCount, Number flags) -> Number value
