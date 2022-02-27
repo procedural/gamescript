@@ -1364,7 +1364,6 @@ fn fbxBoneLookAt(Number handle, Number x, Number y, Number z, Number upX, Number
 
 ## Other useful repos:
 
-* https://github.com/procedural/gamescript_native_swift
 * https://github.com/procedural/gamescript_native_clang_for_windows
 * https://github.com/procedural/gamescript_raytracing
 * https://github.com/procedural/gamescript_fbx_examples
