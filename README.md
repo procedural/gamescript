@@ -1360,6 +1360,8 @@ fn fbxBoneLookAt(Number handle, Number x, Number y, Number z, Number upX, Number
 
 [Game Script Min](https://github.com/procedural/gamescript_min) uses the MinScriptLang scripting language from Nov 3, 2021 by Adam Sawicki, you can read more about it in my public fork of his Github repo here: https://github.com/procedural/minscript
 
+[Game Script C](https://github.com/procedural/gamescript_c) uses [Tiny C Compiler](https://github.com/procedural/tinycc).
+
 ## Other useful repos:
 
 * https://github.com/procedural/gamescript_native_swift
