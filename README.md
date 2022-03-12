@@ -8,7 +8,7 @@
 
 ## Join the official Game Script Discord server for news, updates, code examples and more! https://discord.gg/D7pKPw4kFf
 
-## Alternative news channel: https://t.me/gamescriptnative
+## Alternative news channel: https://t.me/gamescriptx
 
 Game Script is about raising the standards of what it's like to write code fast: you must be able to just double click on the program and start typing code immediately, you must be able to run the code with a single key press, and you must be able to enter the game mode, in which you can fly around in 3D space freely, like in a video game, to see your commands reliably occupy the virtual world.
 
