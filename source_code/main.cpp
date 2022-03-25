@@ -5212,7 +5212,7 @@ defaultCameraSetMoveSpeed(0.01)
 let suzanne = meshNew("suzanne")
 var verticesComponentsCount = 0
 if (getCurrentFrame() == 0) {
-	let verticesString = stringReadFromFile("/home/constantine/Documents/suzanne.txt")
+	let verticesString = stringReadFromFile(getExeDirectoryPath() + "data/suzanne.txt")
 	verticesComponentsCount = (strlenWithNullChar(verticesString)-1) / 10
 	//printDraw(numberToString(verticesCount))
 	let stringNumber = globalArrayNew8Bit("stringNumber", 11)
