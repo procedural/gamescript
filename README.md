@@ -18,6 +18,11 @@ Install
 * Download and extract GameScript folder, double click on the `game_script.exe` file on Windows 7 (64-bit) or higher.
 * Download and extract GameScript folder, double click on the `game_script.desktop` file on Ubuntu 16.04 (64-bit) or higher.
 
+Minimum requirements for Game Script for Android:
+-------------------------------------------------
+
+* Android 7, armeabi-v7a, OpenGL ES 3.0, 1920x1080 display resolution.
+
 ## [🐞 Report a bug or an issue here](https://github.com/procedural/gamescript/issues)
 
 Hotkeys
