@@ -1367,6 +1367,11 @@ fn fbxBoneLookAt(Number handle, Number x, Number y, Number z, Number upX, Number
 
 [Game Script C](https://github.com/procedural/gamescript_c) uses [Tiny C Compiler](https://github.com/procedural/tinycc).
 
+## Game Script for Android notes:
+
+* On Meizu M6 Note phone, I had to disable keyboard settings -> 'English prediction' option that prevented any typing.
+* If you use [scrcpy](https://github.com/Genymobile/scrcpy) to control your Android device from a Windows PC, to type with a keyboard and have Shift key working, run it with `--prefer-text` flag like this: `scrcpy.exe --prefer-text`
+
 ## Other useful repos:
 
 * https://github.com/procedural/gamescript_native_clang_for_windows
