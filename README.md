@@ -1371,6 +1371,10 @@ fn fbxBoneLookAt(Number handle, Number x, Number y, Number z, Number upX, Number
 
 * On Meizu M6 Note phone, I had to disable keyboard settings -> 'English prediction' option that prevented any typing.
 * If you use [scrcpy](https://github.com/Genymobile/scrcpy) to control your Android device from a Windows PC, to type with a keyboard and have Shift key working, run it with `--prefer-text` flag like this: `scrcpy.exe --prefer-text`
+* To change the default font, rename and place your font to `/storage/emulated/0/Download/gamescript_font.ttf`
+* To run the script at startup in game mode with all default UI windows hidden, rename and place your script to `/storage/emulated/0/Download/gamescript_run.txt`
+* If the touch arrow buttons don't work for your device, try entering different "Buttons delay" values, the default one is 19 frames of delay that works on one of my phones, but my other one requires it to be set to 40, for example.
+* You can compile your own C code as an ARM shared .so library and run it from within Game Script for Android, rename and place it to `/storage/emulated/0/Download/libgame_script_external_procedure.so`
 
 ## Other useful repos:
 
