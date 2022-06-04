@@ -1382,3 +1382,9 @@ fn fbxBoneLookAt(Number handle, Number x, Number y, Number z, Number upX, Number
 * https://github.com/procedural/gamescript_raytracing
 * https://github.com/procedural/gamescript_fbx_examples
 * https://github.com/procedural/gamescript_for_android_examples
+
+## Other links:
+
+* https://github.com/floooh/sokol/blob/9a6237fcdf213e6da48e4f9201f144bcb2dcb46f/sokol_gfx.h
+* https://github.com/redgpu/redgpu/blob/34a317ac7e0ed2ee2551bb9d9144046350c6d04e/RedGpuSDK/redgpu.h
+* https://github.com/jarikomppa/soloud/blob/1157475881da0d7f76102578255b937c7d4e8f57/include/soloud_c.h
