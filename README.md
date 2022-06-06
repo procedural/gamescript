@@ -4,7 +4,12 @@
 
 ![game_script_ray tracing screenshot](https://user-images.githubusercontent.com/28234322/147890504-471ad97d-9e3a-43f3-83b0-3c4aaab883c2.png)
 
-# Download here: [procedural.itch.io/gamescript](https://procedural.itch.io/gamescript)
+## Download for Windows, Linux and Android: [procedural.itch.io/gamescript](https://procedural.itch.io/gamescript)
+
+## Download for Xbox One, copy and paste the link below into the Microsoft Edge on Xbox browser:
+```
+ms-windows-store://pdp/?productid=9PB1GW72NV4W
+```
 
 ## Join the official Game Script Discord server for news, updates, code examples and more! https://discord.gg/D7pKPw4kFf
 
