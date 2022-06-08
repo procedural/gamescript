@@ -2089,11 +2089,12 @@ fn slWavStream_stop(Number aClassPtr)
 * If the touch arrow buttons don't work for your device, try entering different "Buttons delay" values, the default one is 19 frames of delay that works on one of my phones, but my other one requires it to be set to 40, for example.
 * You can compile your own C code as an ARM shared .so library and run it from within Game Script for Android, rename and place it to `/storage/emulated/0/Download/libgame_script_external_procedure.so`
 
-## Other useful repos:
+## Other repos:
 
 * https://github.com/procedural/gamescript_native_clang_for_windows
 * https://github.com/procedural/gamescript_raytracing
 * https://github.com/procedural/gamescript_fbx_examples
+* https://github.com/procedural/gamescript_structs_generator
 * https://github.com/procedural/gamescript_for_android_examples
 
 ## Other links:
