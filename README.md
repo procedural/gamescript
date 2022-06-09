@@ -1615,6 +1615,7 @@ fn getGamepadsCount() -> Number gamepadsCount // Android: not implemented
 fn getWindowsPlatformInstalledLocationPathString() -> String path // Android: not implemented
 fn getWindowsPlatformLocalFolderPathString() -> String path // Android: not implemented
 fn getWindowsPlatformLocalCacheFolderPathString() -> String path // Android: not implemented
+fn getWindowsPlatformTemporaryFolderPathString() -> String path // Android: not implemented
 fn getTimeClockNowSinceEpoch100NsecCount() -> Number filetime100NsecCount // Android: not implemented
 fn getRightGamepadStickAsArrowKeys() -> Bool enabled // Android: not implemented
 fn setRightGamepadStickAsArrowKeys(Bool enable) // Android: not implemented
@@ -1647,6 +1648,8 @@ fn getCodeErrorsString() -> String codeErrors
 fn codeErrorsAppendString(String codeError)
 fn codeErrorsForceShowWindow(Bool forceShow)
 fn stopRunningCodeAfterThisFrame()
+fn getFrame0Cache() -> Bool enabled
+fn setFrame0Cache(Bool enable)
 fn sg_struct_sizeof(String structName) -> Number bytesCount
 fn sg_struct_member_sizeof(String structName, String structMemberName) -> Number bytesCount
 fn sg_struct_member_offsetof(String structName, String structMemberName) -> Number bytesFirst
