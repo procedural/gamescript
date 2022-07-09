@@ -11,11 +11,10 @@
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
-#include "imgui_impl_vulkan.h"
+#include "imgui_impl_redgpu.h"
 #include <stdio.h>          // printf, fprintf
 #include <stdlib.h>         // abort
 #define GLFW_INCLUDE_NONE
-#define GLFW_INCLUDE_VULKAN
 #include "glfw3.h"
 #include <vulkan/vulkan.h>
 
