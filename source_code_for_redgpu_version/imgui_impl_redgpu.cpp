@@ -1,9 +1,5 @@
-// dear imgui: Renderer Backend for Vulkan
+// dear imgui: Renderer Backend for REDGPU
 // This needs to be used along with a Platform Backend (e.g. GLFW, SDL, Win32, custom..)
-
-// Implemented features:
-//  [X] Renderer: Support for large meshes (64k+ vertices) with 16-bit indices.
-//  [!] Renderer: User texture binding. Use 'VkDescriptorSet' as ImTextureID. Read the FAQ about ImTextureID! See https://github.com/ocornut/imgui/pull/914 for discussions.
 
 // Important: on 32-bit systems, user texture binding is only supported if your imconfig file has '#define ImTextureID ImU64'.
 // This is because we need ImTextureID to carry a 64-bit value and by default ImTextureID is defined as void*.
@@ -13,53 +9,8 @@
 // - [Solution 3] IDE/msbuild: edit imconfig.h and add '#define ImTextureID ImU64' (prefer solution 2 to create your own config file!)
 // - [Solution 4] command-line: add '/D ImTextureID=ImU64' to your cl.exe command-line (this is what we do in our batch files)
 
-// You can use unmodified imgui_impl_* files in your project. See examples/ folder for examples of using this.
-// Prefer including the entire imgui/ repository into your project (either as a copy or as a submodule), and only build the backends you need.
 // If you are new to Dear ImGui, read documentation from the docs/ folder + read the top of imgui.cpp.
 // Read online: https://github.com/ocornut/imgui/tree/master/docs
-
-// The aim of imgui_impl_vulkan.h/.cpp is to be usable in your engine without any modification.
-// IF YOU FEEL YOU NEED TO MAKE ANY CHANGE TO THIS CODE, please share them and your feedback at https://github.com/ocornut/imgui/
-
-// Important note to the reader who wish to integrate imgui_impl_vulkan.cpp/.h in their own engine/app.
-// - Common ImGui_ImplVulkan_XXX functions and structures are used to interface with imgui_impl_vulkan.cpp/.h.
-//   You will use those if you want to use this rendering backend in your engine/app.
-// - Helper ImGui_ImplVulkanH_XXX functions and structures are only used by this example (main.cpp) and by
-//   the backend itself (imgui_impl_vulkan.cpp), but should PROBABLY NOT be used by your own engine/app code.
-// Read comments in imgui_impl_vulkan.h.
-
-// CHANGELOG
-// (minor and older changes stripped away, please see git history for details)
-//  2021-10-15: Vulkan: Call vkCmdSetScissor() at the end of render a full-viewport to reduce likehood of issues with people using VK_DYNAMIC_STATE_SCISSOR in their app without calling vkCmdSetScissor() explicitly every frame.
-//  2021-06-29: Reorganized backend to pull data from a single structure to facilitate usage with multiple-contexts (all g_XXXX access changed to bd->XXXX).
-//  2021-03-22: Vulkan: Fix mapped memory validation error when buffer sizes are not multiple of VkPhysicalDeviceLimits::nonCoherentAtomSize.
-//  2021-02-18: Vulkan: Change blending equation to preserve alpha in output buffer.
-//  2021-01-27: Vulkan: Added support for custom function load and IMGUI_IMPL_VULKAN_NO_PROTOTYPES by using ImGui_ImplVulkan_LoadFunctions().
-//  2020-11-11: Vulkan: Added support for specifying which subpass to reference during VkPipeline creation.
-//  2020-09-07: Vulkan: Added VkPipeline parameter to ImGui_ImplVulkan_RenderDrawData (default to one passed to ImGui_ImplVulkan_Init).
-//  2020-05-04: Vulkan: Fixed crash if initial frame has no vertices.
-//  2020-04-26: Vulkan: Fixed edge case where render callbacks wouldn't be called if the ImDrawData didn't have vertices.
-//  2019-08-01: Vulkan: Added support for specifying multisample count. Set ImGui_ImplVulkan_InitInfo::MSAASamples to one of the VkSampleCountFlagBits values to use, default is non-multisampled as before.
-//  2019-05-29: Vulkan: Added support for large mesh (64K+ vertices), enable ImGuiBackendFlags_RendererHasVtxOffset flag.
-//  2019-04-30: Vulkan: Added support for special ImDrawCallback_ResetRenderState callback to reset render state.
-//  2019-04-04: *BREAKING CHANGE*: Vulkan: Added ImageCount/MinImageCount fields in ImGui_ImplVulkan_InitInfo, required for initialization (was previously a hard #define IMGUI_VK_QUEUED_FRAMES 2). Added ImGui_ImplVulkan_SetMinImageCount().
-//  2019-04-04: Vulkan: Added VkInstance argument to ImGui_ImplVulkanH_CreateWindow() optional helper.
-//  2019-04-04: Vulkan: Avoid passing negative coordinates to vkCmdSetScissor, which debug validation layers do not like.
-//  2019-04-01: Vulkan: Support for 32-bit index buffer (#define ImDrawIdx unsigned int).
-//  2019-02-16: Vulkan: Viewport and clipping rectangles correctly using draw_data->FramebufferScale to allow retina display.
-//  2018-11-30: Misc: Setting up io.BackendRendererName so it can be displayed in the About Window.
-//  2018-08-25: Vulkan: Fixed mishandled VkSurfaceCapabilitiesKHR::maxImageCount=0 case.
-//  2018-06-22: Inverted the parameters to ImGui_ImplVulkan_RenderDrawData() to be consistent with other backends.
-//  2018-06-08: Misc: Extracted imgui_impl_vulkan.cpp/.h away from the old combined GLFW+Vulkan example.
-//  2018-06-08: Vulkan: Use draw_data->DisplayPos and draw_data->DisplaySize to setup projection matrix and clipping rectangle.
-//  2018-03-03: Vulkan: Various refactor, created a couple of ImGui_ImplVulkanH_XXX helper that the example can use and that viewport support will use.
-//  2018-03-01: Vulkan: Renamed ImGui_ImplVulkan_Init_Info to ImGui_ImplVulkan_InitInfo and fields to match more closely Vulkan terminology.
-//  2018-02-16: Misc: Obsoleted the io.RenderDrawListsFn callback, ImGui_ImplVulkan_Render() calls ImGui_ImplVulkan_RenderDrawData() itself.
-//  2018-02-06: Misc: Removed call to ImGui::Shutdown() which is not available from 1.60 WIP, user needs to call CreateContext/DestroyContext themselves.
-//  2017-05-15: Vulkan: Fix scissor offset being negative. Fix new Vulkan validation warnings. Set required depth member for buffer image copy.
-//  2016-11-13: Vulkan: Fix validation layer warnings and errors and redeclare gl_PerVertex.
-//  2016-10-18: Vulkan: Add location decorators & change to use structs as in/out in glsl, update embedded spv (produced with glslangValidator -x). Null the released resources.
-//  2016-08-27: Vulkan: Fix Vulkan example for use when a depth buffer is active.
 
 #include "imgui_impl_redgpu.h"
 #include <stdio.h>
@@ -69,54 +20,56 @@
 #pragma warning (disable: 4127) // condition expression is constant
 #endif
 
-// Reusable buffers used for rendering 1 current in-flight frame, for ImGui_ImplVulkan_RenderDrawData()
+// Reusable buffers used for rendering 1 current in-flight frame, for ImGui_ImplRedGpu_RenderDrawData()
 // [Please zero-clear before use!]
-struct ImGui_ImplVulkanH_FrameRenderBuffers
+struct ImGui_ImplRedGpuH_FrameRenderBuffers
 {
-    VkDeviceMemory      VertexBufferMemory;
-    VkDeviceMemory      IndexBufferMemory;
-    VkDeviceSize        VertexBufferSize;
-    VkDeviceSize        IndexBufferSize;
-    VkBuffer            VertexBuffer;
-    VkBuffer            IndexBuffer;
+    RedHandleMemory     VertexBufferMemory;
+    RedHandleMemory     IndexBufferMemory;
+    uint64_t            VertexBufferSize;
+    uint64_t            IndexBufferSize;
+    RedArray            VertexBuffer;
+    RedArray            IndexBuffer;
 };
 
-// Each viewport will hold 1 ImGui_ImplVulkanH_WindowRenderBuffers
+// Each viewport will hold 1 ImGui_ImplRedGpuH_WindowRenderBuffers
 // [Please zero-clear before use!]
-struct ImGui_ImplVulkanH_WindowRenderBuffers
+struct ImGui_ImplRedGpuH_WindowRenderBuffers
 {
     uint32_t            Index;
     uint32_t            Count;
-    ImGui_ImplVulkanH_FrameRenderBuffers*   FrameRenderBuffers;
+    ImGui_ImplRedGpuH_FrameRenderBuffers*   FrameRenderBuffers;
 };
 
-// Vulkan data
-struct ImGui_ImplVulkan_Data
+// RedGpu data
+struct ImGui_ImplRedGpu_Data
 {
-    ImGui_ImplVulkan_InitInfo   VulkanInitInfo;
-    VkRenderPass                RenderPass;
-    VkDeviceSize                BufferMemoryAlignment;
-    VkPipelineCreateFlags       PipelineCreateFlags;
-    VkDescriptorSetLayout       DescriptorSetLayout;
-    VkPipelineLayout            PipelineLayout;
-    VkPipeline                  Pipeline;
+    ImGui_ImplRedGpu_InitInfo   RedGpuInitInfo;
+    RedHandleOutputDeclaration  RenderPass;
+    uint64_t                    BufferMemoryAlignment;
+    RedHandleStructDeclaration  SamplerDescriptorSetLayout;
+    RedHandleStructDeclaration  DescriptorSetLayout;
+    RedHandleStructDeclaration  ImdrawvertsDescriptorSetLayout;
+    RedHandleProcedureParameters PipelineLayout;
+    RedHandleProcedure          Pipeline;
     uint32_t                    Subpass;
-    VkShaderModule              ShaderModuleVert;
-    VkShaderModule              ShaderModuleFrag;
+    RedHandleGpuCode            ShaderModuleVert;
+    RedHandleGpuCode            ShaderModuleFrag;
 
     // Font data
-    VkSampler                   FontSampler;
-    VkDeviceMemory              FontMemory;
-    VkImage                     FontImage;
-    VkImageView                 FontView;
-    VkDescriptorSet             FontDescriptorSet;
-    VkDeviceMemory              UploadBufferMemory;
-    VkBuffer                    UploadBuffer;
+    RedHandleSampler            FontSampler;
+    RedHandleMemory             FontMemory;
+    RedImage                    FontImage;
+    RedHandleTexture            FontView;
+    RedHandleStruct             FontSamplerDescriptorSet;
+    RedHandleStruct             FontDescriptorSet;
+    RedHandleMemory             UploadBufferMemory;
+    RedArray                    UploadBuffer;
 
     // Render buffers
-    ImGui_ImplVulkanH_WindowRenderBuffers MainWindowRenderBuffers;
+    ImGui_ImplRedGpuH_WindowRenderBuffers MainWindowRenderBuffers;
 
-    ImGui_ImplVulkan_Data()
+    ImGui_ImplRedGpu_Data()
     {
         memset((void*)this, 0, sizeof(*this));
         BufferMemoryAlignment = 256;
@@ -124,196 +77,362 @@ struct ImGui_ImplVulkan_Data
 };
 
 // Forward Declarations
-bool ImGui_ImplVulkan_CreateDeviceObjects();
-void ImGui_ImplVulkan_DestroyDeviceObjects();
-void ImGui_ImplVulkanH_DestroyFrame(VkDevice device, ImGui_ImplVulkanH_Frame* fd, const VkAllocationCallbacks* allocator);
-void ImGui_ImplVulkanH_DestroyFrameSemaphores(VkDevice device, ImGui_ImplVulkanH_FrameSemaphores* fsd, const VkAllocationCallbacks* allocator);
-void ImGui_ImplVulkanH_DestroyFrameRenderBuffers(VkDevice device, ImGui_ImplVulkanH_FrameRenderBuffers* buffers, const VkAllocationCallbacks* allocator);
-void ImGui_ImplVulkanH_DestroyWindowRenderBuffers(VkDevice device, ImGui_ImplVulkanH_WindowRenderBuffers* buffers, const VkAllocationCallbacks* allocator);
-void ImGui_ImplVulkanH_CreateWindowSwapChain(VkPhysicalDevice physical_device, VkDevice device, ImGui_ImplVulkanH_Window* wd, const VkAllocationCallbacks* allocator, int w, int h, uint32_t min_image_count);
-void ImGui_ImplVulkanH_CreateWindowCommandBuffers(VkPhysicalDevice physical_device, VkDevice device, ImGui_ImplVulkanH_Window* wd, uint32_t queue_family, const VkAllocationCallbacks* allocator);
-
-// Vulkan prototypes for use with custom loaders
-// (see description of IMGUI_IMPL_VULKAN_NO_PROTOTYPES in imgui_impl_vulkan.h
-#ifdef VK_NO_PROTOTYPES
-static bool g_FunctionsLoaded = false;
-#else
-static bool g_FunctionsLoaded = true;
-#endif
-#ifdef VK_NO_PROTOTYPES
-#define IMGUI_VULKAN_FUNC_MAP(IMGUI_VULKAN_FUNC_MAP_MACRO) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkAllocateCommandBuffers) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkAllocateDescriptorSets) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkAllocateMemory) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkBindBufferMemory) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkBindImageMemory) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkCmdBindDescriptorSets) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkCmdBindIndexBuffer) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkCmdBindPipeline) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkCmdBindVertexBuffers) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkCmdCopyBufferToImage) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkCmdDrawIndexed) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkCmdPipelineBarrier) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkCmdPushConstants) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkCmdSetScissor) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkCmdSetViewport) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkCreateBuffer) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkCreateCommandPool) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkCreateDescriptorSetLayout) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkCreateFence) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkCreateFramebuffer) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkCreateGraphicsPipelines) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkCreateImage) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkCreateImageView) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkCreatePipelineLayout) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkCreateRenderPass) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkCreateSampler) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkCreateSemaphore) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkCreateShaderModule) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkCreateSwapchainKHR) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkDestroyBuffer) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkDestroyCommandPool) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkDestroyDescriptorSetLayout) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkDestroyFence) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkDestroyFramebuffer) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkDestroyImage) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkDestroyImageView) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkDestroyPipeline) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkDestroyPipelineLayout) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkDestroyRenderPass) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkDestroySampler) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkDestroySemaphore) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkDestroyShaderModule) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkDestroySurfaceKHR) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkDestroySwapchainKHR) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkDeviceWaitIdle) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkFlushMappedMemoryRanges) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkFreeCommandBuffers) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkFreeMemory) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkGetBufferMemoryRequirements) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkGetImageMemoryRequirements) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkGetPhysicalDeviceMemoryProperties) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkGetPhysicalDeviceSurfaceCapabilitiesKHR) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkGetPhysicalDeviceSurfaceFormatsKHR) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkGetPhysicalDeviceSurfacePresentModesKHR) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkGetSwapchainImagesKHR) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkMapMemory) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkUnmapMemory) \
-    IMGUI_VULKAN_FUNC_MAP_MACRO(vkUpdateDescriptorSets)
-
-// Define function pointers
-#define IMGUI_VULKAN_FUNC_DEF(func) static PFN_##func func;
-IMGUI_VULKAN_FUNC_MAP(IMGUI_VULKAN_FUNC_DEF)
-#undef IMGUI_VULKAN_FUNC_DEF
-#endif // VK_NO_PROTOTYPES
+bool ImGui_ImplRedGpu_CreateDeviceObjects();
+void ImGui_ImplRedGpu_DestroyDeviceObjects();
+void ImGui_ImplRedGpuH_DestroyFrame(RedContext instance, uint32_t deviceIndex, RedHandleGpu device, ImGui_ImplRedGpuH_Frame* fd);
+void ImGui_ImplRedGpuH_DestroyFrameSemaphores(RedContext instance, uint32_t deviceIndex, RedHandleGpu device, ImGui_ImplRedGpuH_FrameSemaphores* fsd);
+void ImGui_ImplRedGpuH_DestroyFrameRenderBuffers(RedContext instance, uint32_t deviceIndex, RedHandleGpu device, ImGui_ImplRedGpuH_FrameRenderBuffers* buffers);
+void ImGui_ImplRedGpuH_DestroyWindowRenderBuffers(RedContext instance, uint32_t deviceIndex, RedHandleGpu device, ImGui_ImplRedGpuH_WindowRenderBuffers* buffers);
+void ImGui_ImplRedGpuH_CreateWindowSwapChain(RedContext instance, uint32_t deviceIndex, RedHandleGpuDevice physical_device, RedHandleGpu device, ImGui_ImplRedGpuH_Window* wd, int w, int h, uint32_t min_image_count);
+void ImGui_ImplRedGpuH_CreateWindowCommandBuffers(RedContext instance, uint32_t deviceIndex, RedHandleGpuDevice physical_device, RedHandleGpu device, ImGui_ImplRedGpuH_Window* wd, uint32_t queue_family);
 
 //-----------------------------------------------------------------------------
 // SHADERS
 //-----------------------------------------------------------------------------
 
-// glsl_shader.vert, compiled with:
-// # glslangValidator -V -x -o glsl_shader.vert.u32 glsl_shader.vert
 /*
-#version 450 core
-layout(location = 0) in vec2 aPos;
-layout(location = 1) in vec2 aUV;
-layout(location = 2) in vec4 aColor;
-layout(push_constant) uniform uPushConstant { vec2 uScale; vec2 uTranslate; } pc;
+// C:\VulkanSDK\1.3.211.0\Bin\dxc.exe -spirv hlsl_shader.vs -T vs_6_0 -Fh hlsl_shader.vs.h
 
-out gl_PerVertex { vec4 gl_Position; };
-layout(location = 0) out struct { vec4 Color; vec2 UV; } Out;
+[[vk::push_constant]] struct {
+  float2 scale;
+  float2 translate;
+} variables;
 
-void main()
-{
-    Out.Color = aColor;
-    Out.UV = aUV;
-    gl_Position = vec4(aPos * pc.uScale + pc.uTranslate, 0, 1);
+[[vk::binding(0, 2)]] ByteAddressBuffer imdrawverts;
+
+float4 ColorConvertU32ToFloat4(uint v) {
+  const float s = 1.0f / 255.0f;
+  uint4 c = uint4(v & 0xff, (v >> 8) & 0xff, (v >> 16) & 0xff, v >> 24);
+  return float4(c) * s;
 }
-*/
-static uint32_t __glsl_shader_vert_spv[] =
-{
-    0x07230203,0x00010000,0x00080001,0x0000002e,0x00000000,0x00020011,0x00000001,0x0006000b,
-    0x00000001,0x4c534c47,0x6474732e,0x3035342e,0x00000000,0x0003000e,0x00000000,0x00000001,
-    0x000a000f,0x00000000,0x00000004,0x6e69616d,0x00000000,0x0000000b,0x0000000f,0x00000015,
-    0x0000001b,0x0000001c,0x00030003,0x00000002,0x000001c2,0x00040005,0x00000004,0x6e69616d,
-    0x00000000,0x00030005,0x00000009,0x00000000,0x00050006,0x00000009,0x00000000,0x6f6c6f43,
-    0x00000072,0x00040006,0x00000009,0x00000001,0x00005655,0x00030005,0x0000000b,0x0074754f,
-    0x00040005,0x0000000f,0x6c6f4361,0x0000726f,0x00030005,0x00000015,0x00565561,0x00060005,
-    0x00000019,0x505f6c67,0x65567265,0x78657472,0x00000000,0x00060006,0x00000019,0x00000000,
-    0x505f6c67,0x7469736f,0x006e6f69,0x00030005,0x0000001b,0x00000000,0x00040005,0x0000001c,
-    0x736f5061,0x00000000,0x00060005,0x0000001e,0x73755075,0x6e6f4368,0x6e617473,0x00000074,
-    0x00050006,0x0000001e,0x00000000,0x61635375,0x0000656c,0x00060006,0x0000001e,0x00000001,
-    0x61725475,0x616c736e,0x00006574,0x00030005,0x00000020,0x00006370,0x00040047,0x0000000b,
-    0x0000001e,0x00000000,0x00040047,0x0000000f,0x0000001e,0x00000002,0x00040047,0x00000015,
-    0x0000001e,0x00000001,0x00050048,0x00000019,0x00000000,0x0000000b,0x00000000,0x00030047,
-    0x00000019,0x00000002,0x00040047,0x0000001c,0x0000001e,0x00000000,0x00050048,0x0000001e,
-    0x00000000,0x00000023,0x00000000,0x00050048,0x0000001e,0x00000001,0x00000023,0x00000008,
-    0x00030047,0x0000001e,0x00000002,0x00020013,0x00000002,0x00030021,0x00000003,0x00000002,
-    0x00030016,0x00000006,0x00000020,0x00040017,0x00000007,0x00000006,0x00000004,0x00040017,
-    0x00000008,0x00000006,0x00000002,0x0004001e,0x00000009,0x00000007,0x00000008,0x00040020,
-    0x0000000a,0x00000003,0x00000009,0x0004003b,0x0000000a,0x0000000b,0x00000003,0x00040015,
-    0x0000000c,0x00000020,0x00000001,0x0004002b,0x0000000c,0x0000000d,0x00000000,0x00040020,
-    0x0000000e,0x00000001,0x00000007,0x0004003b,0x0000000e,0x0000000f,0x00000001,0x00040020,
-    0x00000011,0x00000003,0x00000007,0x0004002b,0x0000000c,0x00000013,0x00000001,0x00040020,
-    0x00000014,0x00000001,0x00000008,0x0004003b,0x00000014,0x00000015,0x00000001,0x00040020,
-    0x00000017,0x00000003,0x00000008,0x0003001e,0x00000019,0x00000007,0x00040020,0x0000001a,
-    0x00000003,0x00000019,0x0004003b,0x0000001a,0x0000001b,0x00000003,0x0004003b,0x00000014,
-    0x0000001c,0x00000001,0x0004001e,0x0000001e,0x00000008,0x00000008,0x00040020,0x0000001f,
-    0x00000009,0x0000001e,0x0004003b,0x0000001f,0x00000020,0x00000009,0x00040020,0x00000021,
-    0x00000009,0x00000008,0x0004002b,0x00000006,0x00000028,0x00000000,0x0004002b,0x00000006,
-    0x00000029,0x3f800000,0x00050036,0x00000002,0x00000004,0x00000000,0x00000003,0x000200f8,
-    0x00000005,0x0004003d,0x00000007,0x00000010,0x0000000f,0x00050041,0x00000011,0x00000012,
-    0x0000000b,0x0000000d,0x0003003e,0x00000012,0x00000010,0x0004003d,0x00000008,0x00000016,
-    0x00000015,0x00050041,0x00000017,0x00000018,0x0000000b,0x00000013,0x0003003e,0x00000018,
-    0x00000016,0x0004003d,0x00000008,0x0000001d,0x0000001c,0x00050041,0x00000021,0x00000022,
-    0x00000020,0x0000000d,0x0004003d,0x00000008,0x00000023,0x00000022,0x00050085,0x00000008,
-    0x00000024,0x0000001d,0x00000023,0x00050041,0x00000021,0x00000025,0x00000020,0x00000013,
-    0x0004003d,0x00000008,0x00000026,0x00000025,0x00050081,0x00000008,0x00000027,0x00000024,
-    0x00000026,0x00050051,0x00000006,0x0000002a,0x00000027,0x00000000,0x00050051,0x00000006,
-    0x0000002b,0x00000027,0x00000001,0x00070050,0x00000007,0x0000002c,0x0000002a,0x0000002b,
-    0x00000028,0x00000029,0x00050041,0x00000011,0x0000002d,0x0000001b,0x0000000d,0x0003003e,
-    0x0000002d,0x0000002c,0x000100fd,0x00010038
+
+struct interpolated {
+  float4 pos: SV_Position;
+  float4 col: Color;
+  float2 uv: Uv;
 };
 
-// glsl_shader.frag, compiled with:
-// # glslangValidator -V -x -o glsl_shader.frag.u32 glsl_shader.frag
-/*
-#version 450 core
-layout(location = 0) out vec4 fColor;
-layout(set=0, binding=0) uniform sampler2D sTexture;
-layout(location = 0) in struct { vec4 Color; vec2 UV; } In;
-void main()
-{
-    fColor = In.Color * texture(sTexture, In.UV.st);
+interpolated main(uint vid: SV_VertexID, uint iid: SV_InstanceID) {
+  float2 pos;
+  float2 uv;
+  uint   col;
+  pos.x = asfloat(imdrawverts.Load((vid * 5 + 0) * 4));
+  pos.y = asfloat(imdrawverts.Load((vid * 5 + 1) * 4));
+  uv.x  = asfloat(imdrawverts.Load((vid * 5 + 2) * 4));
+  uv.y  = asfloat(imdrawverts.Load((vid * 5 + 3) * 4));
+  col   =         imdrawverts.Load((vid * 5 + 4) * 4);
+  interpolated output;
+  output.pos = float4(pos * variables.scale + variables.translate, 0, 1);
+  output.pos.y *= -1.0f;
+  output.col = ColorConvertU32ToFloat4(col);
+  output.uv  = uv;
+  return output;
 }
 */
-static uint32_t __glsl_shader_frag_spv[] =
+static unsigned char __hlsl_shader_vs_spv[] =
 {
-    0x07230203,0x00010000,0x00080001,0x0000001e,0x00000000,0x00020011,0x00000001,0x0006000b,
-    0x00000001,0x4c534c47,0x6474732e,0x3035342e,0x00000000,0x0003000e,0x00000000,0x00000001,
-    0x0007000f,0x00000004,0x00000004,0x6e69616d,0x00000000,0x00000009,0x0000000d,0x00030010,
-    0x00000004,0x00000007,0x00030003,0x00000002,0x000001c2,0x00040005,0x00000004,0x6e69616d,
-    0x00000000,0x00040005,0x00000009,0x6c6f4366,0x0000726f,0x00030005,0x0000000b,0x00000000,
-    0x00050006,0x0000000b,0x00000000,0x6f6c6f43,0x00000072,0x00040006,0x0000000b,0x00000001,
-    0x00005655,0x00030005,0x0000000d,0x00006e49,0x00050005,0x00000016,0x78655473,0x65727574,
-    0x00000000,0x00040047,0x00000009,0x0000001e,0x00000000,0x00040047,0x0000000d,0x0000001e,
-    0x00000000,0x00040047,0x00000016,0x00000022,0x00000000,0x00040047,0x00000016,0x00000021,
-    0x00000000,0x00020013,0x00000002,0x00030021,0x00000003,0x00000002,0x00030016,0x00000006,
-    0x00000020,0x00040017,0x00000007,0x00000006,0x00000004,0x00040020,0x00000008,0x00000003,
-    0x00000007,0x0004003b,0x00000008,0x00000009,0x00000003,0x00040017,0x0000000a,0x00000006,
-    0x00000002,0x0004001e,0x0000000b,0x00000007,0x0000000a,0x00040020,0x0000000c,0x00000001,
-    0x0000000b,0x0004003b,0x0000000c,0x0000000d,0x00000001,0x00040015,0x0000000e,0x00000020,
-    0x00000001,0x0004002b,0x0000000e,0x0000000f,0x00000000,0x00040020,0x00000010,0x00000001,
-    0x00000007,0x00090019,0x00000013,0x00000006,0x00000001,0x00000000,0x00000000,0x00000000,
-    0x00000001,0x00000000,0x0003001b,0x00000014,0x00000013,0x00040020,0x00000015,0x00000000,
-    0x00000014,0x0004003b,0x00000015,0x00000016,0x00000000,0x0004002b,0x0000000e,0x00000018,
-    0x00000001,0x00040020,0x00000019,0x00000001,0x0000000a,0x00050036,0x00000002,0x00000004,
-    0x00000000,0x00000003,0x000200f8,0x00000005,0x00050041,0x00000010,0x00000011,0x0000000d,
-    0x0000000f,0x0004003d,0x00000007,0x00000012,0x00000011,0x0004003d,0x00000014,0x00000017,
-    0x00000016,0x00050041,0x00000019,0x0000001a,0x0000000d,0x00000018,0x0004003d,0x0000000a,
-    0x0000001b,0x0000001a,0x00050057,0x00000007,0x0000001c,0x00000017,0x0000001b,0x00050085,
-    0x00000007,0x0000001d,0x00000012,0x0000001c,0x0003003e,0x00000009,0x0000001d,0x000100fd,
-    0x00010038
+  0x03, 0x02, 0x23, 0x07, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x0e, 0x00,
+  0x64, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x11, 0x00, 0x02, 0x00,
+  0x01, 0x00, 0x00, 0x00, 0x0e, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x01, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x01, 0x00, 0x00, 0x00, 0x6d, 0x61, 0x69, 0x6e, 0x00, 0x00, 0x00, 0x00,
+  0x02, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00,
+  0x05, 0x00, 0x00, 0x00, 0x03, 0x00, 0x03, 0x00, 0x05, 0x00, 0x00, 0x00,
+  0x58, 0x02, 0x00, 0x00, 0x05, 0x00, 0x07, 0x00, 0x06, 0x00, 0x00, 0x00,
+  0x74, 0x79, 0x70, 0x65, 0x2e, 0x50, 0x75, 0x73, 0x68, 0x43, 0x6f, 0x6e,
+  0x73, 0x74, 0x61, 0x6e, 0x74, 0x2e, 0x00, 0x00, 0x06, 0x00, 0x05, 0x00,
+  0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x73, 0x63, 0x61, 0x6c,
+  0x65, 0x00, 0x00, 0x00, 0x06, 0x00, 0x06, 0x00, 0x06, 0x00, 0x00, 0x00,
+  0x01, 0x00, 0x00, 0x00, 0x74, 0x72, 0x61, 0x6e, 0x73, 0x6c, 0x61, 0x74,
+  0x65, 0x00, 0x00, 0x00, 0x05, 0x00, 0x05, 0x00, 0x07, 0x00, 0x00, 0x00,
+  0x76, 0x61, 0x72, 0x69, 0x61, 0x62, 0x6c, 0x65, 0x73, 0x00, 0x00, 0x00,
+  0x05, 0x00, 0x08, 0x00, 0x08, 0x00, 0x00, 0x00, 0x74, 0x79, 0x70, 0x65,
+  0x2e, 0x42, 0x79, 0x74, 0x65, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73,
+  0x42, 0x75, 0x66, 0x66, 0x65, 0x72, 0x00, 0x00, 0x05, 0x00, 0x05, 0x00,
+  0x09, 0x00, 0x00, 0x00, 0x69, 0x6d, 0x64, 0x72, 0x61, 0x77, 0x76, 0x65,
+  0x72, 0x74, 0x73, 0x00, 0x05, 0x00, 0x06, 0x00, 0x04, 0x00, 0x00, 0x00,
+  0x6f, 0x75, 0x74, 0x2e, 0x76, 0x61, 0x72, 0x2e, 0x43, 0x6f, 0x6c, 0x6f,
+  0x72, 0x00, 0x00, 0x00, 0x05, 0x00, 0x05, 0x00, 0x05, 0x00, 0x00, 0x00,
+  0x6f, 0x75, 0x74, 0x2e, 0x76, 0x61, 0x72, 0x2e, 0x55, 0x76, 0x00, 0x00,
+  0x05, 0x00, 0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0x6d, 0x61, 0x69, 0x6e,
+  0x00, 0x00, 0x00, 0x00, 0x47, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x00,
+  0x0b, 0x00, 0x00, 0x00, 0x2a, 0x00, 0x00, 0x00, 0x47, 0x00, 0x04, 0x00,
+  0x03, 0x00, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x47, 0x00, 0x04, 0x00, 0x04, 0x00, 0x00, 0x00, 0x1e, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x47, 0x00, 0x04, 0x00, 0x05, 0x00, 0x00, 0x00,
+  0x1e, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x47, 0x00, 0x04, 0x00,
+  0x09, 0x00, 0x00, 0x00, 0x22, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00,
+  0x47, 0x00, 0x04, 0x00, 0x09, 0x00, 0x00, 0x00, 0x21, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x48, 0x00, 0x05, 0x00, 0x06, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x23, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x48, 0x00, 0x05, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+  0x23, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x47, 0x00, 0x03, 0x00,
+  0x06, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x47, 0x00, 0x04, 0x00,
+  0x0a, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00,
+  0x48, 0x00, 0x05, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x23, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x48, 0x00, 0x04, 0x00,
+  0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x18, 0x00, 0x00, 0x00,
+  0x47, 0x00, 0x03, 0x00, 0x08, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00,
+  0x15, 0x00, 0x04, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x2b, 0x00, 0x04, 0x00, 0x0b, 0x00, 0x00, 0x00,
+  0x0c, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x2b, 0x00, 0x04, 0x00,
+  0x0b, 0x00, 0x00, 0x00, 0x0d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x2b, 0x00, 0x04, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x0e, 0x00, 0x00, 0x00,
+  0x04, 0x00, 0x00, 0x00, 0x2b, 0x00, 0x04, 0x00, 0x0b, 0x00, 0x00, 0x00,
+  0x0f, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x15, 0x00, 0x04, 0x00,
+  0x10, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+  0x2b, 0x00, 0x04, 0x00, 0x10, 0x00, 0x00, 0x00, 0x11, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x2b, 0x00, 0x04, 0x00, 0x0b, 0x00, 0x00, 0x00,
+  0x12, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x2b, 0x00, 0x04, 0x00,
+  0x10, 0x00, 0x00, 0x00, 0x13, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+  0x2b, 0x00, 0x04, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00,
+  0x03, 0x00, 0x00, 0x00, 0x16, 0x00, 0x03, 0x00, 0x15, 0x00, 0x00, 0x00,
+  0x20, 0x00, 0x00, 0x00, 0x2b, 0x00, 0x04, 0x00, 0x15, 0x00, 0x00, 0x00,
+  0x16, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2b, 0x00, 0x04, 0x00,
+  0x15, 0x00, 0x00, 0x00, 0x17, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x3f,
+  0x2b, 0x00, 0x04, 0x00, 0x15, 0x00, 0x00, 0x00, 0x18, 0x00, 0x00, 0x00,
+  0x81, 0x80, 0x80, 0x3b, 0x2b, 0x00, 0x04, 0x00, 0x0b, 0x00, 0x00, 0x00,
+  0x19, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x2b, 0x00, 0x04, 0x00,
+  0x0b, 0x00, 0x00, 0x00, 0x1a, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00,
+  0x2b, 0x00, 0x04, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x1b, 0x00, 0x00, 0x00,
+  0x10, 0x00, 0x00, 0x00, 0x2b, 0x00, 0x04, 0x00, 0x0b, 0x00, 0x00, 0x00,
+  0x1c, 0x00, 0x00, 0x00, 0x18, 0x00, 0x00, 0x00, 0x17, 0x00, 0x04, 0x00,
+  0x1d, 0x00, 0x00, 0x00, 0x15, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00,
+  0x1e, 0x00, 0x04, 0x00, 0x06, 0x00, 0x00, 0x00, 0x1d, 0x00, 0x00, 0x00,
+  0x1d, 0x00, 0x00, 0x00, 0x20, 0x00, 0x04, 0x00, 0x1e, 0x00, 0x00, 0x00,
+  0x09, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x1d, 0x00, 0x03, 0x00,
+  0x0a, 0x00, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x1e, 0x00, 0x03, 0x00,
+  0x08, 0x00, 0x00, 0x00, 0x0a, 0x00, 0x00, 0x00, 0x20, 0x00, 0x04, 0x00,
+  0x1f, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00,
+  0x20, 0x00, 0x04, 0x00, 0x20, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+  0x0b, 0x00, 0x00, 0x00, 0x17, 0x00, 0x04, 0x00, 0x21, 0x00, 0x00, 0x00,
+  0x15, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x20, 0x00, 0x04, 0x00,
+  0x22, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x21, 0x00, 0x00, 0x00,
+  0x20, 0x00, 0x04, 0x00, 0x23, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00,
+  0x1d, 0x00, 0x00, 0x00, 0x13, 0x00, 0x02, 0x00, 0x24, 0x00, 0x00, 0x00,
+  0x21, 0x00, 0x03, 0x00, 0x25, 0x00, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00,
+  0x20, 0x00, 0x04, 0x00, 0x26, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00,
+  0x0b, 0x00, 0x00, 0x00, 0x20, 0x00, 0x04, 0x00, 0x27, 0x00, 0x00, 0x00,
+  0x09, 0x00, 0x00, 0x00, 0x1d, 0x00, 0x00, 0x00, 0x17, 0x00, 0x04, 0x00,
+  0x28, 0x00, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00,
+  0x3b, 0x00, 0x04, 0x00, 0x1e, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00,
+  0x09, 0x00, 0x00, 0x00, 0x3b, 0x00, 0x04, 0x00, 0x1f, 0x00, 0x00, 0x00,
+  0x09, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x3b, 0x00, 0x04, 0x00,
+  0x20, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+  0x3b, 0x00, 0x04, 0x00, 0x22, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00,
+  0x03, 0x00, 0x00, 0x00, 0x3b, 0x00, 0x04, 0x00, 0x22, 0x00, 0x00, 0x00,
+  0x04, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x3b, 0x00, 0x04, 0x00,
+  0x23, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00,
+  0x01, 0x00, 0x03, 0x00, 0x1d, 0x00, 0x00, 0x00, 0x29, 0x00, 0x00, 0x00,
+  0x2b, 0x00, 0x04, 0x00, 0x15, 0x00, 0x00, 0x00, 0x2a, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x80, 0xbf, 0x2b, 0x00, 0x04, 0x00, 0x0b, 0x00, 0x00, 0x00,
+  0x2b, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0x01, 0x00, 0x03, 0x00,
+  0x1d, 0x00, 0x00, 0x00, 0x2c, 0x00, 0x00, 0x00, 0x36, 0x00, 0x05, 0x00,
+  0x24, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x25, 0x00, 0x00, 0x00, 0xf8, 0x00, 0x02, 0x00, 0x2d, 0x00, 0x00, 0x00,
+  0x3d, 0x00, 0x04, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x2e, 0x00, 0x00, 0x00,
+  0x02, 0x00, 0x00, 0x00, 0x84, 0x00, 0x05, 0x00, 0x0b, 0x00, 0x00, 0x00,
+  0x2f, 0x00, 0x00, 0x00, 0x2e, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00,
+  0x84, 0x00, 0x05, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x30, 0x00, 0x00, 0x00,
+  0x2e, 0x00, 0x00, 0x00, 0x2b, 0x00, 0x00, 0x00, 0xc2, 0x00, 0x05, 0x00,
+  0x0b, 0x00, 0x00, 0x00, 0x31, 0x00, 0x00, 0x00, 0x30, 0x00, 0x00, 0x00,
+  0x0f, 0x00, 0x00, 0x00, 0x41, 0x00, 0x06, 0x00, 0x26, 0x00, 0x00, 0x00,
+  0x32, 0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x0d, 0x00, 0x00, 0x00,
+  0x31, 0x00, 0x00, 0x00, 0x3d, 0x00, 0x04, 0x00, 0x0b, 0x00, 0x00, 0x00,
+  0x33, 0x00, 0x00, 0x00, 0x32, 0x00, 0x00, 0x00, 0x7c, 0x00, 0x04, 0x00,
+  0x15, 0x00, 0x00, 0x00, 0x34, 0x00, 0x00, 0x00, 0x33, 0x00, 0x00, 0x00,
+  0x52, 0x00, 0x06, 0x00, 0x1d, 0x00, 0x00, 0x00, 0x35, 0x00, 0x00, 0x00,
+  0x34, 0x00, 0x00, 0x00, 0x2c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x80, 0x00, 0x05, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x36, 0x00, 0x00, 0x00,
+  0x2f, 0x00, 0x00, 0x00, 0x12, 0x00, 0x00, 0x00, 0x84, 0x00, 0x05, 0x00,
+  0x0b, 0x00, 0x00, 0x00, 0x37, 0x00, 0x00, 0x00, 0x36, 0x00, 0x00, 0x00,
+  0x0e, 0x00, 0x00, 0x00, 0xc2, 0x00, 0x05, 0x00, 0x0b, 0x00, 0x00, 0x00,
+  0x38, 0x00, 0x00, 0x00, 0x37, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00,
+  0x41, 0x00, 0x06, 0x00, 0x26, 0x00, 0x00, 0x00, 0x39, 0x00, 0x00, 0x00,
+  0x09, 0x00, 0x00, 0x00, 0x0d, 0x00, 0x00, 0x00, 0x38, 0x00, 0x00, 0x00,
+  0x3d, 0x00, 0x04, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x3a, 0x00, 0x00, 0x00,
+  0x39, 0x00, 0x00, 0x00, 0x7c, 0x00, 0x04, 0x00, 0x15, 0x00, 0x00, 0x00,
+  0x3b, 0x00, 0x00, 0x00, 0x3a, 0x00, 0x00, 0x00, 0x52, 0x00, 0x06, 0x00,
+  0x1d, 0x00, 0x00, 0x00, 0x3c, 0x00, 0x00, 0x00, 0x3b, 0x00, 0x00, 0x00,
+  0x35, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x80, 0x00, 0x05, 0x00,
+  0x0b, 0x00, 0x00, 0x00, 0x3d, 0x00, 0x00, 0x00, 0x2f, 0x00, 0x00, 0x00,
+  0x0f, 0x00, 0x00, 0x00, 0x84, 0x00, 0x05, 0x00, 0x0b, 0x00, 0x00, 0x00,
+  0x3e, 0x00, 0x00, 0x00, 0x3d, 0x00, 0x00, 0x00, 0x0e, 0x00, 0x00, 0x00,
+  0xc2, 0x00, 0x05, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x3f, 0x00, 0x00, 0x00,
+  0x3e, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x41, 0x00, 0x06, 0x00,
+  0x26, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00,
+  0x0d, 0x00, 0x00, 0x00, 0x3f, 0x00, 0x00, 0x00, 0x3d, 0x00, 0x04, 0x00,
+  0x0b, 0x00, 0x00, 0x00, 0x41, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00,
+  0x7c, 0x00, 0x04, 0x00, 0x15, 0x00, 0x00, 0x00, 0x42, 0x00, 0x00, 0x00,
+  0x41, 0x00, 0x00, 0x00, 0x52, 0x00, 0x06, 0x00, 0x1d, 0x00, 0x00, 0x00,
+  0x43, 0x00, 0x00, 0x00, 0x42, 0x00, 0x00, 0x00, 0x29, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x80, 0x00, 0x05, 0x00, 0x0b, 0x00, 0x00, 0x00,
+  0x44, 0x00, 0x00, 0x00, 0x2f, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00,
+  0x84, 0x00, 0x05, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x45, 0x00, 0x00, 0x00,
+  0x44, 0x00, 0x00, 0x00, 0x0e, 0x00, 0x00, 0x00, 0xc2, 0x00, 0x05, 0x00,
+  0x0b, 0x00, 0x00, 0x00, 0x46, 0x00, 0x00, 0x00, 0x45, 0x00, 0x00, 0x00,
+  0x0f, 0x00, 0x00, 0x00, 0x41, 0x00, 0x06, 0x00, 0x26, 0x00, 0x00, 0x00,
+  0x47, 0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x0d, 0x00, 0x00, 0x00,
+  0x46, 0x00, 0x00, 0x00, 0x3d, 0x00, 0x04, 0x00, 0x0b, 0x00, 0x00, 0x00,
+  0x48, 0x00, 0x00, 0x00, 0x47, 0x00, 0x00, 0x00, 0x7c, 0x00, 0x04, 0x00,
+  0x15, 0x00, 0x00, 0x00, 0x49, 0x00, 0x00, 0x00, 0x48, 0x00, 0x00, 0x00,
+  0x52, 0x00, 0x06, 0x00, 0x1d, 0x00, 0x00, 0x00, 0x4a, 0x00, 0x00, 0x00,
+  0x49, 0x00, 0x00, 0x00, 0x43, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+  0x80, 0x00, 0x05, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x4b, 0x00, 0x00, 0x00,
+  0x2f, 0x00, 0x00, 0x00, 0x0e, 0x00, 0x00, 0x00, 0x84, 0x00, 0x05, 0x00,
+  0x0b, 0x00, 0x00, 0x00, 0x4c, 0x00, 0x00, 0x00, 0x4b, 0x00, 0x00, 0x00,
+  0x0e, 0x00, 0x00, 0x00, 0xc2, 0x00, 0x05, 0x00, 0x0b, 0x00, 0x00, 0x00,
+  0x4d, 0x00, 0x00, 0x00, 0x4c, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00,
+  0x41, 0x00, 0x06, 0x00, 0x26, 0x00, 0x00, 0x00, 0x4e, 0x00, 0x00, 0x00,
+  0x09, 0x00, 0x00, 0x00, 0x0d, 0x00, 0x00, 0x00, 0x4d, 0x00, 0x00, 0x00,
+  0x3d, 0x00, 0x04, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x4f, 0x00, 0x00, 0x00,
+  0x4e, 0x00, 0x00, 0x00, 0x41, 0x00, 0x05, 0x00, 0x27, 0x00, 0x00, 0x00,
+  0x50, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x11, 0x00, 0x00, 0x00,
+  0x3d, 0x00, 0x04, 0x00, 0x1d, 0x00, 0x00, 0x00, 0x51, 0x00, 0x00, 0x00,
+  0x50, 0x00, 0x00, 0x00, 0x85, 0x00, 0x05, 0x00, 0x1d, 0x00, 0x00, 0x00,
+  0x52, 0x00, 0x00, 0x00, 0x3c, 0x00, 0x00, 0x00, 0x51, 0x00, 0x00, 0x00,
+  0x41, 0x00, 0x05, 0x00, 0x27, 0x00, 0x00, 0x00, 0x53, 0x00, 0x00, 0x00,
+  0x07, 0x00, 0x00, 0x00, 0x13, 0x00, 0x00, 0x00, 0x3d, 0x00, 0x04, 0x00,
+  0x1d, 0x00, 0x00, 0x00, 0x54, 0x00, 0x00, 0x00, 0x53, 0x00, 0x00, 0x00,
+  0x81, 0x00, 0x05, 0x00, 0x1d, 0x00, 0x00, 0x00, 0x55, 0x00, 0x00, 0x00,
+  0x52, 0x00, 0x00, 0x00, 0x54, 0x00, 0x00, 0x00, 0x51, 0x00, 0x05, 0x00,
+  0x15, 0x00, 0x00, 0x00, 0x56, 0x00, 0x00, 0x00, 0x55, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x51, 0x00, 0x05, 0x00, 0x15, 0x00, 0x00, 0x00,
+  0x57, 0x00, 0x00, 0x00, 0x55, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+  0x50, 0x00, 0x07, 0x00, 0x21, 0x00, 0x00, 0x00, 0x58, 0x00, 0x00, 0x00,
+  0x56, 0x00, 0x00, 0x00, 0x57, 0x00, 0x00, 0x00, 0x16, 0x00, 0x00, 0x00,
+  0x17, 0x00, 0x00, 0x00, 0x85, 0x00, 0x05, 0x00, 0x15, 0x00, 0x00, 0x00,
+  0x59, 0x00, 0x00, 0x00, 0x57, 0x00, 0x00, 0x00, 0x2a, 0x00, 0x00, 0x00,
+  0x52, 0x00, 0x06, 0x00, 0x21, 0x00, 0x00, 0x00, 0x5a, 0x00, 0x00, 0x00,
+  0x59, 0x00, 0x00, 0x00, 0x58, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+  0xc7, 0x00, 0x05, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x5b, 0x00, 0x00, 0x00,
+  0x4f, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0xc2, 0x00, 0x05, 0x00,
+  0x0b, 0x00, 0x00, 0x00, 0x5c, 0x00, 0x00, 0x00, 0x4f, 0x00, 0x00, 0x00,
+  0x1a, 0x00, 0x00, 0x00, 0xc7, 0x00, 0x05, 0x00, 0x0b, 0x00, 0x00, 0x00,
+  0x5d, 0x00, 0x00, 0x00, 0x5c, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00,
+  0xc2, 0x00, 0x05, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x5e, 0x00, 0x00, 0x00,
+  0x4f, 0x00, 0x00, 0x00, 0x1b, 0x00, 0x00, 0x00, 0xc7, 0x00, 0x05, 0x00,
+  0x0b, 0x00, 0x00, 0x00, 0x5f, 0x00, 0x00, 0x00, 0x5e, 0x00, 0x00, 0x00,
+  0x19, 0x00, 0x00, 0x00, 0xc2, 0x00, 0x05, 0x00, 0x0b, 0x00, 0x00, 0x00,
+  0x60, 0x00, 0x00, 0x00, 0x4f, 0x00, 0x00, 0x00, 0x1c, 0x00, 0x00, 0x00,
+  0x50, 0x00, 0x07, 0x00, 0x28, 0x00, 0x00, 0x00, 0x61, 0x00, 0x00, 0x00,
+  0x5b, 0x00, 0x00, 0x00, 0x5d, 0x00, 0x00, 0x00, 0x5f, 0x00, 0x00, 0x00,
+  0x60, 0x00, 0x00, 0x00, 0x70, 0x00, 0x04, 0x00, 0x21, 0x00, 0x00, 0x00,
+  0x62, 0x00, 0x00, 0x00, 0x61, 0x00, 0x00, 0x00, 0x8e, 0x00, 0x05, 0x00,
+  0x21, 0x00, 0x00, 0x00, 0x63, 0x00, 0x00, 0x00, 0x62, 0x00, 0x00, 0x00,
+  0x18, 0x00, 0x00, 0x00, 0x3e, 0x00, 0x03, 0x00, 0x03, 0x00, 0x00, 0x00,
+  0x5a, 0x00, 0x00, 0x00, 0x3e, 0x00, 0x03, 0x00, 0x04, 0x00, 0x00, 0x00,
+  0x63, 0x00, 0x00, 0x00, 0x3e, 0x00, 0x03, 0x00, 0x05, 0x00, 0x00, 0x00,
+  0x4a, 0x00, 0x00, 0x00, 0xfd, 0x00, 0x01, 0x00, 0x38, 0x00, 0x01, 0x00
+};
+
+/*
+// C:\VulkanSDK\1.3.211.0\Bin\dxc.exe -spirv hlsl_shader.ps -T ps_6_0 -Fh hlsl_shader.ps.h
+
+struct interpolated {
+  float4 pos: SV_Position;
+  float4 col: Color;
+  float2 uv: Uv;
+};
+
+struct render {
+  float4 color: SV_Target0;
+};
+
+[[vk::binding(0, 0)]] SamplerState sampler0;
+[[vk::binding(0, 1)]] Texture2D    texture0;
+
+render main(interpolated input) {
+  render output;
+  float4 col = input.col;
+  col.rgb *= col.rgb;
+  output.color = col * texture0.Sample(sampler0, input.uv);
+  return output;
+}
+*/
+static unsigned char __hlsl_shader_ps_spv[] =
+{
+  0x03, 0x02, 0x23, 0x07, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x0e, 0x00,
+  0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x11, 0x00, 0x02, 0x00,
+  0x01, 0x00, 0x00, 0x00, 0x0e, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x01, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x08, 0x00, 0x04, 0x00, 0x00, 0x00,
+  0x01, 0x00, 0x00, 0x00, 0x6d, 0x61, 0x69, 0x6e, 0x00, 0x00, 0x00, 0x00,
+  0x02, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00,
+  0x10, 0x00, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00,
+  0x03, 0x00, 0x03, 0x00, 0x05, 0x00, 0x00, 0x00, 0x58, 0x02, 0x00, 0x00,
+  0x05, 0x00, 0x06, 0x00, 0x05, 0x00, 0x00, 0x00, 0x74, 0x79, 0x70, 0x65,
+  0x2e, 0x73, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x72, 0x00, 0x00, 0x00, 0x00,
+  0x05, 0x00, 0x05, 0x00, 0x06, 0x00, 0x00, 0x00, 0x73, 0x61, 0x6d, 0x70,
+  0x6c, 0x65, 0x72, 0x30, 0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x06, 0x00,
+  0x07, 0x00, 0x00, 0x00, 0x74, 0x79, 0x70, 0x65, 0x2e, 0x32, 0x64, 0x2e,
+  0x69, 0x6d, 0x61, 0x67, 0x65, 0x00, 0x00, 0x00, 0x05, 0x00, 0x05, 0x00,
+  0x08, 0x00, 0x00, 0x00, 0x74, 0x65, 0x78, 0x74, 0x75, 0x72, 0x65, 0x30,
+  0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x06, 0x00, 0x02, 0x00, 0x00, 0x00,
+  0x69, 0x6e, 0x2e, 0x76, 0x61, 0x72, 0x2e, 0x43, 0x6f, 0x6c, 0x6f, 0x72,
+  0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x05, 0x00, 0x03, 0x00, 0x00, 0x00,
+  0x69, 0x6e, 0x2e, 0x76, 0x61, 0x72, 0x2e, 0x55, 0x76, 0x00, 0x00, 0x00,
+  0x05, 0x00, 0x07, 0x00, 0x04, 0x00, 0x00, 0x00, 0x6f, 0x75, 0x74, 0x2e,
+  0x76, 0x61, 0x72, 0x2e, 0x53, 0x56, 0x5f, 0x54, 0x61, 0x72, 0x67, 0x65,
+  0x74, 0x30, 0x00, 0x00, 0x05, 0x00, 0x04, 0x00, 0x01, 0x00, 0x00, 0x00,
+  0x6d, 0x61, 0x69, 0x6e, 0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x07, 0x00,
+  0x09, 0x00, 0x00, 0x00, 0x74, 0x79, 0x70, 0x65, 0x2e, 0x73, 0x61, 0x6d,
+  0x70, 0x6c, 0x65, 0x64, 0x2e, 0x69, 0x6d, 0x61, 0x67, 0x65, 0x00, 0x00,
+  0x47, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x00, 0x1e, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x47, 0x00, 0x04, 0x00, 0x03, 0x00, 0x00, 0x00,
+  0x1e, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x47, 0x00, 0x04, 0x00,
+  0x04, 0x00, 0x00, 0x00, 0x1e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x47, 0x00, 0x04, 0x00, 0x06, 0x00, 0x00, 0x00, 0x22, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x47, 0x00, 0x04, 0x00, 0x06, 0x00, 0x00, 0x00,
+  0x21, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x47, 0x00, 0x04, 0x00,
+  0x08, 0x00, 0x00, 0x00, 0x22, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+  0x47, 0x00, 0x04, 0x00, 0x08, 0x00, 0x00, 0x00, 0x21, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x1a, 0x00, 0x02, 0x00, 0x05, 0x00, 0x00, 0x00,
+  0x20, 0x00, 0x04, 0x00, 0x0a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x05, 0x00, 0x00, 0x00, 0x16, 0x00, 0x03, 0x00, 0x0b, 0x00, 0x00, 0x00,
+  0x20, 0x00, 0x00, 0x00, 0x19, 0x00, 0x09, 0x00, 0x07, 0x00, 0x00, 0x00,
+  0x0b, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x20, 0x00, 0x04, 0x00, 0x0c, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x17, 0x00, 0x04, 0x00,
+  0x0d, 0x00, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00,
+  0x20, 0x00, 0x04, 0x00, 0x0e, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+  0x0d, 0x00, 0x00, 0x00, 0x17, 0x00, 0x04, 0x00, 0x0f, 0x00, 0x00, 0x00,
+  0x0b, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x20, 0x00, 0x04, 0x00,
+  0x10, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00,
+  0x20, 0x00, 0x04, 0x00, 0x11, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00,
+  0x0d, 0x00, 0x00, 0x00, 0x13, 0x00, 0x02, 0x00, 0x12, 0x00, 0x00, 0x00,
+  0x21, 0x00, 0x03, 0x00, 0x13, 0x00, 0x00, 0x00, 0x12, 0x00, 0x00, 0x00,
+  0x17, 0x00, 0x04, 0x00, 0x14, 0x00, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00,
+  0x03, 0x00, 0x00, 0x00, 0x1b, 0x00, 0x03, 0x00, 0x09, 0x00, 0x00, 0x00,
+  0x07, 0x00, 0x00, 0x00, 0x3b, 0x00, 0x04, 0x00, 0x0a, 0x00, 0x00, 0x00,
+  0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3b, 0x00, 0x04, 0x00,
+  0x0c, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x3b, 0x00, 0x04, 0x00, 0x0e, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00,
+  0x01, 0x00, 0x00, 0x00, 0x3b, 0x00, 0x04, 0x00, 0x10, 0x00, 0x00, 0x00,
+  0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x3b, 0x00, 0x04, 0x00,
+  0x11, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00,
+  0x36, 0x00, 0x05, 0x00, 0x12, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x13, 0x00, 0x00, 0x00, 0xf8, 0x00, 0x02, 0x00,
+  0x15, 0x00, 0x00, 0x00, 0x3d, 0x00, 0x04, 0x00, 0x0d, 0x00, 0x00, 0x00,
+  0x16, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x3d, 0x00, 0x04, 0x00,
+  0x0f, 0x00, 0x00, 0x00, 0x17, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00,
+  0x4f, 0x00, 0x08, 0x00, 0x14, 0x00, 0x00, 0x00, 0x18, 0x00, 0x00, 0x00,
+  0x16, 0x00, 0x00, 0x00, 0x16, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x01, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x85, 0x00, 0x05, 0x00,
+  0x14, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x18, 0x00, 0x00, 0x00,
+  0x18, 0x00, 0x00, 0x00, 0x4f, 0x00, 0x09, 0x00, 0x0d, 0x00, 0x00, 0x00,
+  0x1a, 0x00, 0x00, 0x00, 0x16, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00,
+  0x04, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00,
+  0x03, 0x00, 0x00, 0x00, 0x3d, 0x00, 0x04, 0x00, 0x07, 0x00, 0x00, 0x00,
+  0x1b, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x3d, 0x00, 0x04, 0x00,
+  0x05, 0x00, 0x00, 0x00, 0x1c, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00,
+  0x56, 0x00, 0x05, 0x00, 0x09, 0x00, 0x00, 0x00, 0x1d, 0x00, 0x00, 0x00,
+  0x1b, 0x00, 0x00, 0x00, 0x1c, 0x00, 0x00, 0x00, 0x57, 0x00, 0x06, 0x00,
+  0x0d, 0x00, 0x00, 0x00, 0x1e, 0x00, 0x00, 0x00, 0x1d, 0x00, 0x00, 0x00,
+  0x17, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x85, 0x00, 0x05, 0x00,
+  0x0d, 0x00, 0x00, 0x00, 0x1f, 0x00, 0x00, 0x00, 0x1a, 0x00, 0x00, 0x00,
+  0x1e, 0x00, 0x00, 0x00, 0x3e, 0x00, 0x03, 0x00, 0x04, 0x00, 0x00, 0x00,
+  0x1f, 0x00, 0x00, 0x00, 0xfd, 0x00, 0x01, 0x00, 0x38, 0x00, 0x01, 0x00
 };
 
 //-----------------------------------------------------------------------------
@@ -323,99 +442,191 @@ static uint32_t __glsl_shader_frag_spv[] =
 // Backend data stored in io.BackendRendererUserData to allow support for multiple Dear ImGui contexts
 // It is STRONGLY preferred that you use docking branch with multi-viewports (== single Dear ImGui context + multiple windows) instead of multiple Dear ImGui contexts.
 // FIXME: multi-context support is not tested and probably dysfunctional in this backend.
-static ImGui_ImplVulkan_Data* ImGui_ImplVulkan_GetBackendData()
+static ImGui_ImplRedGpu_Data* ImGui_ImplRedGpu_GetBackendData()
 {
-    return ImGui::GetCurrentContext() ? (ImGui_ImplVulkan_Data*)ImGui::GetIO().BackendRendererUserData : NULL;
+    return ImGui::GetCurrentContext() ? (ImGui_ImplRedGpu_Data*)ImGui::GetIO().BackendRendererUserData : NULL;
 }
 
-static uint32_t ImGui_ImplVulkan_MemoryType(VkMemoryPropertyFlags properties, uint32_t type_bits)
+typedef enum RedHelperMemoryType {
+  RED_HELPER_MEMORY_TYPE_VRAM     = 0,
+  RED_HELPER_MEMORY_TYPE_UPLOAD   = 1,
+  RED_HELPER_MEMORY_TYPE_READBACK = 2,
+} RedHelperMemoryType;
+
+static uint32_t ImGui_ImplRedGpu_MemoryType(const RedGpuInfo * gpuInfo, RedHelperMemoryType memoryType, uint32_t memoryTypesSupported)
 {
-    ImGui_ImplVulkan_Data* bd = ImGui_ImplVulkan_GetBackendData();
-    ImGui_ImplVulkan_InitInfo* v = &bd->VulkanInitInfo;
-    VkPhysicalDeviceMemoryProperties prop;
-    vkGetPhysicalDeviceMemoryProperties(v->PhysicalDevice, &prop);
-    for (uint32_t i = 0; i < prop.memoryTypeCount; i++)
-        if ((prop.memoryTypes[i].propertyFlags & properties) == properties && type_bits & (1 << i))
-            return i;
-    return 0xFFFFFFFF; // Unable to find memoryType
+  const uint32_t        memoryTypesCount = gpuInfo->memoryTypesCount;
+  const RedMemoryType * memoryTypes      = gpuInfo->memoryTypes;
+
+  uint32_t memoryTypeIsSupported[32];
+  memoryTypeIsSupported[0]  = (memoryTypesSupported & REDGPU_B32(0000,0000,0000,0000,0000,0000,0000,0001)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[1]  = (memoryTypesSupported & REDGPU_B32(0000,0000,0000,0000,0000,0000,0000,0010)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[2]  = (memoryTypesSupported & REDGPU_B32(0000,0000,0000,0000,0000,0000,0000,0100)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[3]  = (memoryTypesSupported & REDGPU_B32(0000,0000,0000,0000,0000,0000,0000,1000)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[4]  = (memoryTypesSupported & REDGPU_B32(0000,0000,0000,0000,0000,0000,0001,0000)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[5]  = (memoryTypesSupported & REDGPU_B32(0000,0000,0000,0000,0000,0000,0010,0000)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[6]  = (memoryTypesSupported & REDGPU_B32(0000,0000,0000,0000,0000,0000,0100,0000)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[7]  = (memoryTypesSupported & REDGPU_B32(0000,0000,0000,0000,0000,0000,1000,0000)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[8]  = (memoryTypesSupported & REDGPU_B32(0000,0000,0000,0000,0000,0001,0000,0000)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[9]  = (memoryTypesSupported & REDGPU_B32(0000,0000,0000,0000,0000,0010,0000,0000)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[10] = (memoryTypesSupported & REDGPU_B32(0000,0000,0000,0000,0000,0100,0000,0000)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[11] = (memoryTypesSupported & REDGPU_B32(0000,0000,0000,0000,0000,1000,0000,0000)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[12] = (memoryTypesSupported & REDGPU_B32(0000,0000,0000,0000,0001,0000,0000,0000)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[13] = (memoryTypesSupported & REDGPU_B32(0000,0000,0000,0000,0010,0000,0000,0000)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[14] = (memoryTypesSupported & REDGPU_B32(0000,0000,0000,0000,0100,0000,0000,0000)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[15] = (memoryTypesSupported & REDGPU_B32(0000,0000,0000,0000,1000,0000,0000,0000)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[16] = (memoryTypesSupported & REDGPU_B32(0000,0000,0000,0001,0000,0000,0000,0000)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[17] = (memoryTypesSupported & REDGPU_B32(0000,0000,0000,0010,0000,0000,0000,0000)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[18] = (memoryTypesSupported & REDGPU_B32(0000,0000,0000,0100,0000,0000,0000,0000)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[19] = (memoryTypesSupported & REDGPU_B32(0000,0000,0000,1000,0000,0000,0000,0000)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[20] = (memoryTypesSupported & REDGPU_B32(0000,0000,0001,0000,0000,0000,0000,0000)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[21] = (memoryTypesSupported & REDGPU_B32(0000,0000,0010,0000,0000,0000,0000,0000)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[22] = (memoryTypesSupported & REDGPU_B32(0000,0000,0100,0000,0000,0000,0000,0000)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[23] = (memoryTypesSupported & REDGPU_B32(0000,0000,1000,0000,0000,0000,0000,0000)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[24] = (memoryTypesSupported & REDGPU_B32(0000,0001,0000,0000,0000,0000,0000,0000)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[25] = (memoryTypesSupported & REDGPU_B32(0000,0010,0000,0000,0000,0000,0000,0000)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[26] = (memoryTypesSupported & REDGPU_B32(0000,0100,0000,0000,0000,0000,0000,0000)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[27] = (memoryTypesSupported & REDGPU_B32(0000,1000,0000,0000,0000,0000,0000,0000)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[28] = (memoryTypesSupported & REDGPU_B32(0001,0000,0000,0000,0000,0000,0000,0000)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[29] = (memoryTypesSupported & REDGPU_B32(0010,0000,0000,0000,0000,0000,0000,0000)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[30] = (memoryTypesSupported & REDGPU_B32(0100,0000,0000,0000,0000,0000,0000,0000)) == 0 ? 0 : 1;
+  memoryTypeIsSupported[31] = (memoryTypesSupported & REDGPU_B32(1000,0000,0000,0000,0000,0000,0000,0000)) == 0 ? 0 : 1;
+
+  if (memoryType == RED_HELPER_MEMORY_TYPE_VRAM) {
+    for (uint32_t i = 0; i < memoryTypesCount; i += 1) {
+      const RedMemoryType * type = &memoryTypes[i];
+      if (type->isGpuVram == 1 && memoryTypeIsSupported[i] == 1) {
+        return i;
+      }
+    }
+  } else if (memoryType == RED_HELPER_MEMORY_TYPE_UPLOAD) {
+    for (uint32_t i = 0; i < memoryTypesCount; i += 1) {
+      const RedMemoryType * type = &memoryTypes[i];
+      if (type->isCpuMappable == 1 &&
+          type->isCpuCoherent == 1 &&
+          type->isCpuCached   == 0 && memoryTypeIsSupported[i] == 1)
+      {
+        return i;
+      }
+    }
+    for (uint32_t i = 0; i < memoryTypesCount; i += 1) {
+      const RedMemoryType * type = &memoryTypes[i];
+      if (type->isCpuMappable == 1 &&
+          type->isCpuCoherent == 1 && memoryTypeIsSupported[i] == 1)
+      {
+        return i;
+      }
+    }
+  } else if (memoryType == RED_HELPER_MEMORY_TYPE_READBACK) {
+    for (uint32_t i = 0; i < memoryTypesCount; i += 1) {
+      const RedMemoryType * type = &memoryTypes[i];
+      if (type->isCpuMappable == 1 &&
+          type->isCpuCoherent == 1 &&
+          type->isCpuCached   == 1 && memoryTypeIsSupported[i] == 1)
+      {
+        return i;
+      }
+    }
+    for (uint32_t i = 0; i < memoryTypesCount; i += 1) {
+      const RedMemoryType * type = &memoryTypes[i];
+      if (type->isCpuMappable == 1 &&
+          type->isCpuCoherent == 1 && memoryTypeIsSupported[i] == 1)
+      {
+        return i;
+      }
+    }
+  }
+
+  return -1;
 }
 
-static void check_vk_result(VkResult err)
+static void CreateOrResizeBuffer(RedArray * buffer_ptr, RedHandleMemory * buffer_memory_ptr, size_t new_size, bool isIndexBuffer)
 {
-    ImGui_ImplVulkan_Data* bd = ImGui_ImplVulkan_GetBackendData();
-    if (!bd)
-        return;
-    ImGui_ImplVulkan_InitInfo* v = &bd->VulkanInitInfo;
-    if (v->CheckVkResultFn)
-        v->CheckVkResultFn(err);
+    IM_ASSERT(buffer_ptr != NULL);
+    IM_ASSERT(buffer_memory_ptr != NULL);
+
+    RedArray buffer = buffer_ptr[0];
+    RedHandleMemory buffer_memory = buffer_memory_ptr[0];
+
+    ImGui_ImplRedGpu_Data* bd = ImGui_ImplRedGpu_GetBackendData();
+    ImGui_ImplRedGpu_InitInfo* v = &bd->RedGpuInitInfo;
+
+    if (buffer.handle != NULL)
+    {
+        redDestroyArray(v->Instance, v->Device, buffer.handle, __FILE__, __LINE__, NULL);
+        RedArray defaults = {};
+        buffer = defaults;
+    }
+    if (buffer_memory != NULL)
+    {
+        redMemoryFree(v->Instance, v->Device, buffer_memory, __FILE__, __LINE__, NULL);
+        buffer_memory = NULL;
+    }
+
+    uint64_t buffer_size_aligned = ((new_size - 1) / bd->BufferMemoryAlignment + 1) * bd->BufferMemoryAlignment;
+
+    redCreateArray(v->Instance, v->Device, NULL, isIndexBuffer == true ? RED_ARRAY_TYPE_INDEX_RO : RED_ARRAY_TYPE_ARRAY_R0, buffer_size_aligned, 0, 0, 0, 0, &buffer, NULL, __FILE__, __LINE__, NULL);
+
+    bd->BufferMemoryAlignment = (bd->BufferMemoryAlignment > buffer.memoryBytesAlignment) ? bd->BufferMemoryAlignment : buffer.memoryBytesAlignment;
+
+    redMemoryAllocateMappable(v->Instance, v->Device, NULL, 0, buffer.handle, buffer.memoryBytesCount, ImGui_ImplRedGpu_MemoryType(&v->Instance->gpus[v->DeviceIndex], RED_HELPER_MEMORY_TYPE_UPLOAD, buffer.memoryTypesSupported), 0, &buffer_memory, NULL, __FILE__, __LINE__, NULL);
+
+    RedMemoryArray memoryArray = {};
+    memoryArray.setTo1000157000  = 1000157000;
+    memoryArray.setTo0           = 0;
+    memoryArray.array            = buffer.handle;
+    memoryArray.memory           = buffer_memory;
+    memoryArray.memoryBytesFirst = 0;
+    redMemorySet(v->Instance, v->Device, 1, &memoryArray, 0, NULL, NULL, __FILE__, __LINE__, NULL);
+
+    buffer_ptr[0] = buffer;
+    buffer_memory_ptr[0] = buffer_memory;
 }
 
-static void CreateOrResizeBuffer(VkBuffer& buffer, VkDeviceMemory& buffer_memory, VkDeviceSize& p_buffer_size, size_t new_size, VkBufferUsageFlagBits usage)
+static void ImGui_ImplRedGpu_SetupRenderState(ImDrawData* draw_data, RedHandleProcedure pipeline, RedHandleCalls command_buffer, ImGui_ImplRedGpuH_FrameRenderBuffers* rb, int fb_width, int fb_height)
 {
-    ImGui_ImplVulkan_Data* bd = ImGui_ImplVulkan_GetBackendData();
-    ImGui_ImplVulkan_InitInfo* v = &bd->VulkanInitInfo;
-    VkResult err;
-    if (buffer != VK_NULL_HANDLE)
-        vkDestroyBuffer(v->Device, buffer, v->Allocator);
-    if (buffer_memory != VK_NULL_HANDLE)
-        vkFreeMemory(v->Device, buffer_memory, v->Allocator);
+    IM_ASSERT(sizeof(ImDrawIdx) == 4);
 
-    VkDeviceSize vertex_buffer_size_aligned = ((new_size - 1) / bd->BufferMemoryAlignment + 1) * bd->BufferMemoryAlignment;
-    VkBufferCreateInfo buffer_info = {};
-    buffer_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    buffer_info.size = vertex_buffer_size_aligned;
-    buffer_info.usage = usage;
-    buffer_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    err = vkCreateBuffer(v->Device, &buffer_info, v->Allocator, &buffer);
-    check_vk_result(err);
+    ImGui_ImplRedGpu_Data* bd = ImGui_ImplRedGpu_GetBackendData();
+    ImGui_ImplRedGpu_InitInfo* v = &bd->RedGpuInitInfo;
 
-    VkMemoryRequirements req;
-    vkGetBufferMemoryRequirements(v->Device, buffer, &req);
-    bd->BufferMemoryAlignment = (bd->BufferMemoryAlignment > req.alignment) ? bd->BufferMemoryAlignment : req.alignment;
-    VkMemoryAllocateInfo alloc_info = {};
-    alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    alloc_info.allocationSize = req.size;
-    alloc_info.memoryTypeIndex = ImGui_ImplVulkan_MemoryType(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, req.memoryTypeBits);
-    err = vkAllocateMemory(v->Device, &alloc_info, v->Allocator, &buffer_memory);
-    check_vk_result(err);
-
-    err = vkBindBufferMemory(v->Device, buffer, buffer_memory, 0);
-    check_vk_result(err);
-    p_buffer_size = req.size;
-}
-
-static void ImGui_ImplVulkan_SetupRenderState(ImDrawData* draw_data, VkPipeline pipeline, VkCommandBuffer command_buffer, ImGui_ImplVulkanH_FrameRenderBuffers* rb, int fb_width, int fb_height)
-{
-    ImGui_ImplVulkan_Data* bd = ImGui_ImplVulkan_GetBackendData();
+    RedCallProceduresAndAddresses cpa;
+    redGetCallProceduresAndAddresses(v->Instance, v->Device, &cpa, NULL, __FILE__, __LINE__, NULL);
 
     // Bind pipeline:
     {
-        vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+        cpa.redCallSetProcedure(command_buffer, RED_PROCEDURE_TYPE_DRAW, pipeline);
     }
 
     // Bind Vertex And Index Buffer:
     if (draw_data->TotalVtxCount > 0)
     {
-        VkBuffer vertex_buffers[1] = { rb->VertexBuffer };
-        VkDeviceSize vertex_offset[1] = { 0 };
-        vkCmdBindVertexBuffers(command_buffer, 0, 1, vertex_buffers, vertex_offset);
-        vkCmdBindIndexBuffer(command_buffer, rb->IndexBuffer, 0, sizeof(ImDrawIdx) == 2 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32);
+        RedProcedureParametersHandleArray parametersHandleArray = {};
+        parametersHandleArray.array         = rb->VertexBuffer.handle;
+        parametersHandleArray.setTo0        = 0;
+        parametersHandleArray.setToMaxValue = -1;
+        RedProcedureParametersHandle parametersHandle = {};
+        parametersHandle.setTo35    = 35;
+        parametersHandle.setTo0     = 0;
+        parametersHandle.setTo00    = 0;
+        parametersHandle.slot       = 0;
+        parametersHandle.setTo000   = 0;
+        parametersHandle.setTo1     = 1;
+        parametersHandle.type       = RED_PROCEDURE_PARAMETERS_HANDLE_TYPE_ARRAY_RO_RW;
+        parametersHandle.setTo0000  = 0;
+        parametersHandle.array      = &parametersHandleArray;
+        parametersHandle.setTo00000 = 0;
+        cpa.redCallSetProcedureParametersHandles(command_buffer, RED_PROCEDURE_TYPE_DRAW, bd->PipelineLayout, 2, 1, &parametersHandle);
+        cpa.redCallSetProcedureIndices(command_buffer, rb->IndexBuffer.handle, 0, 1);
     }
 
     // Setup viewport:
     {
-        VkViewport viewport;
-        viewport.x = 0;
-        viewport.y = 0;
-        viewport.width = (float)fb_width;
-        viewport.height = (float)fb_height;
-        viewport.minDepth = 0.0f;
-        viewport.maxDepth = 1.0f;
-        vkCmdSetViewport(command_buffer, 0, 1, &viewport);
+        redCallSetDynamicViewport(cpa.redCallSetDynamicViewport, command_buffer, 0, 0, (float)fb_width, (float)fb_height, 0.0f, 1.0f);
     }
 
     // Setup scale and translation:
-    // Our visible imgui space lies from draw_data->DisplayPps (top left) to draw_data->DisplayPos+data_data->DisplaySize (bottom right). DisplayPos is (0,0) for single viewport apps.
+    // Our visible imgui space lies from draw_data->DisplayPos (top left) to draw_data->DisplayPos+data_data->DisplaySize (bottom right). DisplayPos is (0,0) for single viewport apps.
     {
         float scale[2];
         scale[0] = 2.0f / draw_data->DisplaySize.x;
@@ -423,82 +634,88 @@ static void ImGui_ImplVulkan_SetupRenderState(ImDrawData* draw_data, VkPipeline 
         float translate[2];
         translate[0] = -1.0f - draw_data->DisplayPos.x * scale[0];
         translate[1] = -1.0f - draw_data->DisplayPos.y * scale[1];
-        vkCmdPushConstants(command_buffer, bd->PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, sizeof(float) * 0, sizeof(float) * 2, scale);
-        vkCmdPushConstants(command_buffer, bd->PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, sizeof(float) * 2, sizeof(float) * 2, translate);
+        cpa.redCallSetProcedureParametersVariables(command_buffer, bd->PipelineLayout, RED_VISIBLE_TO_STAGE_BITFLAG_VERTEX, sizeof(float) * 0, sizeof(float) * 2, scale);
+        cpa.redCallSetProcedureParametersVariables(command_buffer, bd->PipelineLayout, RED_VISIBLE_TO_STAGE_BITFLAG_VERTEX, sizeof(float) * 2, sizeof(float) * 2, translate);
     }
 }
 
 // Render function
-void ImGui_ImplVulkan_RenderDrawData(ImDrawData* draw_data, VkCommandBuffer command_buffer, VkPipeline pipeline)
+void ImGui_ImplRedGpu_RenderDrawData(ImDrawData* draw_data, RedHandleCalls command_buffer, RedHandleProcedure pipeline)
 {
     // Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
-    int fb_width = (int)(draw_data->DisplaySize.x * draw_data->FramebufferScale.x);
+    int fb_width  = (int)(draw_data->DisplaySize.x * draw_data->FramebufferScale.x);
     int fb_height = (int)(draw_data->DisplaySize.y * draw_data->FramebufferScale.y);
     if (fb_width <= 0 || fb_height <= 0)
         return;
 
-    ImGui_ImplVulkan_Data* bd = ImGui_ImplVulkan_GetBackendData();
-    ImGui_ImplVulkan_InitInfo* v = &bd->VulkanInitInfo;
-    if (pipeline == VK_NULL_HANDLE)
+    ImGui_ImplRedGpu_Data* bd = ImGui_ImplRedGpu_GetBackendData();
+    ImGui_ImplRedGpu_InitInfo* v = &bd->RedGpuInitInfo;
+    if (pipeline == NULL)
         pipeline = bd->Pipeline;
 
     // Allocate array to store enough vertex/index buffers
-    ImGui_ImplVulkanH_WindowRenderBuffers* wrb = &bd->MainWindowRenderBuffers;
+    ImGui_ImplRedGpuH_WindowRenderBuffers* wrb = &bd->MainWindowRenderBuffers;
     if (wrb->FrameRenderBuffers == NULL)
     {
         wrb->Index = 0;
         wrb->Count = v->ImageCount;
-        wrb->FrameRenderBuffers = (ImGui_ImplVulkanH_FrameRenderBuffers*)IM_ALLOC(sizeof(ImGui_ImplVulkanH_FrameRenderBuffers) * wrb->Count);
-        memset(wrb->FrameRenderBuffers, 0, sizeof(ImGui_ImplVulkanH_FrameRenderBuffers) * wrb->Count);
+        wrb->FrameRenderBuffers = (ImGui_ImplRedGpuH_FrameRenderBuffers*)IM_ALLOC(sizeof(ImGui_ImplRedGpuH_FrameRenderBuffers) * wrb->Count);
+        memset(wrb->FrameRenderBuffers, 0, sizeof(ImGui_ImplRedGpuH_FrameRenderBuffers) * wrb->Count);
     }
     IM_ASSERT(wrb->Count == v->ImageCount);
     wrb->Index = (wrb->Index + 1) % wrb->Count;
-    ImGui_ImplVulkanH_FrameRenderBuffers* rb = &wrb->FrameRenderBuffers[wrb->Index];
+    ImGui_ImplRedGpuH_FrameRenderBuffers* rb = &wrb->FrameRenderBuffers[wrb->Index];
 
     if (draw_data->TotalVtxCount > 0)
     {
         // Create or resize the vertex/index buffers
         size_t vertex_size = draw_data->TotalVtxCount * sizeof(ImDrawVert);
-        size_t index_size = draw_data->TotalIdxCount * sizeof(ImDrawIdx);
-        if (rb->VertexBuffer == VK_NULL_HANDLE || rb->VertexBufferSize < vertex_size)
-            CreateOrResizeBuffer(rb->VertexBuffer, rb->VertexBufferMemory, rb->VertexBufferSize, vertex_size, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
-        if (rb->IndexBuffer == VK_NULL_HANDLE || rb->IndexBufferSize < index_size)
-            CreateOrResizeBuffer(rb->IndexBuffer, rb->IndexBufferMemory, rb->IndexBufferSize, index_size, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
+        size_t index_size  = draw_data->TotalIdxCount * sizeof(ImDrawIdx);
+        if (rb->VertexBuffer.handle == NULL || rb->VertexBuffer.memoryBytesCount < vertex_size)
+            CreateOrResizeBuffer(&rb->VertexBuffer, &rb->VertexBufferMemory, vertex_size, false);
+        if (rb->IndexBuffer.handle == NULL || rb->IndexBuffer.memoryBytesCount < index_size)
+            CreateOrResizeBuffer(&rb->IndexBuffer, &rb->IndexBufferMemory, index_size, true);
 
         // Upload vertex/index data into a single contiguous GPU buffer
-        ImDrawVert* vtx_dst = NULL;
-        ImDrawIdx* idx_dst = NULL;
-        VkResult err = vkMapMemory(v->Device, rb->VertexBufferMemory, 0, rb->VertexBufferSize, 0, (void**)(&vtx_dst));
-        check_vk_result(err);
-        err = vkMapMemory(v->Device, rb->IndexBufferMemory, 0, rb->IndexBufferSize, 0, (void**)(&idx_dst));
-        check_vk_result(err);
+        volatile ImDrawVert* vtx_dst = NULL;
+        volatile ImDrawIdx*  idx_dst = NULL;
+        redMemoryMap(v->Instance, v->Device, rb->VertexBufferMemory, 0, rb->VertexBuffer.memoryBytesCount, (void **)&vtx_dst, NULL, __FILE__, __LINE__, NULL);
+        redMemoryMap(v->Instance, v->Device, rb->IndexBufferMemory,  0, rb->IndexBuffer.memoryBytesCount,  (void **)&idx_dst, NULL, __FILE__, __LINE__, NULL);
         for (int n = 0; n < draw_data->CmdListsCount; n++)
         {
             const ImDrawList* cmd_list = draw_data->CmdLists[n];
-            memcpy(vtx_dst, cmd_list->VtxBuffer.Data, cmd_list->VtxBuffer.Size * sizeof(ImDrawVert));
-            memcpy(idx_dst, cmd_list->IdxBuffer.Data, cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx));
+            memcpy((void *)vtx_dst, cmd_list->VtxBuffer.Data, cmd_list->VtxBuffer.Size * sizeof(ImDrawVert));
+            memcpy((void *)idx_dst, cmd_list->IdxBuffer.Data, cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx));
             vtx_dst += cmd_list->VtxBuffer.Size;
             idx_dst += cmd_list->IdxBuffer.Size;
         }
-        VkMappedMemoryRange range[2] = {};
-        range[0].sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
-        range[0].memory = rb->VertexBufferMemory;
-        range[0].size = VK_WHOLE_SIZE;
-        range[1].sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
-        range[1].memory = rb->IndexBufferMemory;
-        range[1].size = VK_WHOLE_SIZE;
-        err = vkFlushMappedMemoryRanges(v->Device, 2, range);
-        check_vk_result(err);
-        vkUnmapMemory(v->Device, rb->VertexBufferMemory);
-        vkUnmapMemory(v->Device, rb->IndexBufferMemory);
+        RedMappableMemoryRange ranges[2] = {};
+        ranges[0].setTo6                        = 6;
+        ranges[0].setTo0                        = 0;
+        ranges[0].mappableMemory                = rb->VertexBufferMemory;
+        ranges[0].mappableMemoryRangeBytesFirst = 0;
+        ranges[0].mappableMemoryRangeBytesCount = -1;
+        ranges[1].setTo6                        = 6;
+        ranges[1].setTo0                        = 0;
+        ranges[1].mappableMemory                = rb->IndexBufferMemory;
+        ranges[1].mappableMemoryRangeBytesFirst = 0;
+        ranges[1].mappableMemoryRangeBytesCount = -1;
+        redMemoryNonCoherentFlush(v->Instance, v->Device, 2, ranges, NULL, __FILE__, __LINE__, NULL);
+        redMemoryUnmap(v->Instance, v->Device, rb->VertexBufferMemory, __FILE__, __LINE__, NULL);
+        redMemoryUnmap(v->Instance, v->Device, rb->IndexBufferMemory,  __FILE__, __LINE__, NULL);
+        vtx_dst = NULL;
+        idx_dst = NULL;
     }
 
-    // Setup desired Vulkan state
-    ImGui_ImplVulkan_SetupRenderState(draw_data, pipeline, command_buffer, rb, fb_width, fb_height);
+    // Setup desired RedGpu state
+    ImGui_ImplRedGpu_SetupRenderState(draw_data, pipeline, command_buffer, rb, fb_width, fb_height);
 
     // Will project scissor/clipping rectangles into framebuffer space
-    ImVec2 clip_off = draw_data->DisplayPos;         // (0,0) unless using multi-viewports
+    ImVec2 clip_off   = draw_data->DisplayPos;       // (0,0) unless using multi-viewports
     ImVec2 clip_scale = draw_data->FramebufferScale; // (1,1) unless using retina display which are often (2,2)
+
+    RedCallProceduresAndAddresses cpa;
+    redGetCallProceduresAndAddresses(v->Instance, v->Device, &cpa, NULL, __FILE__, __LINE__, NULL);
 
     // Render command lists
     // (Because we merged all buffers into a single one, we maintain our own offset into them)
@@ -515,7 +732,7 @@ void ImGui_ImplVulkan_RenderDrawData(ImDrawData* draw_data, VkCommandBuffer comm
                 // User callback, registered via ImDrawList::AddCallback()
                 // (ImDrawCallback_ResetRenderState is a special callback value used by the user to request the renderer to reset render state.)
                 if (pcmd->UserCallback == ImDrawCallback_ResetRenderState)
-                    ImGui_ImplVulkan_SetupRenderState(draw_data, pipeline, command_buffer, rb, fb_width, fb_height);
+                    ImGui_ImplRedGpu_SetupRenderState(draw_data, pipeline, command_buffer, rb, fb_width, fb_height);
                 else
                     pcmd->UserCallback(cmd_list, pcmd);
             }
@@ -525,184 +742,169 @@ void ImGui_ImplVulkan_RenderDrawData(ImDrawData* draw_data, VkCommandBuffer comm
                 ImVec2 clip_min((pcmd->ClipRect.x - clip_off.x) * clip_scale.x, (pcmd->ClipRect.y - clip_off.y) * clip_scale.y);
                 ImVec2 clip_max((pcmd->ClipRect.z - clip_off.x) * clip_scale.x, (pcmd->ClipRect.w - clip_off.y) * clip_scale.y);
 
-                // Clamp to viewport as vkCmdSetScissor() won't accept values that are off bounds
+                // Clamp to viewport as redCallSetDynamicScissor() won't accept values that are off bounds
                 if (clip_min.x < 0.0f) { clip_min.x = 0.0f; }
                 if (clip_min.y < 0.0f) { clip_min.y = 0.0f; }
-                if (clip_max.x > fb_width) { clip_max.x = (float)fb_width; }
+                if (clip_max.x > fb_width)  { clip_max.x = (float)fb_width;  }
                 if (clip_max.y > fb_height) { clip_max.y = (float)fb_height; }
                 if (clip_max.x <= clip_min.x || clip_max.y <= clip_min.y)
                     continue;
 
                 // Apply scissor/clipping rectangle
-                VkRect2D scissor;
-                scissor.offset.x = (int32_t)(clip_min.x);
-                scissor.offset.y = (int32_t)(clip_min.y);
-                scissor.extent.width = (uint32_t)(clip_max.x - clip_min.x);
-                scissor.extent.height = (uint32_t)(clip_max.y - clip_min.y);
-                vkCmdSetScissor(command_buffer, 0, 1, &scissor);
+                redCallSetDynamicScissor(cpa.redCallSetDynamicScissor, command_buffer, (int32_t)(clip_min.x), (int32_t)(clip_min.y), (uint32_t)(clip_max.x - clip_min.x), (uint32_t)(clip_max.y - clip_min.y));
 
                 // Bind DescriptorSet with font or user texture
-                VkDescriptorSet desc_set[1] = { (VkDescriptorSet)pcmd->TextureId };
+                RedHandleStruct desc_sets[2] = { bd->FontSamplerDescriptorSet, (RedHandleStruct)pcmd->TextureId };
                 if (sizeof(ImTextureID) < sizeof(ImU64))
                 {
                     // We don't support texture switches if ImTextureID hasn't been redefined to be 64-bit. Do a flaky check that other textures haven't been used.
                     IM_ASSERT(pcmd->TextureId == (ImTextureID)bd->FontDescriptorSet);
-                    desc_set[0] = bd->FontDescriptorSet;
+                    desc_sets[1] = bd->FontDescriptorSet;
                 }
-                vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, bd->PipelineLayout, 0, 1, desc_set, 0, NULL);
+                cpa.redCallSetProcedureParametersStructs(command_buffer, RED_PROCEDURE_TYPE_DRAW, bd->PipelineLayout, 0, 2, desc_sets, 0, 0);
 
                 // Draw
-                vkCmdDrawIndexed(command_buffer, pcmd->ElemCount, 1, pcmd->IdxOffset + global_idx_offset, pcmd->VtxOffset + global_vtx_offset, 0);
+                cpa.redCallProcedureIndexed(command_buffer, pcmd->ElemCount, 1, pcmd->IdxOffset + global_idx_offset, pcmd->VtxOffset + global_vtx_offset, 0);
             }
         }
         global_idx_offset += cmd_list->IdxBuffer.Size;
         global_vtx_offset += cmd_list->VtxBuffer.Size;
     }
 
-    // Note: at this point both vkCmdSetViewport() and vkCmdSetScissor() have been called.
+    // Note: at this point both redCallSetDynamicViewport() and redCallSetDynamicScissor() have been called.
     // Our last values will leak into user/application rendering IF:
-    // - Your app uses a pipeline with VK_DYNAMIC_STATE_VIEWPORT or VK_DYNAMIC_STATE_SCISSOR dynamic state
-    // - And you forgot to call vkCmdSetViewport() and vkCmdSetScissor() yourself to explicitely set that state.
-    // If you use VK_DYNAMIC_STATE_VIEWPORT or VK_DYNAMIC_STATE_SCISSOR you are responsible for setting the values before rendering.
+    // - Your app uses a pipeline with RedProcedureState::viewportDynamic or RedProcedureState::scissorDynamic dynamic state
+    // - And you forgot to call redCallSetDynamicViewport() and redCallSetDynamicScissor() yourself to explicitely set that state.
+    // If you use RedProcedureState::viewportDynamic or RedProcedureState::scissorDynamic you are responsible for setting the values before rendering.
     // In theory we should aim to backup/restore those values but I am not sure this is possible.
-    // We perform a call to vkCmdSetScissor() to set back a full viewport which is likely to fix things for 99% users but technically this is not perfect. (See github #4644)
-    VkRect2D scissor = { { 0, 0 }, { (uint32_t)fb_width, (uint32_t)fb_height } };
-    vkCmdSetScissor(command_buffer, 0, 1, &scissor);
+    // We perform a call to redCallSetDynamicScissor() to set back a full viewport which is likely to fix things for 99% users but technically this is not perfect. (See github #4644)
+    redCallSetDynamicScissor(cpa.redCallSetDynamicScissor, command_buffer, 0, 0, (uint32_t)fb_width, (uint32_t)fb_height);
 }
 
-bool ImGui_ImplVulkan_CreateFontsTexture(VkCommandBuffer command_buffer)
+bool ImGui_ImplRedGpu_CreateFontsTexture(RedHandleCalls command_buffer)
 {
     ImGuiIO& io = ImGui::GetIO();
-    ImGui_ImplVulkan_Data* bd = ImGui_ImplVulkan_GetBackendData();
-    ImGui_ImplVulkan_InitInfo* v = &bd->VulkanInitInfo;
+    ImGui_ImplRedGpu_Data* bd = ImGui_ImplRedGpu_GetBackendData();
+    ImGui_ImplRedGpu_InitInfo* v = &bd->RedGpuInitInfo;
+
+    RedCallProceduresAndAddresses cpa;
+    redGetCallProceduresAndAddresses(v->Instance, v->Device, &cpa, NULL, __FILE__, __LINE__, NULL);
 
     unsigned char* pixels;
     int width, height;
     io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
     size_t upload_size = width * height * 4 * sizeof(char);
 
-    VkResult err;
-
     // Create the Image:
     {
-        VkImageCreateInfo info = {};
-        info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-        info.imageType = VK_IMAGE_TYPE_2D;
-        info.format = VK_FORMAT_R8G8B8A8_UNORM;
-        info.extent.width = width;
-        info.extent.height = height;
-        info.extent.depth = 1;
-        info.mipLevels = 1;
-        info.arrayLayers = 1;
-        info.samples = VK_SAMPLE_COUNT_1_BIT;
-        info.tiling = VK_IMAGE_TILING_OPTIMAL;
-        info.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-        info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-        info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        err = vkCreateImage(v->Device, &info, v->Allocator, &bd->FontImage);
-        check_vk_result(err);
-        VkMemoryRequirements req;
-        vkGetImageMemoryRequirements(v->Device, bd->FontImage, &req);
-        VkMemoryAllocateInfo alloc_info = {};
-        alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-        alloc_info.allocationSize = req.size;
-        alloc_info.memoryTypeIndex = ImGui_ImplVulkan_MemoryType(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, req.memoryTypeBits);
-        err = vkAllocateMemory(v->Device, &alloc_info, v->Allocator, &bd->FontMemory);
-        check_vk_result(err);
-        err = vkBindImageMemory(v->Device, bd->FontImage, bd->FontMemory, 0);
-        check_vk_result(err);
+        redCreateImage(v->Instance, v->Device, NULL, RED_IMAGE_DIMENSIONS_2D, RED_FORMAT_RGBA_8_8_8_8_UINT_TO_FLOAT_0_1_GAMMA_CORRECTED, width, height, 1, 1, 1, RED_MULTISAMPLE_COUNT_BITFLAG_1, 0, 0, 0, 0, &bd->FontImage, NULL, __FILE__, __LINE__, NULL);
+        redMemoryAllocate(v->Instance, v->Device, NULL, bd->FontImage.memoryBytesCount, ImGui_ImplRedGpu_MemoryType(&v->Instance->gpus[v->DeviceIndex], RED_HELPER_MEMORY_TYPE_VRAM, bd->FontImage.memoryTypesSupported), 0, 0, 0, &bd->FontMemory, NULL, __FILE__, __LINE__, NULL);
+        RedMemoryImage memoryImage = {};
+        memoryImage.setTo1000157001  = 1000157001;
+        memoryImage.setTo0           = 0;
+        memoryImage.image            = bd->FontImage.handle;
+        memoryImage.memory           = bd->FontMemory;
+        memoryImage.memoryBytesFirst = 0;
+        redMemorySet(v->Instance, v->Device, 0, NULL, 1, &memoryImage, NULL, __FILE__, __LINE__, NULL);
     }
 
     // Create the Image View:
     {
-        VkImageViewCreateInfo info = {};
-        info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        info.image = bd->FontImage;
-        info.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        info.format = VK_FORMAT_R8G8B8A8_UNORM;
-        info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        info.subresourceRange.levelCount = 1;
-        info.subresourceRange.layerCount = 1;
-        err = vkCreateImageView(v->Device, &info, v->Allocator, &bd->FontView);
-        check_vk_result(err);
+        redCreateTexture(v->Instance, v->Device, NULL, bd->FontImage.handle, RED_IMAGE_PART_BITFLAG_COLOR, RED_TEXTURE_DIMENSIONS_2D, RED_FORMAT_RGBA_8_8_8_8_UINT_TO_FLOAT_0_1_GAMMA_CORRECTED, 0, 1, 0, 1, 0, &bd->FontView, NULL, __FILE__, __LINE__, NULL);
     }
 
     // Create the Descriptor Set:
-    bd->FontDescriptorSet = (VkDescriptorSet)ImGui_ImplVulkan_AddTexture(bd->FontSampler, bd->FontView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    bd->FontDescriptorSet = (RedHandleStruct)ImGui_ImplRedGpu_AddTexture(bd->FontSampler, bd->FontView);
 
     // Create the Upload Buffer:
     {
-        VkBufferCreateInfo buffer_info = {};
-        buffer_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-        buffer_info.size = upload_size;
-        buffer_info.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-        buffer_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-        err = vkCreateBuffer(v->Device, &buffer_info, v->Allocator, &bd->UploadBuffer);
-        check_vk_result(err);
-        VkMemoryRequirements req;
-        vkGetBufferMemoryRequirements(v->Device, bd->UploadBuffer, &req);
-        bd->BufferMemoryAlignment = (bd->BufferMemoryAlignment > req.alignment) ? bd->BufferMemoryAlignment : req.alignment;
-        VkMemoryAllocateInfo alloc_info = {};
-        alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-        alloc_info.allocationSize = req.size;
-        alloc_info.memoryTypeIndex = ImGui_ImplVulkan_MemoryType(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, req.memoryTypeBits);
-        err = vkAllocateMemory(v->Device, &alloc_info, v->Allocator, &bd->UploadBufferMemory);
-        check_vk_result(err);
-        err = vkBindBufferMemory(v->Device, bd->UploadBuffer, bd->UploadBufferMemory, 0);
-        check_vk_result(err);
+        redCreateArray(v->Instance, v->Device, NULL, RED_ARRAY_TYPE_ARRAY_R0, upload_size, 0, 0, 0, 0, &bd->UploadBuffer, NULL, __FILE__, __LINE__, NULL);
+
+        bd->BufferMemoryAlignment = (bd->BufferMemoryAlignment > bd->UploadBuffer.memoryBytesAlignment) ? bd->BufferMemoryAlignment : bd->UploadBuffer.memoryBytesAlignment;
+
+        redMemoryAllocateMappable(v->Instance, v->Device, NULL, 0, bd->UploadBuffer.handle, bd->UploadBuffer.memoryBytesCount, ImGui_ImplRedGpu_MemoryType(&v->Instance->gpus[v->DeviceIndex], RED_HELPER_MEMORY_TYPE_UPLOAD, bd->UploadBuffer.memoryTypesSupported), 0, &bd->UploadBufferMemory, NULL, __FILE__, __LINE__, NULL);
+
+        RedMemoryArray memoryArray = {};
+        memoryArray.setTo1000157000  = 1000157000;
+        memoryArray.setTo0           = 0;
+        memoryArray.array            = bd->UploadBuffer.handle;
+        memoryArray.memory           = bd->UploadBufferMemory;
+        memoryArray.memoryBytesFirst = 0;
+        redMemorySet(v->Instance, v->Device, 1, &memoryArray, 0, NULL, NULL, __FILE__, __LINE__, NULL);
     }
 
     // Upload to Buffer:
     {
         char* map = NULL;
-        err = vkMapMemory(v->Device, bd->UploadBufferMemory, 0, upload_size, 0, (void**)(&map));
-        check_vk_result(err);
+        redMemoryMap(v->Instance, v->Device, bd->UploadBufferMemory, 0, upload_size, (void **)&map, NULL, __FILE__, __LINE__, NULL);
+
         memcpy(map, pixels, upload_size);
-        VkMappedMemoryRange range[1] = {};
-        range[0].sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
-        range[0].memory = bd->UploadBufferMemory;
-        range[0].size = upload_size;
-        err = vkFlushMappedMemoryRanges(v->Device, 1, range);
-        check_vk_result(err);
-        vkUnmapMemory(v->Device, bd->UploadBufferMemory);
+
+        RedMappableMemoryRange ranges[1] = {};
+        ranges[0].setTo6                        = 6;
+        ranges[0].setTo0                        = 0;
+        ranges[0].mappableMemory                = bd->UploadBufferMemory;
+        ranges[0].mappableMemoryRangeBytesFirst = 0;
+        ranges[0].mappableMemoryRangeBytesCount = -1;
+        redMemoryNonCoherentFlush(v->Instance, v->Device, 1, ranges, NULL, __FILE__, __LINE__, NULL);
+
+        redMemoryUnmap(v->Instance, v->Device, bd->UploadBufferMemory, __FILE__, __LINE__, NULL);
+        map = NULL;
     }
 
     // Copy to Image:
     {
-        VkImageMemoryBarrier copy_barrier[1] = {};
-        copy_barrier[0].sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-        copy_barrier[0].dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-        copy_barrier[0].oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        copy_barrier[0].newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-        copy_barrier[0].srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        copy_barrier[0].dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        copy_barrier[0].image = bd->FontImage;
-        copy_barrier[0].subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        copy_barrier[0].subresourceRange.levelCount = 1;
-        copy_barrier[0].subresourceRange.layerCount = 1;
-        vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, NULL, 0, NULL, 1, copy_barrier);
+        RedUsageImage copy_barrier[1] = {};
+        copy_barrier[0].barrierSplit           = RED_BARRIER_SPLIT_NONE;
+        copy_barrier[0].oldAccessStages        = 0;
+        copy_barrier[0].newAccessStages        = RED_ACCESS_STAGE_BITFLAG_COPY;
+        copy_barrier[0].oldAccess              = 0;
+        copy_barrier[0].newAccess              = RED_ACCESS_BITFLAG_COPY_W;
+        copy_barrier[0].oldState               = RED_STATE_UNUSABLE;
+        copy_barrier[0].newState               = RED_STATE_USABLE;
+        copy_barrier[0].queueFamilyIndexSource = -1;
+        copy_barrier[0].queueFamilyIndexTarget = -1;
+        copy_barrier[0].image                  = bd->FontImage.handle;
+        copy_barrier[0].imageAllParts          = RED_IMAGE_PART_BITFLAG_COLOR;
+        copy_barrier[0].imageLevelsFirst       = 0;
+        copy_barrier[0].imageLevelsCount       = 1;
+        copy_barrier[0].imageLayersFirst       = 0;
+        copy_barrier[0].imageLayersCount       = 1;
+        redCallUsageAliasOrderBarrier(cpa.redCallUsageAliasOrderBarrier, command_buffer, v->Instance, 0, NULL, 1, copy_barrier, 0, NULL, 0, NULL, 0);
 
-        VkBufferImageCopy region = {};
-        region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        region.imageSubresource.layerCount = 1;
-        region.imageExtent.width = width;
-        region.imageExtent.height = height;
-        region.imageExtent.depth = 1;
-        vkCmdCopyBufferToImage(command_buffer, bd->UploadBuffer, bd->FontImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+        RedCopyArrayImageRange copyRange        = {};
+        copyRange.arrayBytesFirst               = 0;
+        copyRange.arrayTexelsCountToNextRow     = 0;
+        copyRange.arrayTexelsCountToNextLayerOr3DDepthSliceDividedByTexelsCountToNextRow = 0;
+        copyRange.imageParts.allParts           = RED_IMAGE_PART_BITFLAG_COLOR;
+        copyRange.imageParts.level              = 0;
+        copyRange.imageParts.layersFirst        = 0;
+        copyRange.imageParts.layersCount        = 1;
+        copyRange.imageOffset.texelX            = 0;
+        copyRange.imageOffset.texelY            = 0;
+        copyRange.imageOffset.texelZ            = 0;
+        copyRange.imageExtent.texelsCountWidth  = width;
+        copyRange.imageExtent.texelsCountHeight = height;
+        copyRange.imageExtent.texelsCountDepth  = 1;
+        cpa.redCallCopyArrayToImage(command_buffer, bd->UploadBuffer.handle, bd->FontImage.handle, 1, 1, &copyRange);
 
-        VkImageMemoryBarrier use_barrier[1] = {};
-        use_barrier[0].sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-        use_barrier[0].srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-        use_barrier[0].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-        use_barrier[0].oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-        use_barrier[0].newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        use_barrier[0].srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        use_barrier[0].dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        use_barrier[0].image = bd->FontImage;
-        use_barrier[0].subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        use_barrier[0].subresourceRange.levelCount = 1;
-        use_barrier[0].subresourceRange.layerCount = 1;
-        vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, NULL, 0, NULL, 1, use_barrier);
+        RedUsageImage use_barrier[1] = {};
+        use_barrier[0].barrierSplit           = RED_BARRIER_SPLIT_NONE;
+        use_barrier[0].oldAccessStages        = RED_ACCESS_STAGE_BITFLAG_COPY;
+        use_barrier[0].newAccessStages        = RED_ACCESS_STAGE_BITFLAG_FRAGMENT;
+        use_barrier[0].oldAccess              = RED_ACCESS_BITFLAG_COPY_W;
+        use_barrier[0].newAccess              = RED_ACCESS_BITFLAG_STRUCT_RESOURCE_FRAGMENT_STAGE_R;
+        use_barrier[0].oldState               = RED_STATE_USABLE;
+        use_barrier[0].newState               = RED_STATE_USABLE;
+        use_barrier[0].queueFamilyIndexSource = -1;
+        use_barrier[0].queueFamilyIndexTarget = -1;
+        use_barrier[0].image                  = bd->FontImage.handle;
+        use_barrier[0].imageAllParts          = RED_IMAGE_PART_BITFLAG_COLOR;
+        use_barrier[0].imageLevelsFirst       = 0;
+        use_barrier[0].imageLevelsCount       = 1;
+        use_barrier[0].imageLayersFirst       = 0;
+        use_barrier[0].imageLayersCount       = 1;
+        redCallUsageAliasOrderBarrier(cpa.redCallUsageAliasOrderBarrier, command_buffer, v->Instance, 0, NULL, 1, use_barrier, 0, NULL, 0, NULL, 0);
     }
 
     // Store our identifier
@@ -711,795 +913,611 @@ bool ImGui_ImplVulkan_CreateFontsTexture(VkCommandBuffer command_buffer)
     return true;
 }
 
-static void ImGui_ImplVulkan_CreateShaderModules(VkDevice device, const VkAllocationCallbacks* allocator)
+static void ImGui_ImplRedGpu_CreateShaderModules(RedContext instance, uint32_t deviceIndex, RedHandleGpu device)
 {
     // Create the shader modules
-    ImGui_ImplVulkan_Data* bd = ImGui_ImplVulkan_GetBackendData();
-    if (bd->ShaderModuleVert == VK_NULL_HANDLE)
+    ImGui_ImplRedGpu_Data* bd = ImGui_ImplRedGpu_GetBackendData();
+    if (bd->ShaderModuleVert == NULL)
     {
-        VkShaderModuleCreateInfo vert_info = {};
-        vert_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-        vert_info.codeSize = sizeof(__glsl_shader_vert_spv);
-        vert_info.pCode = (uint32_t*)__glsl_shader_vert_spv;
-        VkResult err = vkCreateShaderModule(device, &vert_info, allocator, &bd->ShaderModuleVert);
-        check_vk_result(err);
+        redCreateGpuCode(instance, device, NULL,  sizeof(__hlsl_shader_vs_spv), __hlsl_shader_vs_spv, &bd->ShaderModuleVert, NULL, __FILE__, __LINE__, NULL);
     }
-    if (bd->ShaderModuleFrag == VK_NULL_HANDLE)
+    if (bd->ShaderModuleFrag == NULL)
     {
-        VkShaderModuleCreateInfo frag_info = {};
-        frag_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-        frag_info.codeSize = sizeof(__glsl_shader_frag_spv);
-        frag_info.pCode = (uint32_t*)__glsl_shader_frag_spv;
-        VkResult err = vkCreateShaderModule(device, &frag_info, allocator, &bd->ShaderModuleFrag);
-        check_vk_result(err);
+        redCreateGpuCode(instance, device, NULL,  sizeof(__hlsl_shader_ps_spv), __hlsl_shader_ps_spv, &bd->ShaderModuleFrag, NULL, __FILE__, __LINE__, NULL);
     }
 }
 
-static void ImGui_ImplVulkan_CreateFontSampler(VkDevice device, const VkAllocationCallbacks* allocator)
+static void ImGui_ImplRedGpu_CreateFontSampler(RedContext instance, uint32_t deviceIndex, RedHandleGpu device)
 {
-    ImGui_ImplVulkan_Data* bd = ImGui_ImplVulkan_GetBackendData();
+    ImGui_ImplRedGpu_Data* bd = ImGui_ImplRedGpu_GetBackendData();
     if (bd->FontSampler)
         return;
 
     // Bilinear sampling is required by default. Set 'io.Fonts->Flags |= ImFontAtlasFlags_NoBakedLines' or 'style.AntiAliasedLinesUseTex = false' to allow point/nearest sampling.
-    VkSamplerCreateInfo info = {};
-    info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-    info.magFilter = VK_FILTER_LINEAR;
-    info.minFilter = VK_FILTER_LINEAR;
-    info.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-    info.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    info.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    info.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    info.minLod = -1000;
-    info.maxLod = 1000;
-    info.maxAnisotropy = 1.0f;
-    VkResult err = vkCreateSampler(device, &info, allocator, &bd->FontSampler);
-    check_vk_result(err);
+    redCreateSampler(instance, device, NULL, RED_SAMPLER_FILTERING_LINEAR, RED_SAMPLER_FILTERING_LINEAR, RED_SAMPLER_FILTERING_MIP_LINEAR, RED_SAMPLER_BEHAVIOR_OUTSIDE_TEXTURE_COORDINATE_REPEAT, RED_SAMPLER_BEHAVIOR_OUTSIDE_TEXTURE_COORDINATE_REPEAT, RED_SAMPLER_BEHAVIOR_OUTSIDE_TEXTURE_COORDINATE_REPEAT, 0.0f, 0, 1.0f, 0, RED_COMPARE_OP_NEVER, -1000.0f, 1000.0f, &bd->FontSampler, NULL, __FILE__, __LINE__, NULL);
 }
 
-static void ImGui_ImplVulkan_CreateDescriptorSetLayout(VkDevice device, const VkAllocationCallbacks* allocator)
+static void ImGui_ImplRedGpu_CreateDescriptorSetLayouts(RedContext instance, uint32_t deviceIndex, RedHandleGpu device)
 {
-    ImGui_ImplVulkan_Data* bd = ImGui_ImplVulkan_GetBackendData();
-    if (bd->DescriptorSetLayout)
-        return;
-
-    ImGui_ImplVulkan_CreateFontSampler(device, allocator);
-    VkSampler sampler[1] = { bd->FontSampler };
-    VkDescriptorSetLayoutBinding binding[1] = {};
-    binding[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    binding[0].descriptorCount = 1;
-    binding[0].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-    binding[0].pImmutableSamplers = sampler;
-    VkDescriptorSetLayoutCreateInfo info = {};
-    info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    info.bindingCount = 1;
-    info.pBindings = binding;
-    VkResult err = vkCreateDescriptorSetLayout(device, &info, allocator, &bd->DescriptorSetLayout);
-    check_vk_result(err);
+    ImGui_ImplRedGpu_Data* bd = ImGui_ImplRedGpu_GetBackendData();
+    if (bd->SamplerDescriptorSetLayout == NULL)
+    {
+        RedStructDeclarationMember member;
+        member.slot            = 0;
+        member.type            = RED_STRUCT_MEMBER_TYPE_SAMPLER;
+        member.count           = 1;
+        member.visibleToStages = RED_VISIBLE_TO_STAGE_BITFLAG_FRAGMENT;
+        member.inlineSampler   = &bd->FontSampler; // NOTE(Constantine): Using a static sampler.
+        redCreateStructDeclaration(instance, device, NULL, 1, &member, 0, NULL, 0, &bd->SamplerDescriptorSetLayout, NULL, __FILE__, __LINE__, NULL);
+    }
+    if (bd->DescriptorSetLayout == NULL)
+    {
+        RedStructDeclarationMember member;
+        member.slot            = 0;
+        member.type            = RED_STRUCT_MEMBER_TYPE_TEXTURE_RO;
+        member.count           = 1;
+        member.visibleToStages = RED_VISIBLE_TO_STAGE_BITFLAG_FRAGMENT;
+        member.inlineSampler   = NULL;
+        redCreateStructDeclaration(instance, device, NULL, 1, &member, 0, NULL, 0, &bd->DescriptorSetLayout, NULL, __FILE__, __LINE__, NULL);
+    }
+    if (bd->ImdrawvertsDescriptorSetLayout == NULL)
+    {
+        RedStructDeclarationMember member;
+        member.slot            = 0;
+        member.type            = RED_STRUCT_MEMBER_TYPE_ARRAY_RO_RW;
+        member.count           = 1;
+        member.visibleToStages = RED_VISIBLE_TO_STAGE_BITFLAG_VERTEX;
+        member.inlineSampler   = NULL;
+        RedStructDeclarationMemberArrayRO memberRO;
+        memberRO.slot = 0;
+        redCreateStructDeclaration(instance, device, NULL, 1, &member, 1, &memberRO, 1, &bd->ImdrawvertsDescriptorSetLayout, NULL, __FILE__, __LINE__, NULL);
+    }
 }
 
-static void ImGui_ImplVulkan_CreatePipelineLayout(VkDevice device, const VkAllocationCallbacks* allocator)
+static void ImGui_ImplRedGpu_CreatePipelineLayout(RedContext instance, uint32_t deviceIndex, RedHandleGpu device)
 {
-    ImGui_ImplVulkan_Data* bd = ImGui_ImplVulkan_GetBackendData();
+    ImGui_ImplRedGpu_Data* bd = ImGui_ImplRedGpu_GetBackendData();
     if (bd->PipelineLayout)
         return;
 
     // Constants: we are using 'vec2 offset' and 'vec2 scale' instead of a full 3d projection matrix
-    ImGui_ImplVulkan_CreateDescriptorSetLayout(device, allocator);
-    VkPushConstantRange push_constants[1] = {};
-    push_constants[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-    push_constants[0].offset = sizeof(float) * 0;
-    push_constants[0].size = sizeof(float) * 4;
-    VkDescriptorSetLayout set_layout[1] = { bd->DescriptorSetLayout };
-    VkPipelineLayoutCreateInfo layout_info = {};
-    layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    layout_info.setLayoutCount = 1;
-    layout_info.pSetLayouts = set_layout;
-    layout_info.pushConstantRangeCount = 1;
-    layout_info.pPushConstantRanges = push_constants;
-    VkResult  err = vkCreatePipelineLayout(device, &layout_info, allocator, &bd->PipelineLayout);
-    check_vk_result(err);
+    ImGui_ImplRedGpu_CreateDescriptorSetLayouts(instance, deviceIndex, device);
+
+    RedProcedureParametersDeclaration parametersDeclaration = {};
+    parametersDeclaration.variablesSlot            = 0;
+    parametersDeclaration.variablesVisibleToStages = RED_VISIBLE_TO_STAGE_BITFLAG_VERTEX;
+    parametersDeclaration.variablesBytesCount      = sizeof(float) * 4;
+    parametersDeclaration.structsDeclarationsCount = 2;
+    parametersDeclaration.structsDeclarations[0]   = bd->SamplerDescriptorSetLayout;
+    parametersDeclaration.structsDeclarations[1]   = bd->DescriptorSetLayout;
+    parametersDeclaration.structsDeclarations[2]   = NULL;
+    parametersDeclaration.structsDeclarations[3]   = NULL;
+    parametersDeclaration.structsDeclarations[4]   = NULL;
+    parametersDeclaration.structsDeclarations[5]   = NULL;
+    parametersDeclaration.structsDeclarations[6]   = NULL;
+    parametersDeclaration.handlesDeclaration       = bd->ImdrawvertsDescriptorSetLayout;
+    redCreateProcedureParameters(instance, device, NULL, &parametersDeclaration, &bd->PipelineLayout, NULL, __FILE__, __LINE__, NULL);
 }
 
-static void ImGui_ImplVulkan_CreatePipeline(VkDevice device, const VkAllocationCallbacks* allocator, VkPipelineCache pipelineCache, VkRenderPass renderPass, VkSampleCountFlagBits MSAASamples, VkPipeline* pipeline, uint32_t subpass)
+static void ImGui_ImplRedGpu_CreatePipeline(RedContext instance, uint32_t deviceIndex, RedHandleGpu device, RedHandleProcedureCache pipelineCache, RedHandleOutputDeclaration renderPass, RedMultisampleCountBitflag MSAASamples, RedHandleProcedure * pipeline, uint32_t subpass)
 {
-    ImGui_ImplVulkan_Data* bd = ImGui_ImplVulkan_GetBackendData();
-    ImGui_ImplVulkan_CreateShaderModules(device, allocator);
+    ImGui_ImplRedGpu_Data* bd = ImGui_ImplRedGpu_GetBackendData();
+    ImGui_ImplRedGpu_CreateShaderModules(instance, deviceIndex, device);
 
-    VkPipelineShaderStageCreateInfo stage[2] = {};
-    stage[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    stage[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
-    stage[0].module = bd->ShaderModuleVert;
-    stage[0].pName = "main";
-    stage[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    stage[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-    stage[1].module = bd->ShaderModuleFrag;
-    stage[1].pName = "main";
+    ImGui_ImplRedGpu_CreatePipelineLayout(instance, deviceIndex, device);
 
-    VkVertexInputBindingDescription binding_desc[1] = {};
-    binding_desc[0].stride = sizeof(ImDrawVert);
-    binding_desc[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-    VkVertexInputAttributeDescription attribute_desc[3] = {};
-    attribute_desc[0].location = 0;
-    attribute_desc[0].binding = binding_desc[0].binding;
-    attribute_desc[0].format = VK_FORMAT_R32G32_SFLOAT;
-    attribute_desc[0].offset = IM_OFFSETOF(ImDrawVert, pos);
-    attribute_desc[1].location = 1;
-    attribute_desc[1].binding = binding_desc[0].binding;
-    attribute_desc[1].format = VK_FORMAT_R32G32_SFLOAT;
-    attribute_desc[1].offset = IM_OFFSETOF(ImDrawVert, uv);
-    attribute_desc[2].location = 2;
-    attribute_desc[2].binding = binding_desc[0].binding;
-    attribute_desc[2].format = VK_FORMAT_R8G8B8A8_UNORM;
-    attribute_desc[2].offset = IM_OFFSETOF(ImDrawVert, col);
-
-    VkPipelineVertexInputStateCreateInfo vertex_info = {};
-    vertex_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertex_info.vertexBindingDescriptionCount = 1;
-    vertex_info.pVertexBindingDescriptions = binding_desc;
-    vertex_info.vertexAttributeDescriptionCount = 3;
-    vertex_info.pVertexAttributeDescriptions = attribute_desc;
-
-    VkPipelineInputAssemblyStateCreateInfo ia_info = {};
-    ia_info.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-    ia_info.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-
-    VkPipelineViewportStateCreateInfo viewport_info = {};
-    viewport_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-    viewport_info.viewportCount = 1;
-    viewport_info.scissorCount = 1;
-
-    VkPipelineRasterizationStateCreateInfo raster_info = {};
-    raster_info.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-    raster_info.polygonMode = VK_POLYGON_MODE_FILL;
-    raster_info.cullMode = VK_CULL_MODE_NONE;
-    raster_info.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
-    raster_info.lineWidth = 1.0f;
-
-    VkPipelineMultisampleStateCreateInfo ms_info = {};
-    ms_info.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-    ms_info.rasterizationSamples = (MSAASamples != 0) ? MSAASamples : VK_SAMPLE_COUNT_1_BIT;
-
-    VkPipelineColorBlendAttachmentState color_attachment[1] = {};
-    color_attachment[0].blendEnable = VK_TRUE;
-    color_attachment[0].srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-    color_attachment[0].dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-    color_attachment[0].colorBlendOp = VK_BLEND_OP_ADD;
-    color_attachment[0].srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-    color_attachment[0].dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-    color_attachment[0].alphaBlendOp = VK_BLEND_OP_ADD;
-    color_attachment[0].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-
-    VkPipelineDepthStencilStateCreateInfo depth_info = {};
-    depth_info.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-
-    VkPipelineColorBlendStateCreateInfo blend_info = {};
-    blend_info.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-    blend_info.attachmentCount = 1;
-    blend_info.pAttachments = color_attachment;
-
-    VkDynamicState dynamic_states[2] = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
-    VkPipelineDynamicStateCreateInfo dynamic_state = {};
-    dynamic_state.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-    dynamic_state.dynamicStateCount = (uint32_t)IM_ARRAYSIZE(dynamic_states);
-    dynamic_state.pDynamicStates = dynamic_states;
-
-    ImGui_ImplVulkan_CreatePipelineLayout(device, allocator);
-
-    VkGraphicsPipelineCreateInfo info = {};
-    info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-    info.flags = bd->PipelineCreateFlags;
-    info.stageCount = 2;
-    info.pStages = stage;
-    info.pVertexInputState = &vertex_info;
-    info.pInputAssemblyState = &ia_info;
-    info.pViewportState = &viewport_info;
-    info.pRasterizationState = &raster_info;
-    info.pMultisampleState = &ms_info;
-    info.pDepthStencilState = &depth_info;
-    info.pColorBlendState = &blend_info;
-    info.pDynamicState = &dynamic_state;
-    info.layout = bd->PipelineLayout;
-    info.renderPass = renderPass;
-    info.subpass = subpass;
-    VkResult err = vkCreateGraphicsPipelines(device, pipelineCache, 1, &info, allocator, pipeline);
-    check_vk_result(err);
+    RedProcedureState state = {};
+    state.inputAssemblyTopology                          = RED_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    state.inputAssemblyPrimitiveRestartEnable            = 0;
+    state.viewportDynamic                                = 1;
+    state.viewportStaticX                                = 0;
+    state.viewportStaticY                                = 0;
+    state.viewportStaticWidth                            = 0;
+    state.viewportStaticHeight                           = 0;
+    state.viewportStaticDepthMin                         = 0;
+    state.viewportStaticDepthMax                         = 0;
+    state.scissorDynamic                                 = 1;
+    state.scissorStaticX                                 = 0;
+    state.scissorStaticY                                 = 0;
+    state.scissorStaticWidth                             = 0;
+    state.scissorStaticHeight                            = 0;
+    state.rasterizationDepthClampEnable                  = 0;
+    state.rasterizationDiscardAllPrimitivesEnable        = 0;
+    state.rasterizationCullMode                          = RED_CULL_MODE_NONE;
+    state.rasterizationFrontFace                         = RED_FRONT_FACE_COUNTER_CLOCKWISE;
+    state.rasterizationDepthBiasEnable                   = 0;
+    state.rasterizationDepthBiasDynamic                  = 0;
+    state.rasterizationDepthBiasStaticConstantFactor     = 0;
+    state.rasterizationDepthBiasStaticClamp              = 0;
+    state.rasterizationDepthBiasStaticSlopeFactor        = 0;
+    state.multisampleCount                               = (MSAASamples != 0) ? MSAASamples : RED_MULTISAMPLE_COUNT_BITFLAG_1;
+    state.multisampleSampleMask                          = NULL;
+    state.multisampleSampleShadingEnable                 = 0;
+    state.multisampleSampleShadingMin                    = 0;
+    state.multisampleAlphaToCoverageEnable               = 0;
+    state.multisampleAlphaToOneEnable                    = 0;
+    state.depthTestEnable                                = 0;
+    state.depthTestDepthWriteEnable                      = 0;
+    state.depthTestDepthCompareOp                        = RED_COMPARE_OP_GREATER_OR_EQUAL;
+    state.depthTestBoundsTestEnable                      = 0;
+    state.depthTestBoundsTestDynamic                     = 0;
+    state.depthTestBoundsTestStaticMin                   = 0;
+    state.depthTestBoundsTestStaticMax                   = 1;
+    state.stencilTestEnable                              = 0;
+    state.stencilTestFrontAndBackDynamicCompareMask      = 0;
+    state.stencilTestFrontAndBackDynamicWriteMask        = 0;
+    state.stencilTestFrontAndBackDynamicReference        = 0;
+    state.stencilTestFrontStencilTestFailOp              = RED_STENCIL_OP_KEEP;
+    state.stencilTestFrontStencilTestPassDepthTestPassOp = RED_STENCIL_OP_KEEP;
+    state.stencilTestFrontStencilTestPassDepthTestFailOp = RED_STENCIL_OP_KEEP;
+    state.stencilTestFrontCompareOp                      = RED_COMPARE_OP_NEVER;
+    state.stencilTestBackStencilTestFailOp               = RED_STENCIL_OP_KEEP;
+    state.stencilTestBackStencilTestPassDepthTestPassOp  = RED_STENCIL_OP_KEEP;
+    state.stencilTestBackStencilTestPassDepthTestFailOp  = RED_STENCIL_OP_KEEP;
+    state.stencilTestBackCompareOp                       = RED_COMPARE_OP_NEVER;
+    state.stencilTestFrontAndBackStaticCompareMask       = 0;
+    state.stencilTestFrontAndBackStaticWriteMask         = 0;
+    state.stencilTestFrontAndBackStaticReference         = 0;
+    state.blendLogicOpEnable                             = 0;
+    state.blendLogicOp                                   = RED_LOGIC_OP_CLEAR;
+    state.blendConstantsDynamic                          = 0;
+    state.blendConstantsStatic[0]                        = 0;
+    state.blendConstantsStatic[1]                        = 0;
+    state.blendConstantsStatic[2]                        = 0;
+    state.blendConstantsStatic[3]                        = 0;
+    state.outputColorsCount                              = 1;
+    state.outputColorsWriteMask[0]                       = RED_COLOR_COMPONENT_BITFLAG_R | RED_COLOR_COMPONENT_BITFLAG_G | RED_COLOR_COMPONENT_BITFLAG_B | RED_COLOR_COMPONENT_BITFLAG_A;
+    state.outputColorsWriteMask[1]                       = RED_COLOR_COMPONENT_BITFLAG_R | RED_COLOR_COMPONENT_BITFLAG_G | RED_COLOR_COMPONENT_BITFLAG_B | RED_COLOR_COMPONENT_BITFLAG_A;
+    state.outputColorsWriteMask[2]                       = RED_COLOR_COMPONENT_BITFLAG_R | RED_COLOR_COMPONENT_BITFLAG_G | RED_COLOR_COMPONENT_BITFLAG_B | RED_COLOR_COMPONENT_BITFLAG_A;
+    state.outputColorsWriteMask[3]                       = RED_COLOR_COMPONENT_BITFLAG_R | RED_COLOR_COMPONENT_BITFLAG_G | RED_COLOR_COMPONENT_BITFLAG_B | RED_COLOR_COMPONENT_BITFLAG_A;
+    state.outputColorsWriteMask[4]                       = RED_COLOR_COMPONENT_BITFLAG_R | RED_COLOR_COMPONENT_BITFLAG_G | RED_COLOR_COMPONENT_BITFLAG_B | RED_COLOR_COMPONENT_BITFLAG_A;
+    state.outputColorsWriteMask[5]                       = RED_COLOR_COMPONENT_BITFLAG_R | RED_COLOR_COMPONENT_BITFLAG_G | RED_COLOR_COMPONENT_BITFLAG_B | RED_COLOR_COMPONENT_BITFLAG_A;
+    state.outputColorsWriteMask[6]                       = RED_COLOR_COMPONENT_BITFLAG_R | RED_COLOR_COMPONENT_BITFLAG_G | RED_COLOR_COMPONENT_BITFLAG_B | RED_COLOR_COMPONENT_BITFLAG_A;
+    state.outputColorsWriteMask[7]                       = RED_COLOR_COMPONENT_BITFLAG_R | RED_COLOR_COMPONENT_BITFLAG_G | RED_COLOR_COMPONENT_BITFLAG_B | RED_COLOR_COMPONENT_BITFLAG_A;
+    for (unsigned i = 0; i < 8; i += 1) {
+      state.outputColorsBlendEnable[i]                   = 1;
+      state.outputColorsBlendColorFactorSource[i]        = RED_BLEND_FACTOR_SOURCE_ALPHA;
+      state.outputColorsBlendColorFactorTarget[i]        = RED_BLEND_FACTOR_ONE_MINUS_SOURCE_ALPHA;
+      state.outputColorsBlendColorOp[i]                  = RED_BLEND_OP_ADD;
+      state.outputColorsBlendAlphaFactorSource[i]        = RED_BLEND_FACTOR_ONE;
+      state.outputColorsBlendAlphaFactorTarget[i]        = RED_BLEND_FACTOR_ONE_MINUS_SOURCE_ALPHA;
+      state.outputColorsBlendAlphaOp[i]                  = RED_BLEND_OP_ADD;
+    }
+    redCreateProcedure(instance, device, NULL, pipelineCache, renderPass, bd->PipelineLayout, "main", bd->ShaderModuleVert, "main", bd->ShaderModuleFrag, &state, NULL, 0, NULL, pipeline, NULL, __FILE__, __LINE__, NULL);
 }
 
-bool ImGui_ImplVulkan_CreateDeviceObjects()
+bool ImGui_ImplRedGpu_CreateDeviceObjects()
 {
-    ImGui_ImplVulkan_Data* bd = ImGui_ImplVulkan_GetBackendData();
-    ImGui_ImplVulkan_InitInfo* v = &bd->VulkanInitInfo;
-    VkResult err;
+    ImGui_ImplRedGpu_Data* bd = ImGui_ImplRedGpu_GetBackendData();
+    ImGui_ImplRedGpu_InitInfo* v = &bd->RedGpuInitInfo;
 
-    if (!bd->FontSampler)
-    {
-        VkSamplerCreateInfo info = {};
-        info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-        info.magFilter = VK_FILTER_LINEAR;
-        info.minFilter = VK_FILTER_LINEAR;
-        info.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-        info.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        info.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        info.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        info.minLod = -1000;
-        info.maxLod = 1000;
-        info.maxAnisotropy = 1.0f;
-        err = vkCreateSampler(v->Device, &info, v->Allocator, &bd->FontSampler);
-        check_vk_result(err);
-    }
-
-    if (!bd->DescriptorSetLayout)
-    {
-        VkSampler sampler[1] = {bd->FontSampler};
-        VkDescriptorSetLayoutBinding binding[1] = {};
-        binding[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        binding[0].descriptorCount = 1;
-        binding[0].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-        binding[0].pImmutableSamplers = sampler;
-        VkDescriptorSetLayoutCreateInfo info = {};
-        info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-        info.bindingCount = 1;
-        info.pBindings = binding;
-        err = vkCreateDescriptorSetLayout(v->Device, &info, v->Allocator, &bd->DescriptorSetLayout);
-        check_vk_result(err);
-    }
-
-    if (!bd->PipelineLayout)
-    {
-        // Constants: we are using 'vec2 offset' and 'vec2 scale' instead of a full 3d projection matrix
-        VkPushConstantRange push_constants[1] = {};
-        push_constants[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-        push_constants[0].offset = sizeof(float) * 0;
-        push_constants[0].size = sizeof(float) * 4;
-        VkDescriptorSetLayout set_layout[1] = { bd->DescriptorSetLayout };
-        VkPipelineLayoutCreateInfo layout_info = {};
-        layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        layout_info.setLayoutCount = 1;
-        layout_info.pSetLayouts = set_layout;
-        layout_info.pushConstantRangeCount = 1;
-        layout_info.pPushConstantRanges = push_constants;
-        err = vkCreatePipelineLayout(v->Device, &layout_info, v->Allocator, &bd->PipelineLayout);
-        check_vk_result(err);
-    }
-
-    ImGui_ImplVulkan_CreatePipeline(v->Device, v->Allocator, v->PipelineCache, bd->RenderPass, v->MSAASamples, &bd->Pipeline, bd->Subpass);
+    ImGui_ImplRedGpu_CreateFontSampler(v->Instance, v->DeviceIndex, v->Device);
+    ImGui_ImplRedGpu_CreateDescriptorSetLayouts(v->Instance, v->DeviceIndex, v->Device);
+    ImGui_ImplRedGpu_CreatePipelineLayout(v->Instance, v->DeviceIndex, v->Device);
+    ImGui_ImplRedGpu_CreatePipeline(v->Instance, v->DeviceIndex, v->Device, v->PipelineCache, bd->RenderPass, v->MSAASamples, &bd->Pipeline, bd->Subpass);
 
     return true;
 }
 
-void    ImGui_ImplVulkan_DestroyFontUploadObjects()
+void    ImGui_ImplRedGpu_DestroyFontUploadObjects()
 {
-    ImGui_ImplVulkan_Data* bd = ImGui_ImplVulkan_GetBackendData();
-    ImGui_ImplVulkan_InitInfo* v = &bd->VulkanInitInfo;
-    if (bd->UploadBuffer)
+    ImGui_ImplRedGpu_Data* bd = ImGui_ImplRedGpu_GetBackendData();
+    ImGui_ImplRedGpu_InitInfo* v = &bd->RedGpuInitInfo;
+    if (bd->UploadBuffer.handle)
     {
-        vkDestroyBuffer(v->Device, bd->UploadBuffer, v->Allocator);
-        bd->UploadBuffer = VK_NULL_HANDLE;
+        redDestroyArray(v->Instance, v->Device, bd->UploadBuffer.handle, __FILE__, __LINE__, NULL);
+        RedArray defaults = {};
+        bd->UploadBuffer = defaults;
     }
     if (bd->UploadBufferMemory)
     {
-        vkFreeMemory(v->Device, bd->UploadBufferMemory, v->Allocator);
-        bd->UploadBufferMemory = VK_NULL_HANDLE;
+        redMemoryFree(v->Instance, v->Device, bd->UploadBufferMemory, __FILE__, __LINE__, NULL);
+        bd->UploadBufferMemory = NULL;
     }
 }
 
-void    ImGui_ImplVulkan_DestroyDeviceObjects()
+void    ImGui_ImplRedGpu_DestroyDeviceObjects()
 {
-    ImGui_ImplVulkan_Data* bd = ImGui_ImplVulkan_GetBackendData();
-    ImGui_ImplVulkan_InitInfo* v = &bd->VulkanInitInfo;
-    ImGui_ImplVulkanH_DestroyWindowRenderBuffers(v->Device, &bd->MainWindowRenderBuffers, v->Allocator);
-    ImGui_ImplVulkan_DestroyFontUploadObjects();
+    ImGui_ImplRedGpu_Data* bd = ImGui_ImplRedGpu_GetBackendData();
+    ImGui_ImplRedGpu_InitInfo* v = &bd->RedGpuInitInfo;
+    ImGui_ImplRedGpuH_DestroyWindowRenderBuffers(v->Instance, v->DeviceIndex, v->Device, &bd->MainWindowRenderBuffers);
+    ImGui_ImplRedGpu_DestroyFontUploadObjects();
 
-    if (bd->ShaderModuleVert)     { vkDestroyShaderModule(v->Device, bd->ShaderModuleVert, v->Allocator); bd->ShaderModuleVert = VK_NULL_HANDLE; }
-    if (bd->ShaderModuleFrag)     { vkDestroyShaderModule(v->Device, bd->ShaderModuleFrag, v->Allocator); bd->ShaderModuleFrag = VK_NULL_HANDLE; }
-    if (bd->FontView)             { vkDestroyImageView(v->Device, bd->FontView, v->Allocator); bd->FontView = VK_NULL_HANDLE; }
-    if (bd->FontImage)            { vkDestroyImage(v->Device, bd->FontImage, v->Allocator); bd->FontImage = VK_NULL_HANDLE; }
-    if (bd->FontMemory)           { vkFreeMemory(v->Device, bd->FontMemory, v->Allocator); bd->FontMemory = VK_NULL_HANDLE; }
-    if (bd->FontSampler)          { vkDestroySampler(v->Device, bd->FontSampler, v->Allocator); bd->FontSampler = VK_NULL_HANDLE; }
-    if (bd->DescriptorSetLayout)  { vkDestroyDescriptorSetLayout(v->Device, bd->DescriptorSetLayout, v->Allocator); bd->DescriptorSetLayout = VK_NULL_HANDLE; }
-    if (bd->PipelineLayout)       { vkDestroyPipelineLayout(v->Device, bd->PipelineLayout, v->Allocator); bd->PipelineLayout = VK_NULL_HANDLE; }
-    if (bd->Pipeline)             { vkDestroyPipeline(v->Device, bd->Pipeline, v->Allocator); bd->Pipeline = VK_NULL_HANDLE; }
+    if (bd->ShaderModuleVert)               { redDestroyGpuCode(v->Instance, v->Device, bd->ShaderModuleVert, __FILE__, __LINE__, NULL); bd->ShaderModuleVert = NULL; }
+    if (bd->ShaderModuleFrag)               { redDestroyGpuCode(v->Instance, v->Device, bd->ShaderModuleFrag, __FILE__, __LINE__, NULL); bd->ShaderModuleFrag = NULL; }
+    if (bd->FontView)                       { redDestroyTexture(v->Instance, v->Device, bd->FontView, __FILE__, __LINE__, NULL); bd->FontView = NULL; }
+    if (bd->FontImage.handle)               { redDestroyImage(v->Instance, v->Device, bd->FontImage.handle, __FILE__, __LINE__, NULL); RedImage defaults = {}; bd->FontImage = defaults; }
+    if (bd->FontMemory)                     { redMemoryFree(v->Instance, v->Device, bd->FontMemory, __FILE__, __LINE__, NULL); bd->FontMemory = NULL; }
+    if (bd->FontSampler)                    { redDestroySampler(v->Instance, v->Device, bd->FontSampler, __FILE__, __LINE__, NULL); bd->FontSampler = NULL; }
+    if (bd->SamplerDescriptorSetLayout)     { redDestroyStructDeclaration(v->Instance, v->Device, bd->SamplerDescriptorSetLayout, __FILE__, __LINE__, NULL); bd->SamplerDescriptorSetLayout = NULL; }
+    if (bd->DescriptorSetLayout)            { redDestroyStructDeclaration(v->Instance, v->Device, bd->DescriptorSetLayout, __FILE__, __LINE__, NULL); bd->DescriptorSetLayout = NULL; }
+    if (bd->ImdrawvertsDescriptorSetLayout) { redDestroyStructDeclaration(v->Instance, v->Device, bd->ImdrawvertsDescriptorSetLayout, __FILE__, __LINE__, NULL); bd->ImdrawvertsDescriptorSetLayout = NULL; }
+    if (bd->PipelineLayout)                 { redDestroyProcedureParameters(v->Instance, v->Device, bd->PipelineLayout, __FILE__, __LINE__, NULL); bd->PipelineLayout = NULL; }
+    if (bd->Pipeline)                       { redDestroyProcedure(v->Instance, v->Device, bd->Pipeline, __FILE__, __LINE__, NULL); bd->Pipeline = NULL; }
 }
 
-bool    ImGui_ImplVulkan_LoadFunctions(PFN_vkVoidFunction(*loader_func)(const char* function_name, void* user_data), void* user_data)
+bool    ImGui_ImplRedGpu_Init(ImGui_ImplRedGpu_InitInfo* info, RedHandleOutputDeclaration render_pass)
 {
-    // Load function pointers
-    // You can use the default Vulkan loader using:
-    //      ImGui_ImplVulkan_LoadFunctions([](const char* function_name, void*) { return vkGetInstanceProcAddr(your_vk_isntance, function_name); });
-    // But this would be equivalent to not setting VK_NO_PROTOTYPES.
-#ifdef VK_NO_PROTOTYPES
-#define IMGUI_VULKAN_FUNC_LOAD(func) \
-    func = reinterpret_cast<decltype(func)>(loader_func(#func, user_data)); \
-    if (func == NULL)   \
-        return false;
-    IMGUI_VULKAN_FUNC_MAP(IMGUI_VULKAN_FUNC_LOAD)
-#undef IMGUI_VULKAN_FUNC_LOAD
-#else
-    IM_UNUSED(loader_func);
-    IM_UNUSED(user_data);
-#endif
-    g_FunctionsLoaded = true;
-    return true;
-}
-
-bool    ImGui_ImplVulkan_Init(ImGui_ImplVulkan_InitInfo* info, VkRenderPass render_pass)
-{
-    IM_ASSERT(g_FunctionsLoaded && "Need to call ImGui_ImplVulkan_LoadFunctions() if IMGUI_IMPL_VULKAN_NO_PROTOTYPES or VK_NO_PROTOTYPES are set!");
-
     ImGuiIO& io = ImGui::GetIO();
     IM_ASSERT(io.BackendRendererUserData == NULL && "Already initialized a renderer backend!");
 
     // Setup backend capabilities flags
-    ImGui_ImplVulkan_Data* bd = IM_NEW(ImGui_ImplVulkan_Data)();
+    ImGui_ImplRedGpu_Data* bd = IM_NEW(ImGui_ImplRedGpu_Data)();
     io.BackendRendererUserData = (void*)bd;
-    io.BackendRendererName = "imgui_impl_vulkan";
+    io.BackendRendererName = "imgui_impl_redgpu";
     io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;  // We can honor the ImDrawCmd::VtxOffset field, allowing for large meshes.
 
-    IM_ASSERT(info->Instance != VK_NULL_HANDLE);
-    IM_ASSERT(info->PhysicalDevice != VK_NULL_HANDLE);
-    IM_ASSERT(info->Device != VK_NULL_HANDLE);
-    IM_ASSERT(info->Queue != VK_NULL_HANDLE);
-    IM_ASSERT(info->DescriptorPool != VK_NULL_HANDLE);
+    IM_ASSERT(info->Instance != NULL);
+    IM_ASSERT(info->PhysicalDevice != NULL);
+    IM_ASSERT(info->Device != NULL);
+    IM_ASSERT(info->Queue != NULL);
+    IM_ASSERT(info->DescriptorPool != NULL);
+    IM_ASSERT(info->DescriptorPoolSamplers != NULL);
     IM_ASSERT(info->MinImageCount >= 2);
     IM_ASSERT(info->ImageCount >= info->MinImageCount);
-    IM_ASSERT(render_pass != VK_NULL_HANDLE);
+    IM_ASSERT(render_pass != NULL);
 
-    bd->VulkanInitInfo = *info;
+    bd->RedGpuInitInfo = *info;
     bd->RenderPass = render_pass;
     bd->Subpass = info->Subpass;
 
-    ImGui_ImplVulkan_CreateDeviceObjects();
+    ImGui_ImplRedGpu_CreateDeviceObjects();
 
     return true;
 }
 
-void ImGui_ImplVulkan_Shutdown()
+void ImGui_ImplRedGpu_Shutdown()
 {
-    ImGui_ImplVulkan_Data* bd = ImGui_ImplVulkan_GetBackendData();
+    ImGui_ImplRedGpu_Data* bd = ImGui_ImplRedGpu_GetBackendData();
     IM_ASSERT(bd != NULL && "No renderer backend to shutdown, or already shutdown?");
     ImGuiIO& io = ImGui::GetIO();
 
-    ImGui_ImplVulkan_DestroyDeviceObjects();
+    ImGui_ImplRedGpu_DestroyDeviceObjects();
     io.BackendRendererName = NULL;
     io.BackendRendererUserData = NULL;
     IM_DELETE(bd);
 }
 
-void ImGui_ImplVulkan_NewFrame()
+void ImGui_ImplRedGpu_NewFrame()
 {
-    ImGui_ImplVulkan_Data* bd = ImGui_ImplVulkan_GetBackendData();
-    IM_ASSERT(bd != NULL && "Did you call ImGui_ImplVulkan_Init()?");
+    ImGui_ImplRedGpu_Data* bd = ImGui_ImplRedGpu_GetBackendData();
+    IM_ASSERT(bd != NULL && "Did you call ImGui_ImplRedGpu_Init()?");
     IM_UNUSED(bd);
 }
 
-void ImGui_ImplVulkan_SetMinImageCount(uint32_t min_image_count)
+void ImGui_ImplRedGpu_SetMinImageCount(uint32_t min_image_count, ImGui_ImplRedGpuH_Window* wd)
 {
-    ImGui_ImplVulkan_Data* bd = ImGui_ImplVulkan_GetBackendData();
+    ImGui_ImplRedGpu_Data* bd = ImGui_ImplRedGpu_GetBackendData();
     IM_ASSERT(min_image_count >= 2);
-    if (bd->VulkanInitInfo.MinImageCount == min_image_count)
+    if (bd->RedGpuInitInfo.MinImageCount == min_image_count)
         return;
 
-    ImGui_ImplVulkan_InitInfo* v = &bd->VulkanInitInfo;
-    VkResult err = vkDeviceWaitIdle(v->Device);
-    check_vk_result(err);
-    ImGui_ImplVulkanH_DestroyWindowRenderBuffers(v->Device, &bd->MainWindowRenderBuffers, v->Allocator);
-    bd->VulkanInitInfo.MinImageCount = min_image_count;
+    ImGui_ImplRedGpu_InitInfo* v = &bd->RedGpuInitInfo;
+    //DeviceWaitIdle(v->Instance, v->DeviceIndex, v->Device);
+    for (uint32_t i = 0; i < wd->ImageCount; i++)
+    {
+        redCpuSignalWait(v->Instance, v->Device, 1, &wd->Frames[i].Fence, 1, NULL, __FILE__, __LINE__, NULL);
+    }
+    ImGui_ImplRedGpuH_DestroyWindowRenderBuffers(v->Instance, v->DeviceIndex, v->Device, &bd->MainWindowRenderBuffers);
+    bd->RedGpuInitInfo.MinImageCount = min_image_count;
 }
 
 // Register a texture
 // FIXME: This is experimental in the sense that we are unsure how to best design/tackle this problem, please post to https://github.com/ocornut/imgui/pull/914 if you have suggestions.
-VkDescriptorSet ImGui_ImplVulkan_AddTexture(VkSampler sampler, VkImageView image_view, VkImageLayout image_layout)
+RedHandleStruct ImGui_ImplRedGpu_AddTexture(RedHandleSampler sampler, RedHandleTexture image_view)
 {
-    ImGui_ImplVulkan_Data* bd = ImGui_ImplVulkan_GetBackendData();
-    ImGui_ImplVulkan_InitInfo* v = &bd->VulkanInitInfo;
+    ImGui_ImplRedGpu_Data* bd = ImGui_ImplRedGpu_GetBackendData();
+    ImGui_ImplRedGpu_InitInfo* v = &bd->RedGpuInitInfo;
+
+    // Create Sampler Descriptor Set:
+    RedHandleStruct sampler_descriptor_set;
+    {
+        redStructsMemorySuballocateStructs(v->Instance, v->Device, NULL, v->DescriptorPoolSamplers, 1, &bd->SamplerDescriptorSetLayout, &sampler_descriptor_set, NULL, __FILE__, __LINE__, NULL);
+    }
 
     // Create Descriptor Set:
-    VkDescriptorSet descriptor_set;
+    RedHandleStruct descriptor_set;
     {
-        VkDescriptorSetAllocateInfo alloc_info = {};
-        alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-        alloc_info.descriptorPool = v->DescriptorPool;
-        alloc_info.descriptorSetCount = 1;
-        alloc_info.pSetLayouts = &bd->DescriptorSetLayout;
-        VkResult err = vkAllocateDescriptorSets(v->Device, &alloc_info, &descriptor_set);
-        check_vk_result(err);
+        redStructsMemorySuballocateStructs(v->Instance, v->Device, NULL, v->DescriptorPool, 1, &bd->DescriptorSetLayout, &descriptor_set, NULL, __FILE__, __LINE__, NULL);
     }
 
     // Update the Descriptor Set:
     {
-        VkDescriptorImageInfo desc_image[1] = {};
-        desc_image[0].sampler = sampler;
-        desc_image[0].imageView = image_view;
-        desc_image[0].imageLayout = image_layout;
-        VkWriteDescriptorSet write_desc[1] = {};
-        write_desc[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        write_desc[0].dstSet = descriptor_set;
-        write_desc[0].descriptorCount = 1;
-        write_desc[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        write_desc[0].pImageInfo = desc_image;
-        vkUpdateDescriptorSets(v->Device, 1, write_desc, 0, NULL);
+        RedStructMember members[2] = {};
+        // NOTE(Constantine): Using a static sampler.
+        //RedStructMemberTexture sampler0 = {};
+        //sampler0.sampler = sampler;
+        //sampler0.texture = NULL;
+        //sampler0.setTo1  = 1;
+        //members[1].setTo35   = 35;
+        //members[1].setTo0    = 0;
+        //members[1].structure = sampler_descriptor_set;
+        //members[1].slot      = 0;
+        //members[1].first     = 0;
+        //members[1].count     = 1;
+        //members[1].type      = RED_STRUCT_MEMBER_TYPE_SAMPLER;
+        //members[1].textures  = &sampler0;
+        //members[1].arrays    = NULL;
+        //members[1].setTo00   = 0;
+        RedStructMemberTexture texture0 = {};
+        texture0.sampler = NULL;
+        texture0.texture = image_view;
+        texture0.setTo1  = 1;
+        members[0].setTo35   = 35;
+        members[0].setTo0    = 0;
+        members[0].structure = descriptor_set;
+        members[0].slot      = 0;
+        members[0].first     = 0;
+        members[0].count     = 1;
+        members[0].type      = RED_STRUCT_MEMBER_TYPE_TEXTURE_RO;
+        members[0].textures  = &texture0;
+        members[0].arrays    = NULL;
+        members[0].setTo00   = 0;
+        redStructsSet(v->Instance, v->Device, 1, members, __FILE__, __LINE__, NULL);
     }
+
+    bd->FontSamplerDescriptorSet = sampler_descriptor_set;
+
     return descriptor_set;
 }
 
 //-------------------------------------------------------------------------
-// Internal / Miscellaneous Vulkan Helpers
+// Internal / Miscellaneous REDGPU Helpers
 // (Used by example's main.cpp. Used by multi-viewport features. PROBABLY NOT used by your own app.)
 //-------------------------------------------------------------------------
-// You probably do NOT need to use or care about those functions.
-// Those functions only exist because:
-//   1) they facilitate the readability and maintenance of the multiple main.cpp examples files.
-//   2) the upcoming multi-viewport feature will need them internally.
-// Generally we avoid exposing any kind of superfluous high-level helpers in the backends,
-// but it is too much code to duplicate everywhere so we exceptionally expose them.
-//
-// Your engine/app will likely _already_ have code to setup all that stuff (swap chain, render pass, frame buffers, etc.).
-// You may read this code to learn about Vulkan, but it is recommended you use you own custom tailored code to do equivalent work.
-// (The ImGui_ImplVulkanH_XXX functions do not interact with any of the state used by the regular ImGui_ImplVulkan_XXX functions)
-//-------------------------------------------------------------------------
 
-VkSurfaceFormatKHR ImGui_ImplVulkanH_SelectSurfaceFormat(VkPhysicalDevice physical_device, VkSurfaceKHR surface, const VkFormat* request_formats, int request_formats_count, VkColorSpaceKHR request_color_space)
+RedFormat ImGui_ImplRedGpuH_SelectSurfaceFormat()
 {
-    IM_ASSERT(g_FunctionsLoaded && "Need to call ImGui_ImplVulkan_LoadFunctions() if IMGUI_IMPL_VULKAN_NO_PROTOTYPES or VK_NO_PROTOTYPES are set!");
-    IM_ASSERT(request_formats != NULL);
-    IM_ASSERT(request_formats_count > 0);
-
-    // Per Spec Format and View Format are expected to be the same unless VK_IMAGE_CREATE_MUTABLE_BIT was set at image creation
-    // Assuming that the default behavior is without setting this bit, there is no need for separate Swapchain image and image view format
-    // Additionally several new color spaces were introduced with Vulkan Spec v1.0.40,
-    // hence we must make sure that a format with the mostly available color space, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR, is found and used.
-    uint32_t avail_count;
-    vkGetPhysicalDeviceSurfaceFormatsKHR(physical_device, surface, &avail_count, NULL);
-    ImVector<VkSurfaceFormatKHR> avail_format;
-    avail_format.resize((int)avail_count);
-    vkGetPhysicalDeviceSurfaceFormatsKHR(physical_device, surface, &avail_count, avail_format.Data);
-
-    // First check if only one format, VK_FORMAT_UNDEFINED, is available, which would imply that any format is available
-    if (avail_count == 1)
-    {
-        if (avail_format[0].format == VK_FORMAT_UNDEFINED)
-        {
-            VkSurfaceFormatKHR ret;
-            ret.format = request_formats[0];
-            ret.colorSpace = request_color_space;
-            return ret;
-        }
-        else
-        {
-            // No point in searching another format
-            return avail_format[0];
-        }
-    }
-    else
-    {
-        // Request several formats, the first found will be used
-        for (int request_i = 0; request_i < request_formats_count; request_i++)
-            for (uint32_t avail_i = 0; avail_i < avail_count; avail_i++)
-                if (avail_format[avail_i].format == request_formats[request_i] && avail_format[avail_i].colorSpace == request_color_space)
-                    return avail_format[avail_i];
-
-        // If none of the requested image formats could be found, use the first available
-        return avail_format[0];
-    }
+    return RED_FORMAT_PRESENT_BGRA_8_8_8_8_UINT_TO_FLOAT_0_1;
 }
 
-VkPresentModeKHR ImGui_ImplVulkanH_SelectPresentMode(VkPhysicalDevice physical_device, VkSurfaceKHR surface, const VkPresentModeKHR* request_modes, int request_modes_count)
+RedPresentVsyncMode ImGui_ImplRedGpuH_SelectPresentMode()
 {
-    IM_ASSERT(g_FunctionsLoaded && "Need to call ImGui_ImplVulkan_LoadFunctions() if IMGUI_IMPL_VULKAN_NO_PROTOTYPES or VK_NO_PROTOTYPES are set!");
-    IM_ASSERT(request_modes != NULL);
-    IM_ASSERT(request_modes_count > 0);
-
-    // Request a certain mode and confirm that it is available. If not use VK_PRESENT_MODE_FIFO_KHR which is mandatory
-    uint32_t avail_count = 0;
-    vkGetPhysicalDeviceSurfacePresentModesKHR(physical_device, surface, &avail_count, NULL);
-    ImVector<VkPresentModeKHR> avail_modes;
-    avail_modes.resize((int)avail_count);
-    vkGetPhysicalDeviceSurfacePresentModesKHR(physical_device, surface, &avail_count, avail_modes.Data);
-    //for (uint32_t avail_i = 0; avail_i < avail_count; avail_i++)
-    //    printf("[vulkan] avail_modes[%d] = %d\n", avail_i, avail_modes[avail_i]);
-
-    for (int request_i = 0; request_i < request_modes_count; request_i++)
-        for (uint32_t avail_i = 0; avail_i < avail_count; avail_i++)
-            if (request_modes[request_i] == avail_modes[avail_i])
-                return request_modes[request_i];
-
-    return VK_PRESENT_MODE_FIFO_KHR; // Always available
+    return RED_PRESENT_VSYNC_MODE_ON;
 }
 
-void ImGui_ImplVulkanH_CreateWindowCommandBuffers(VkPhysicalDevice physical_device, VkDevice device, ImGui_ImplVulkanH_Window* wd, uint32_t queue_family, const VkAllocationCallbacks* allocator)
+void ImGui_ImplRedGpuH_CreateWindowCommandBuffers(RedContext instance, uint32_t deviceIndex, RedHandleGpuDevice physical_device, RedHandleGpu device, ImGui_ImplRedGpuH_Window* wd, uint32_t queue_family)
 {
-    IM_ASSERT(physical_device != VK_NULL_HANDLE && device != VK_NULL_HANDLE);
-    (void)physical_device;
-    (void)allocator;
+    IM_ASSERT(physical_device != NULL && device != NULL);
 
     // Create Command Buffers
-    VkResult err;
     for (uint32_t i = 0; i < wd->ImageCount; i++)
     {
-        ImGui_ImplVulkanH_Frame* fd = &wd->Frames[i];
-        ImGui_ImplVulkanH_FrameSemaphores* fsd = &wd->FrameSemaphores[i];
+        ImGui_ImplRedGpuH_Frame* fd = &wd->Frames[i];
+        ImGui_ImplRedGpuH_FrameSemaphores* fsd = &wd->FrameSemaphores[i];
         {
-            VkCommandPoolCreateInfo info = {};
-            info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-            info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-            info.queueFamilyIndex = queue_family;
-            err = vkCreateCommandPool(device, &info, allocator, &fd->CommandPool);
-            check_vk_result(err);
+            redCreateCallsReusable(instance, device, NULL, queue_family, &fd->CommandBuffer, NULL, __FILE__, __LINE__, NULL);
         }
         {
-            VkCommandBufferAllocateInfo info = {};
-            info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-            info.commandPool = fd->CommandPool;
-            info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-            info.commandBufferCount = 1;
-            err = vkAllocateCommandBuffers(device, &info, &fd->CommandBuffer);
-            check_vk_result(err);
+            redCreateCpuSignal(instance, device, NULL, 1, &fd->Fence, NULL, __FILE__, __LINE__, NULL);
         }
         {
-            VkFenceCreateInfo info = {};
-            info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-            info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-            err = vkCreateFence(device, &info, allocator, &fd->Fence);
-            check_vk_result(err);
-        }
-        {
-            VkSemaphoreCreateInfo info = {};
-            info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-            err = vkCreateSemaphore(device, &info, allocator, &fsd->ImageAcquiredSemaphore);
-            check_vk_result(err);
-            err = vkCreateSemaphore(device, &info, allocator, &fsd->RenderCompleteSemaphore);
-            check_vk_result(err);
+            redCreateGpuSignal(instance, device, NULL, &fsd->ImageAcquiredSemaphore,  NULL, __FILE__, __LINE__, NULL);
+            redCreateGpuSignal(instance, device, NULL, &fsd->RenderCompleteSemaphore, NULL, __FILE__, __LINE__, NULL);
         }
     }
 }
 
-int ImGui_ImplVulkanH_GetMinImageCountFromPresentMode(VkPresentModeKHR present_mode)
+int ImGui_ImplRedGpuH_GetMinImageCountFromPresentMode(RedPresentVsyncMode present_mode)
 {
-    if (present_mode == VK_PRESENT_MODE_MAILBOX_KHR)
-        return 3;
-    if (present_mode == VK_PRESENT_MODE_FIFO_KHR || present_mode == VK_PRESENT_MODE_FIFO_RELAXED_KHR)
-        return 2;
-    if (present_mode == VK_PRESENT_MODE_IMMEDIATE_KHR)
-        return 1;
-    IM_ASSERT(0);
-    return 1;
+    return 2;
 }
 
 // Also destroy old swap chain and in-flight frames data, if any.
-void ImGui_ImplVulkanH_CreateWindowSwapChain(VkPhysicalDevice physical_device, VkDevice device, ImGui_ImplVulkanH_Window* wd, const VkAllocationCallbacks* allocator, int w, int h, uint32_t min_image_count)
+void ImGui_ImplRedGpuH_CreateWindowSwapChain(RedContext instance, uint32_t deviceIndex, RedHandleGpuDevice physical_device, RedHandleGpu device, ImGui_ImplRedGpuH_Window* wd, int w, int h, uint32_t min_image_count)
 {
-    VkResult err;
-    VkSwapchainKHR old_swapchain = wd->Swapchain;
-    wd->Swapchain = VK_NULL_HANDLE;
-    err = vkDeviceWaitIdle(device);
-    check_vk_result(err);
+    RedHandlePresent old_swapchain = wd->Swapchain;
+    wd->Swapchain = NULL;
+    //DeviceWaitIdle(instance, deviceIndex, device);
+    for (uint32_t i = 0; i < wd->ImageCount; i++)
+    {
+        redCpuSignalWait(instance, device, 1, &wd->Frames[i].Fence, 1, NULL, __FILE__, __LINE__, NULL);
+    }
 
-    // We don't use ImGui_ImplVulkanH_DestroyWindow() because we want to preserve the old swapchain to create the new one.
+    // We don't use ImGui_ImplRedGpuH_DestroyWindow() because we want to preserve the old swapchain to create the new one.
     // Destroy old Framebuffer
     for (uint32_t i = 0; i < wd->ImageCount; i++)
     {
-        ImGui_ImplVulkanH_DestroyFrame(device, &wd->Frames[i], allocator);
-        ImGui_ImplVulkanH_DestroyFrameSemaphores(device, &wd->FrameSemaphores[i], allocator);
+        ImGui_ImplRedGpuH_DestroyFrame(instance, deviceIndex, device, &wd->Frames[i]);
+        ImGui_ImplRedGpuH_DestroyFrameSemaphores(instance, deviceIndex, device, &wd->FrameSemaphores[i]);
     }
     IM_FREE(wd->Frames);
     IM_FREE(wd->FrameSemaphores);
     wd->Frames = NULL;
     wd->FrameSemaphores = NULL;
-    wd->ImageCount = 0;
+    wd->ImageCount = 2;
     if (wd->RenderPass)
-        vkDestroyRenderPass(device, wd->RenderPass, allocator);
+    {
+        redDestroyOutputDeclaration(instance, device, wd->RenderPass, __FILE__, __LINE__, NULL);
+    }
     if (wd->Pipeline)
-        vkDestroyPipeline(device, wd->Pipeline, allocator);
+    {
+        redDestroyProcedure(instance, device, wd->Pipeline, __FILE__, __LINE__, NULL);
+    }
 
     // If min image count was not specified, request different count of images dependent on selected present mode
     if (min_image_count == 0)
-        min_image_count = ImGui_ImplVulkanH_GetMinImageCountFromPresentMode(wd->PresentMode);
+        min_image_count = ImGui_ImplRedGpuH_GetMinImageCountFromPresentMode(wd->PresentMode);
 
     // Create Swapchain
     {
-        VkSwapchainCreateInfoKHR info = {};
-        info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        info.surface = wd->Surface;
-        info.minImageCount = min_image_count;
-        info.imageFormat = wd->SurfaceFormat.format;
-        info.imageColorSpace = wd->SurfaceFormat.colorSpace;
-        info.imageArrayLayers = 1;
-        info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-        info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;           // Assume that graphics family == present family
-        info.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-        info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-        info.presentMode = wd->PresentMode;
-        info.clipped = VK_TRUE;
-        info.oldSwapchain = old_swapchain;
-        VkSurfaceCapabilitiesKHR cap;
-        err = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physical_device, wd->Surface, &cap);
-        check_vk_result(err);
-        if (info.minImageCount < cap.minImageCount)
-            info.minImageCount = cap.minImageCount;
-        else if (cap.maxImageCount != 0 && info.minImageCount > cap.maxImageCount)
-            info.minImageCount = cap.maxImageCount;
+        RedQueueFamilyIndexGetSupportsPresentOnSurface queueFamilyIndexSupportsPresentOnSurface = {};
+        queueFamilyIndexSupportsPresentOnSurface.surface = wd->Surface;
+        redQueueFamilyIndexGetSupportsPresent(instance, device, 0, NULL, NULL, NULL, &queueFamilyIndexSupportsPresentOnSurface, NULL, __FILE__, __LINE__, NULL);
+        RedSurfaceCurrentPropertiesAndPresentLimits surfaceCurrentPropertiesAndPresentLimits = {};
+        redSurfaceGetCurrentPropertiesAndPresentLimits(instance, device, wd->Surface, &surfaceCurrentPropertiesAndPresentLimits, NULL, __FILE__, __LINE__, NULL);
+        if (surfaceCurrentPropertiesAndPresentLimits.currentSurfaceWidth  != -1) { w = surfaceCurrentPropertiesAndPresentLimits.currentSurfaceWidth;  }
+        if (surfaceCurrentPropertiesAndPresentLimits.currentSurfaceHeight != -1) { h = surfaceCurrentPropertiesAndPresentLimits.currentSurfaceHeight; }
+        wd->Width  = w;
+        wd->Height = h;
+        RedHandleImage   backbuffers[2]      = {};
+        RedHandleTexture backbuffers_view[2] = {};
+        redCreatePresent(instance, device, instance->gpus[deviceIndex].queues[0], NULL, wd->Surface, 2, w, h, 1, RED_ACCESS_BITFLAG_OUTPUT_COLOR_W, RED_SURFACE_TRANSFORM_BITFLAG_IDENTITY, RED_SURFACE_COMPOSITE_ALPHA_BITFLAG_OPAQUE, RED_PRESENT_VSYNC_MODE_ON, 1, 0, old_swapchain, &wd->Swapchain, backbuffers, backbuffers_view, NULL, __FILE__, __LINE__, NULL);
 
-        if (cap.currentExtent.width == 0xffffffff)
-        {
-            info.imageExtent.width = wd->Width = w;
-            info.imageExtent.height = wd->Height = h;
-        }
-        else
-        {
-            info.imageExtent.width = wd->Width = cap.currentExtent.width;
-            info.imageExtent.height = wd->Height = cap.currentExtent.height;
-        }
-        err = vkCreateSwapchainKHR(device, &info, allocator, &wd->Swapchain);
-        check_vk_result(err);
-        err = vkGetSwapchainImagesKHR(device, wd->Swapchain, &wd->ImageCount, NULL);
-        check_vk_result(err);
-        VkImage backbuffers[16] = {};
-        IM_ASSERT(wd->ImageCount >= min_image_count);
-        IM_ASSERT(wd->ImageCount < IM_ARRAYSIZE(backbuffers));
-        err = vkGetSwapchainImagesKHR(device, wd->Swapchain, &wd->ImageCount, backbuffers);
-        check_vk_result(err);
-
+        IM_ASSERT(wd->ImageCount == 2);
         IM_ASSERT(wd->Frames == NULL);
-        wd->Frames = (ImGui_ImplVulkanH_Frame*)IM_ALLOC(sizeof(ImGui_ImplVulkanH_Frame) * wd->ImageCount);
-        wd->FrameSemaphores = (ImGui_ImplVulkanH_FrameSemaphores*)IM_ALLOC(sizeof(ImGui_ImplVulkanH_FrameSemaphores) * wd->ImageCount);
+        wd->Frames = (ImGui_ImplRedGpuH_Frame*)IM_ALLOC(sizeof(ImGui_ImplRedGpuH_Frame) * wd->ImageCount);
+        wd->FrameSemaphores = (ImGui_ImplRedGpuH_FrameSemaphores*)IM_ALLOC(sizeof(ImGui_ImplRedGpuH_FrameSemaphores) * wd->ImageCount);
         memset(wd->Frames, 0, sizeof(wd->Frames[0]) * wd->ImageCount);
         memset(wd->FrameSemaphores, 0, sizeof(wd->FrameSemaphores[0]) * wd->ImageCount);
         for (uint32_t i = 0; i < wd->ImageCount; i++)
-            wd->Frames[i].Backbuffer = backbuffers[i];
+        {
+            wd->Frames[i].Backbuffer     = backbuffers[i];
+            wd->Frames[i].BackbufferView = backbuffers_view[i];
+        }
     }
     if (old_swapchain)
-        vkDestroySwapchainKHR(device, old_swapchain, allocator);
+    {
+        redDestroyPresent(instance, device, old_swapchain, __FILE__, __LINE__, NULL);
+    }
 
     // Create the Render Pass
     {
-        VkAttachmentDescription attachment = {};
-        attachment.format = wd->SurfaceFormat.format;
-        attachment.samples = VK_SAMPLE_COUNT_1_BIT;
-        attachment.loadOp = wd->ClearEnable ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        attachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-        VkAttachmentReference color_attachment = {};
-        color_attachment.attachment = 0;
-        color_attachment.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        VkSubpassDescription subpass = {};
-        subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-        subpass.colorAttachmentCount = 1;
-        subpass.pColorAttachments = &color_attachment;
-        VkSubpassDependency dependency = {};
-        dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-        dependency.dstSubpass = 0;
-        dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        dependency.srcAccessMask = 0;
-        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        VkRenderPassCreateInfo info = {};
-        info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-        info.attachmentCount = 1;
-        info.pAttachments = &attachment;
-        info.subpassCount = 1;
-        info.pSubpasses = &subpass;
-        info.dependencyCount = 1;
-        info.pDependencies = &dependency;
-        err = vkCreateRenderPass(device, &info, allocator, &wd->RenderPass);
-        check_vk_result(err);
+        RedOutputDeclarationMembers members = {};
+        members.depthStencilEnable                        = 0;
+        members.depthStencilFormat                        = RED_FORMAT_UNDEFINED;
+        members.depthStencilMultisampleCount              = RED_MULTISAMPLE_COUNT_BITFLAG_1;
+        members.depthStencilDepthSetProcedureOutputOp     = RED_SET_PROCEDURE_OUTPUT_OP_PRESERVE;
+        members.depthStencilDepthEndProcedureOutputOp     = RED_END_PROCEDURE_OUTPUT_OP_PRESERVE;
+        members.depthStencilStencilSetProcedureOutputOp   = RED_SET_PROCEDURE_OUTPUT_OP_PRESERVE;
+        members.depthStencilStencilEndProcedureOutputOp   = RED_END_PROCEDURE_OUTPUT_OP_PRESERVE;
+        members.depthStencilSharesMemoryWithAnotherMember = 0;
+        members.colorsCount                               = 1;
+        members.colorsFormat[0]                           = RED_FORMAT_PRESENT_BGRA_8_8_8_8_UINT_TO_FLOAT_0_1;
+        members.colorsFormat[1]                           = RED_FORMAT_PRESENT_BGRA_8_8_8_8_UINT_TO_FLOAT_0_1;
+        members.colorsFormat[2]                           = RED_FORMAT_PRESENT_BGRA_8_8_8_8_UINT_TO_FLOAT_0_1;
+        members.colorsFormat[3]                           = RED_FORMAT_PRESENT_BGRA_8_8_8_8_UINT_TO_FLOAT_0_1;
+        members.colorsFormat[4]                           = RED_FORMAT_PRESENT_BGRA_8_8_8_8_UINT_TO_FLOAT_0_1;
+        members.colorsFormat[5]                           = RED_FORMAT_PRESENT_BGRA_8_8_8_8_UINT_TO_FLOAT_0_1;
+        members.colorsFormat[6]                           = RED_FORMAT_PRESENT_BGRA_8_8_8_8_UINT_TO_FLOAT_0_1;
+        members.colorsFormat[7]                           = RED_FORMAT_PRESENT_BGRA_8_8_8_8_UINT_TO_FLOAT_0_1;
+        members.colorsMultisampleCount[0]                 = RED_MULTISAMPLE_COUNT_BITFLAG_1;
+        members.colorsMultisampleCount[1]                 = RED_MULTISAMPLE_COUNT_BITFLAG_1;
+        members.colorsMultisampleCount[2]                 = RED_MULTISAMPLE_COUNT_BITFLAG_1;
+        members.colorsMultisampleCount[3]                 = RED_MULTISAMPLE_COUNT_BITFLAG_1;
+        members.colorsMultisampleCount[4]                 = RED_MULTISAMPLE_COUNT_BITFLAG_1;
+        members.colorsMultisampleCount[5]                 = RED_MULTISAMPLE_COUNT_BITFLAG_1;
+        members.colorsMultisampleCount[6]                 = RED_MULTISAMPLE_COUNT_BITFLAG_1;
+        members.colorsMultisampleCount[7]                 = RED_MULTISAMPLE_COUNT_BITFLAG_1;
+        members.colorsSetProcedureOutputOp[0]             = wd->ClearEnable ? RED_SET_PROCEDURE_OUTPUT_OP_CLEAR : RED_SET_PROCEDURE_OUTPUT_OP_PRESERVE;
+        members.colorsSetProcedureOutputOp[1]             = wd->ClearEnable ? RED_SET_PROCEDURE_OUTPUT_OP_CLEAR : RED_SET_PROCEDURE_OUTPUT_OP_PRESERVE;
+        members.colorsSetProcedureOutputOp[2]             = wd->ClearEnable ? RED_SET_PROCEDURE_OUTPUT_OP_CLEAR : RED_SET_PROCEDURE_OUTPUT_OP_PRESERVE;
+        members.colorsSetProcedureOutputOp[3]             = wd->ClearEnable ? RED_SET_PROCEDURE_OUTPUT_OP_CLEAR : RED_SET_PROCEDURE_OUTPUT_OP_PRESERVE;
+        members.colorsSetProcedureOutputOp[4]             = wd->ClearEnable ? RED_SET_PROCEDURE_OUTPUT_OP_CLEAR : RED_SET_PROCEDURE_OUTPUT_OP_PRESERVE;
+        members.colorsSetProcedureOutputOp[5]             = wd->ClearEnable ? RED_SET_PROCEDURE_OUTPUT_OP_CLEAR : RED_SET_PROCEDURE_OUTPUT_OP_PRESERVE;
+        members.colorsSetProcedureOutputOp[6]             = wd->ClearEnable ? RED_SET_PROCEDURE_OUTPUT_OP_CLEAR : RED_SET_PROCEDURE_OUTPUT_OP_PRESERVE;
+        members.colorsSetProcedureOutputOp[7]             = wd->ClearEnable ? RED_SET_PROCEDURE_OUTPUT_OP_CLEAR : RED_SET_PROCEDURE_OUTPUT_OP_PRESERVE;
+        members.colorsEndProcedureOutputOp[0]             = RED_END_PROCEDURE_OUTPUT_OP_PRESERVE;
+        members.colorsEndProcedureOutputOp[1]             = RED_END_PROCEDURE_OUTPUT_OP_PRESERVE;
+        members.colorsEndProcedureOutputOp[2]             = RED_END_PROCEDURE_OUTPUT_OP_PRESERVE;
+        members.colorsEndProcedureOutputOp[3]             = RED_END_PROCEDURE_OUTPUT_OP_PRESERVE;
+        members.colorsEndProcedureOutputOp[4]             = RED_END_PROCEDURE_OUTPUT_OP_PRESERVE;
+        members.colorsEndProcedureOutputOp[5]             = RED_END_PROCEDURE_OUTPUT_OP_PRESERVE;
+        members.colorsEndProcedureOutputOp[6]             = RED_END_PROCEDURE_OUTPUT_OP_PRESERVE;
+        members.colorsEndProcedureOutputOp[7]             = RED_END_PROCEDURE_OUTPUT_OP_PRESERVE;
+        members.colorsSharesMemoryWithAnotherMember[0]    = 0;
+        members.colorsSharesMemoryWithAnotherMember[1]    = 0;
+        members.colorsSharesMemoryWithAnotherMember[2]    = 0;
+        members.colorsSharesMemoryWithAnotherMember[3]    = 0;
+        members.colorsSharesMemoryWithAnotherMember[4]    = 0;
+        members.colorsSharesMemoryWithAnotherMember[5]    = 0;
+        members.colorsSharesMemoryWithAnotherMember[6]    = 0;
+        members.colorsSharesMemoryWithAnotherMember[7]    = 0;
+        redCreateOutputDeclaration(instance, device, NULL, &members, NULL, 0, 0, &wd->RenderPass, NULL, __FILE__, __LINE__, NULL);
 
         // We do not create a pipeline by default as this is also used by examples' main.cpp,
         // but secondary viewport in multi-viewport mode may want to create one with:
-        //ImGui_ImplVulkan_CreatePipeline(device, allocator, VK_NULL_HANDLE, wd->RenderPass, VK_SAMPLE_COUNT_1_BIT, &wd->Pipeline, bd->Subpass);
-    }
-
-    // Create The Image Views
-    {
-        VkImageViewCreateInfo info = {};
-        info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        info.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        info.format = wd->SurfaceFormat.format;
-        info.components.r = VK_COMPONENT_SWIZZLE_R;
-        info.components.g = VK_COMPONENT_SWIZZLE_G;
-        info.components.b = VK_COMPONENT_SWIZZLE_B;
-        info.components.a = VK_COMPONENT_SWIZZLE_A;
-        VkImageSubresourceRange image_range = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-        info.subresourceRange = image_range;
-        for (uint32_t i = 0; i < wd->ImageCount; i++)
-        {
-            ImGui_ImplVulkanH_Frame* fd = &wd->Frames[i];
-            info.image = fd->Backbuffer;
-            err = vkCreateImageView(device, &info, allocator, &fd->BackbufferView);
-            check_vk_result(err);
-        }
+        //ImGui_ImplRedGpu_CreatePipeline(instance, deviceIndex, device, NULL, wd->RenderPass, RED_MULTISAMPLE_COUNT_BITFLAG_1, &wd->Pipeline, bd->Subpass);
     }
 
     // Create Framebuffer
     {
-        VkImageView attachment[1];
-        VkFramebufferCreateInfo info = {};
-        info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        info.renderPass = wd->RenderPass;
-        info.attachmentCount = 1;
-        info.pAttachments = attachment;
-        info.width = wd->Width;
-        info.height = wd->Height;
-        info.layers = 1;
         for (uint32_t i = 0; i < wd->ImageCount; i++)
         {
-            ImGui_ImplVulkanH_Frame* fd = &wd->Frames[i];
-            attachment[0] = fd->BackbufferView;
-            err = vkCreateFramebuffer(device, &info, allocator, &fd->Framebuffer);
-            check_vk_result(err);
+            ImGui_ImplRedGpuH_Frame* fd = &wd->Frames[i];
+
+            RedOutputMembers outputMembers = {};
+            outputMembers.depthStencil = NULL;
+            outputMembers.colorsCount  = 1;
+            outputMembers.colors[0]    = fd->BackbufferView;
+            outputMembers.colors[1]    = NULL;
+            outputMembers.colors[2]    = NULL;
+            outputMembers.colors[3]    = NULL;
+            outputMembers.colors[4]    = NULL;
+            outputMembers.colors[5]    = NULL;
+            outputMembers.colors[6]    = NULL;
+            outputMembers.colors[7]    = NULL;
+            redCreateOutput(instance, device, NULL, wd->RenderPass, &outputMembers, NULL, wd->Width, wd->Height, &fd->Framebuffer, NULL, __FILE__, __LINE__, NULL);
         }
     }
 }
 
 // Create or resize window
-void ImGui_ImplVulkanH_CreateOrResizeWindow(VkInstance instance, VkPhysicalDevice physical_device, VkDevice device, ImGui_ImplVulkanH_Window* wd, uint32_t queue_family, const VkAllocationCallbacks* allocator, int width, int height, uint32_t min_image_count)
+void ImGui_ImplRedGpuH_CreateOrResizeWindow(RedContext instance, uint32_t deviceIndex, RedHandleGpuDevice physical_device, RedHandleGpu device, ImGui_ImplRedGpuH_Window* wd, uint32_t queue_family, int width, int height, uint32_t min_image_count)
 {
-    IM_ASSERT(g_FunctionsLoaded && "Need to call ImGui_ImplVulkan_LoadFunctions() if IMGUI_IMPL_VULKAN_NO_PROTOTYPES or VK_NO_PROTOTYPES are set!");
-    (void)instance;
-    ImGui_ImplVulkanH_CreateWindowSwapChain(physical_device, device, wd, allocator, width, height, min_image_count);
-    ImGui_ImplVulkanH_CreateWindowCommandBuffers(physical_device, device, wd, queue_family, allocator);
+    ImGui_ImplRedGpuH_CreateWindowSwapChain(instance, deviceIndex, physical_device, device, wd, width, height, min_image_count);
+    ImGui_ImplRedGpuH_CreateWindowCommandBuffers(instance, deviceIndex, physical_device, device, wd, queue_family);
 }
 
-void ImGui_ImplVulkanH_DestroyWindow(VkInstance instance, VkDevice device, ImGui_ImplVulkanH_Window* wd, const VkAllocationCallbacks* allocator)
+void ImGui_ImplRedGpuH_DestroyWindow(RedContext instance, uint32_t deviceIndex, RedHandleGpu device, ImGui_ImplRedGpuH_Window* wd)
 {
-    vkDeviceWaitIdle(device); // FIXME: We could wait on the Queue if we had the queue in wd-> (otherwise VulkanH functions can't use globals)
-    //vkQueueWaitIdle(bd->Queue);
+    //DeviceWaitIdle(instance, deviceIndex, device);
+    for (uint32_t i = 0; i < wd->ImageCount; i++)
+    {
+        redCpuSignalWait(instance, device, 1, &wd->Frames[i].Fence, 1, NULL, __FILE__, __LINE__, NULL);
+    }
 
     for (uint32_t i = 0; i < wd->ImageCount; i++)
     {
-        ImGui_ImplVulkanH_DestroyFrame(device, &wd->Frames[i], allocator);
-        ImGui_ImplVulkanH_DestroyFrameSemaphores(device, &wd->FrameSemaphores[i], allocator);
+        ImGui_ImplRedGpuH_DestroyFrame(instance, deviceIndex, device, &wd->Frames[i]);
+        ImGui_ImplRedGpuH_DestroyFrameSemaphores(instance, deviceIndex, device, &wd->FrameSemaphores[i]);
     }
     IM_FREE(wd->Frames);
     IM_FREE(wd->FrameSemaphores);
     wd->Frames = NULL;
     wd->FrameSemaphores = NULL;
-    vkDestroyPipeline(device, wd->Pipeline, allocator);
-    vkDestroyRenderPass(device, wd->RenderPass, allocator);
-    vkDestroySwapchainKHR(device, wd->Swapchain, allocator);
-    vkDestroySurfaceKHR(instance, wd->Surface, allocator);
+    redDestroyProcedure(instance, device, wd->Pipeline, __FILE__, __LINE__, NULL);
+    redDestroyOutputDeclaration(instance, device, wd->RenderPass, __FILE__, __LINE__, NULL);
+    redDestroyPresent(instance, device, wd->Swapchain, __FILE__, __LINE__, NULL);
+    redDestroySurface(instance, device, wd->Surface, __FILE__, __LINE__, NULL);
 
-    *wd = ImGui_ImplVulkanH_Window();
+    *wd = ImGui_ImplRedGpuH_Window();
 }
 
-void ImGui_ImplVulkanH_DestroyFrame(VkDevice device, ImGui_ImplVulkanH_Frame* fd, const VkAllocationCallbacks* allocator)
+void ImGui_ImplRedGpuH_DestroyFrame(RedContext instance, uint32_t deviceIndex, RedHandleGpu device, ImGui_ImplRedGpuH_Frame* fd)
 {
-    vkDestroyFence(device, fd->Fence, allocator);
-    vkFreeCommandBuffers(device, fd->CommandPool, 1, &fd->CommandBuffer);
-    vkDestroyCommandPool(device, fd->CommandPool, allocator);
-    fd->Fence = VK_NULL_HANDLE;
-    fd->CommandBuffer = VK_NULL_HANDLE;
-    fd->CommandPool = VK_NULL_HANDLE;
+    redDestroyCpuSignal(instance, device, fd->Fence, __FILE__, __LINE__, NULL);
+    redDestroyCalls(instance, device, fd->CommandBuffer.handle, fd->CommandBuffer.memory, __FILE__, __LINE__, NULL);
+    fd->Fence = NULL;
+    RedCalls defaults = {};
+    fd->CommandBuffer = defaults;
 
-    vkDestroyImageView(device, fd->BackbufferView, allocator);
-    vkDestroyFramebuffer(device, fd->Framebuffer, allocator);
+    redDestroyTexture(instance, device, fd->BackbufferView, __FILE__, __LINE__, NULL);
+    redDestroyOutput(instance, device, fd->Framebuffer.handle, __FILE__, __LINE__, NULL);
 }
 
-void ImGui_ImplVulkanH_DestroyFrameSemaphores(VkDevice device, ImGui_ImplVulkanH_FrameSemaphores* fsd, const VkAllocationCallbacks* allocator)
+void ImGui_ImplRedGpuH_DestroyFrameSemaphores(RedContext instance, uint32_t deviceIndex, RedHandleGpu device, ImGui_ImplRedGpuH_FrameSemaphores* fsd)
 {
-    vkDestroySemaphore(device, fsd->ImageAcquiredSemaphore, allocator);
-    vkDestroySemaphore(device, fsd->RenderCompleteSemaphore, allocator);
-    fsd->ImageAcquiredSemaphore = fsd->RenderCompleteSemaphore = VK_NULL_HANDLE;
+    redDestroyGpuSignal(instance, device, fsd->ImageAcquiredSemaphore,  __FILE__, __LINE__, NULL);
+    redDestroyGpuSignal(instance, device, fsd->RenderCompleteSemaphore, __FILE__, __LINE__, NULL);
+    fsd->ImageAcquiredSemaphore  = NULL;
+    fsd->RenderCompleteSemaphore = NULL;
 }
 
-void ImGui_ImplVulkanH_DestroyFrameRenderBuffers(VkDevice device, ImGui_ImplVulkanH_FrameRenderBuffers* buffers, const VkAllocationCallbacks* allocator)
+void ImGui_ImplRedGpuH_DestroyFrameRenderBuffers(RedContext instance, uint32_t deviceIndex, RedHandleGpu device, ImGui_ImplRedGpuH_FrameRenderBuffers* buffers)
 {
-    if (buffers->VertexBuffer) { vkDestroyBuffer(device, buffers->VertexBuffer, allocator); buffers->VertexBuffer = VK_NULL_HANDLE; }
-    if (buffers->VertexBufferMemory) { vkFreeMemory(device, buffers->VertexBufferMemory, allocator); buffers->VertexBufferMemory = VK_NULL_HANDLE; }
-    if (buffers->IndexBuffer) { vkDestroyBuffer(device, buffers->IndexBuffer, allocator); buffers->IndexBuffer = VK_NULL_HANDLE; }
-    if (buffers->IndexBufferMemory) { vkFreeMemory(device, buffers->IndexBufferMemory, allocator); buffers->IndexBufferMemory = VK_NULL_HANDLE; }
+    if (buffers->VertexBuffer.handle) { redDestroyArray(instance, device, buffers->VertexBuffer.handle, __FILE__, __LINE__, NULL); RedArray defaults = {}; buffers->VertexBuffer = defaults; }
+    if (buffers->VertexBufferMemory)  { redMemoryFree(instance, device, buffers->VertexBufferMemory, __FILE__, __LINE__, NULL); buffers->VertexBufferMemory = NULL; }
+    if (buffers->IndexBuffer.handle)  { redDestroyArray(instance, device, buffers->IndexBuffer.handle, __FILE__, __LINE__, NULL); RedArray defaults = {}; buffers->IndexBuffer = defaults; }
+    if (buffers->IndexBufferMemory)   { redMemoryFree(instance, device, buffers->IndexBufferMemory, __FILE__, __LINE__, NULL); buffers->IndexBufferMemory = NULL; }
     buffers->VertexBufferSize = 0;
-    buffers->IndexBufferSize = 0;
+    buffers->IndexBufferSize  = 0;
 }
 
-void ImGui_ImplVulkanH_DestroyWindowRenderBuffers(VkDevice device, ImGui_ImplVulkanH_WindowRenderBuffers* buffers, const VkAllocationCallbacks* allocator)
+void ImGui_ImplRedGpuH_DestroyWindowRenderBuffers(RedContext instance, uint32_t deviceIndex, RedHandleGpu device, ImGui_ImplRedGpuH_WindowRenderBuffers* buffers)
 {
     for (uint32_t n = 0; n < buffers->Count; n++)
-        ImGui_ImplVulkanH_DestroyFrameRenderBuffers(device, &buffers->FrameRenderBuffers[n], allocator);
+        ImGui_ImplRedGpuH_DestroyFrameRenderBuffers(instance, deviceIndex, device, &buffers->FrameRenderBuffers[n]);
     IM_FREE(buffers->FrameRenderBuffers);
     buffers->FrameRenderBuffers = NULL;
     buffers->Index = 0;
