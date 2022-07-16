@@ -1,3 +1,4 @@
 *.ini
 *.obj
 *.exe
+redgpu.dll
