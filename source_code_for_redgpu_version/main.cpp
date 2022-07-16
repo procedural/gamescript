@@ -35,13 +35,7 @@ static void SetupRedGpu()
 
     // Select GPU
     {
-        g_DeviceIndex = 0;
         g_PhysicalDevice = g_Instance->gpus[g_DeviceIndex].gpuDevice;
-    }
-
-    // Select graphics queue family
-    {
-        g_QueueFamily = 0;
     }
 
     // Select Logical Device
