@@ -14,9 +14,11 @@
 #ifdef _WIN32
 #include "C:/RedGpuSDK/redgpu.h"
 #include "C:/RedGpuSDK/redgpu_wsi.h"
+#include "C:/RedGpuSDK/redgpu_array_timestamp.h"
 #else
 #include "/opt/RedGpuSDK/redgpu.h"
 #include "/opt/RedGpuSDK/redgpu_wsi.h"
+#include "/opt/RedGpuSDK/redgpu_array_timestamp.h"
 #endif
 
 // Initialization data, for ImGui_ImplRedGpu_Init()
@@ -28,7 +30,6 @@ struct ImGui_ImplRedGpu_InitInfo
     RedHandleGpu                    Device;
     uint32_t                        DeviceIndex;
     uint32_t                        QueueFamily;
-    RedHandleQueue                  Queue;
     RedHandleProcedureCache         PipelineCache;
     RedHandleStructsMemory          DescriptorPool;
     RedHandleStructsMemory          DescriptorPoolSamplers;
@@ -72,7 +73,7 @@ struct ImGui_ImplRedGpuH_Window;
 IMGUI_IMPL_API void                 ImGui_ImplRedGpu_SetMinImageCount(uint32_t min_image_count, ImGui_ImplRedGpuH_Window* wd); // To override MinImageCount after initialization (e.g. if swap chain is recreated)
 
 // Helpers
-IMGUI_IMPL_API void                 ImGui_ImplRedGpuH_CreateOrResizeWindow(RedContext instance, uint32_t deviceIndex, RedHandleGpuDevice physical_device, RedHandleGpu device, ImGui_ImplRedGpuH_Window* wnd, uint32_t queue_family, int w, int h, uint32_t min_image_count);
+IMGUI_IMPL_API void                 ImGui_ImplRedGpuH_CreateOrResizeWindow(RedContext instance, uint32_t deviceIndex, RedHandleGpuDevice physical_device, RedHandleGpu device, RedHandleQueue present_queue, ImGui_ImplRedGpuH_Window* wnd, uint32_t queue_family, int w, int h, uint32_t min_image_count);
 IMGUI_IMPL_API void                 ImGui_ImplRedGpuH_DestroyWindow(RedContext instance, uint32_t deviceIndex, RedHandleGpu device, ImGui_ImplRedGpuH_Window* wnd);
 IMGUI_IMPL_API RedFormat            ImGui_ImplRedGpuH_SelectSurfaceFormat();
 IMGUI_IMPL_API RedPresentVsyncMode  ImGui_ImplRedGpuH_SelectPresentMode();

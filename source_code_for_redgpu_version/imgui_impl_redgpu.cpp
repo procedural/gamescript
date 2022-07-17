@@ -83,7 +83,7 @@ void ImGui_ImplRedGpuH_DestroyFrame(RedContext instance, uint32_t deviceIndex, R
 void ImGui_ImplRedGpuH_DestroyFrameSemaphores(RedContext instance, uint32_t deviceIndex, RedHandleGpu device, ImGui_ImplRedGpuH_FrameSemaphores* fsd);
 void ImGui_ImplRedGpuH_DestroyFrameRenderBuffers(RedContext instance, uint32_t deviceIndex, RedHandleGpu device, ImGui_ImplRedGpuH_FrameRenderBuffers* buffers);
 void ImGui_ImplRedGpuH_DestroyWindowRenderBuffers(RedContext instance, uint32_t deviceIndex, RedHandleGpu device, ImGui_ImplRedGpuH_WindowRenderBuffers* buffers);
-void ImGui_ImplRedGpuH_CreateWindowSwapChain(RedContext instance, uint32_t deviceIndex, RedHandleGpuDevice physical_device, RedHandleGpu device, ImGui_ImplRedGpuH_Window* wd, int w, int h, uint32_t min_image_count);
+void ImGui_ImplRedGpuH_CreateWindowSwapChain(RedContext instance, uint32_t deviceIndex, RedHandleGpuDevice physical_device, RedHandleGpu device, RedHandleQueue present_queue, ImGui_ImplRedGpuH_Window* wd, int w, int h, uint32_t min_image_count);
 void ImGui_ImplRedGpuH_CreateWindowCommandBuffers(RedContext instance, uint32_t deviceIndex, RedHandleGpuDevice physical_device, RedHandleGpu device, ImGui_ImplRedGpuH_Window* wd, uint32_t queue_family);
 
 //-----------------------------------------------------------------------------
@@ -1150,7 +1150,6 @@ bool    ImGui_ImplRedGpu_Init(ImGui_ImplRedGpu_InitInfo* info, RedHandleOutputDe
     IM_ASSERT(info->Instance != NULL);
     IM_ASSERT(info->PhysicalDevice != NULL);
     IM_ASSERT(info->Device != NULL);
-    IM_ASSERT(info->Queue != NULL);
     IM_ASSERT(info->DescriptorPool != NULL);
     IM_ASSERT(info->DescriptorPoolSamplers != NULL);
     IM_ASSERT(info->MinImageCount >= 2);
@@ -1304,7 +1303,7 @@ int ImGui_ImplRedGpuH_GetMinImageCountFromPresentMode(RedPresentVsyncMode presen
 }
 
 // Also destroy old swap chain and in-flight frames data, if any.
-void ImGui_ImplRedGpuH_CreateWindowSwapChain(RedContext instance, uint32_t deviceIndex, RedHandleGpuDevice physical_device, RedHandleGpu device, ImGui_ImplRedGpuH_Window* wd, int w, int h, uint32_t min_image_count)
+void ImGui_ImplRedGpuH_CreateWindowSwapChain(RedContext instance, uint32_t deviceIndex, RedHandleGpuDevice physical_device, RedHandleGpu device, RedHandleQueue present_queue, ImGui_ImplRedGpuH_Window* wd, int w, int h, uint32_t min_image_count)
 {
     RedHandlePresent old_swapchain = wd->Swapchain;
     wd->Swapchain = NULL;
@@ -1352,7 +1351,7 @@ void ImGui_ImplRedGpuH_CreateWindowSwapChain(RedContext instance, uint32_t devic
         wd->Height = h;
         RedHandleImage   backbuffers[2]      = {};
         RedHandleTexture backbuffers_view[2] = {};
-        redCreatePresent(instance, device, instance->gpus[deviceIndex].queues[0], NULL, wd->Surface, 2, w, h, 1, RED_ACCESS_BITFLAG_OUTPUT_COLOR_W, RED_SURFACE_TRANSFORM_BITFLAG_IDENTITY, RED_SURFACE_COMPOSITE_ALPHA_BITFLAG_OPAQUE, wd->PresentMode, 1, 0, old_swapchain, &wd->Swapchain, backbuffers, backbuffers_view, NULL, __FILE__, __LINE__, NULL);
+        redCreatePresent(instance, device, present_queue, NULL, wd->Surface, 2, w, h, 1, RED_ACCESS_BITFLAG_OUTPUT_COLOR_W, RED_SURFACE_TRANSFORM_BITFLAG_IDENTITY, RED_SURFACE_COMPOSITE_ALPHA_BITFLAG_OPAQUE, wd->PresentMode, 1, 0, old_swapchain, &wd->Swapchain, backbuffers, backbuffers_view, NULL, __FILE__, __LINE__, NULL);
 
         IM_ASSERT(wd->ImageCount == 2);
         IM_ASSERT(wd->Frames == NULL);
@@ -1453,9 +1452,9 @@ void ImGui_ImplRedGpuH_CreateWindowSwapChain(RedContext instance, uint32_t devic
 }
 
 // Create or resize window
-void ImGui_ImplRedGpuH_CreateOrResizeWindow(RedContext instance, uint32_t deviceIndex, RedHandleGpuDevice physical_device, RedHandleGpu device, ImGui_ImplRedGpuH_Window* wd, uint32_t queue_family, int width, int height, uint32_t min_image_count)
+void ImGui_ImplRedGpuH_CreateOrResizeWindow(RedContext instance, uint32_t deviceIndex, RedHandleGpuDevice physical_device, RedHandleGpu device, RedHandleQueue present_queue, ImGui_ImplRedGpuH_Window* wd, uint32_t queue_family, int width, int height, uint32_t min_image_count)
 {
-    ImGui_ImplRedGpuH_CreateWindowSwapChain(instance, deviceIndex, physical_device, device, wd, width, height, min_image_count);
+    ImGui_ImplRedGpuH_CreateWindowSwapChain(instance, deviceIndex, physical_device, device, present_queue, wd, width, height, min_image_count);
     ImGui_ImplRedGpuH_CreateWindowCommandBuffers(instance, deviceIndex, physical_device, device, wd, queue_family);
 }
 
