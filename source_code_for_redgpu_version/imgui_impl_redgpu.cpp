@@ -1273,7 +1273,7 @@ RedFormat ImGui_ImplRedGpuH_SelectSurfaceFormat()
 
 RedPresentVsyncMode ImGui_ImplRedGpuH_SelectPresentMode()
 {
-    return RED_PRESENT_VSYNC_MODE_ON;
+    return RED_PRESENT_VSYNC_MODE_OFF;
 }
 
 void ImGui_ImplRedGpuH_CreateWindowCommandBuffers(RedContext instance, uint32_t deviceIndex, RedHandleGpuDevice physical_device, RedHandleGpu device, ImGui_ImplRedGpuH_Window* wd, uint32_t queue_family)
@@ -1352,7 +1352,7 @@ void ImGui_ImplRedGpuH_CreateWindowSwapChain(RedContext instance, uint32_t devic
         wd->Height = h;
         RedHandleImage   backbuffers[2]      = {};
         RedHandleTexture backbuffers_view[2] = {};
-        redCreatePresent(instance, device, instance->gpus[deviceIndex].queues[0], NULL, wd->Surface, 2, w, h, 1, RED_ACCESS_BITFLAG_OUTPUT_COLOR_W, RED_SURFACE_TRANSFORM_BITFLAG_IDENTITY, RED_SURFACE_COMPOSITE_ALPHA_BITFLAG_OPAQUE, RED_PRESENT_VSYNC_MODE_ON, 1, 0, old_swapchain, &wd->Swapchain, backbuffers, backbuffers_view, NULL, __FILE__, __LINE__, NULL);
+        redCreatePresent(instance, device, instance->gpus[deviceIndex].queues[0], NULL, wd->Surface, 2, w, h, 1, RED_ACCESS_BITFLAG_OUTPUT_COLOR_W, RED_SURFACE_TRANSFORM_BITFLAG_IDENTITY, RED_SURFACE_COMPOSITE_ALPHA_BITFLAG_OPAQUE, wd->PresentMode, 1, 0, old_swapchain, &wd->Swapchain, backbuffers, backbuffers_view, NULL, __FILE__, __LINE__, NULL);
 
         IM_ASSERT(wd->ImageCount == 2);
         IM_ASSERT(wd->Frames == NULL);
