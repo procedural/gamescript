@@ -11,8 +11,13 @@
 #include "imgui.h"      // IMGUI_IMPL_API
 
 // REDGPU includes
+#ifdef _WIN32
 #include "C:/RedGpuSDK/redgpu.h"
 #include "C:/RedGpuSDK/redgpu_wsi.h"
+#else
+#include "/opt/RedGpuSDK/redgpu.h"
+#include "/opt/RedGpuSDK/redgpu_wsi.h"
+#endif
 
 // Initialization data, for ImGui_ImplRedGpu_Init()
 // [Please zero-clear before use!]

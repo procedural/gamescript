@@ -5,7 +5,11 @@
 #include <stdlib.h>            // abort
 #define GLFW_INCLUDE_NONE
 #include "glfw3.h"
+#ifdef _WIN32
 #define GLFW_EXPOSE_NATIVE_WIN32
+#else
+#define GLFW_EXPOSE_NATIVE_X11
+#endif
 #include "glfw3native.h"
 #ifdef _WIN32
 #include <Windows.h> // GetModuleHandle
@@ -29,8 +33,14 @@ static void SetupRedGpu()
 {
     // Create REDGPU Instance
     {
+#ifdef _WIN32
         RedSdkExtension extensions[2] = {RED_SDK_EXTENSION_PROCEDURE_PARAMETERS_HANDLES, RED_SDK_EXTENSION_WSI_WIN32};
+#else
+        RedSdkExtension extensions[2] = {RED_SDK_EXTENSION_PROCEDURE_PARAMETERS_HANDLES, RED_SDK_EXTENSION_WSI_XLIB};
+#endif
         redCreateContext(malloc, free, NULL, NULL, NULL, RED_SDK_VERSION_1_0_135, 2, (const uint32_t *)extensions, "", 0, "", 0, NULL, &g_Instance, NULL, __FILE__, __LINE__, NULL);
+        IM_ASSERT(g_Instance != NULL);
+        IM_ASSERT(g_Instance->gpusCount > 0);
     }
 
     // Select GPU
@@ -63,7 +73,12 @@ static void SetupRedGpuWindow(ImGui_ImplRedGpuH_Window* wd, RedHandleSurface sur
     RedQueueFamilyIndexGetSupportsPresentOnSurface supportsWsiOnSurface = {};
     supportsWsiOnSurface.surface = wd->Surface;
     redQueueFamilyIndexGetSupportsPresent(g_Instance, g_Device, g_QueueFamily, &supportsWsiOnWin32, NULL, NULL, &supportsWsiOnSurface, NULL, __FILE__, __LINE__, NULL);
-    if (supportsWsiOnWin32.outQueueFamilyIndexSupportsPresentOnWin32 == 0 || supportsWsiOnSurface.outQueueFamilyIndexSupportsPresentOnSurface == 0)
+    if (
+#ifdef _WIN32
+        supportsWsiOnWin32.outQueueFamilyIndexSupportsPresentOnWin32 == 0 ||
+#endif
+        supportsWsiOnSurface.outQueueFamilyIndexSupportsPresentOnSurface == 0
+    )
     {
         fprintf(stderr, "Error: no REDGPU WSI support.\n");
         exit(-1);
@@ -222,7 +237,11 @@ int main(int, char**)
 
     // Create Window Surface
     RedHandleSurface surface;
+#ifdef _WIN32
     redCreateSurfaceWin32(g_Instance, g_Device, NULL, GetModuleHandle(NULL), glfwGetWin32Window(window), &surface, NULL, __FILE__, __LINE__, NULL);
+#else
+    redCreateSurfaceXlibOrXcb(g_Instance, g_Device, NULL, glfwGetX11Display(), glfwGetX11Window(window), NULL, 0, &surface, NULL, __FILE__, __LINE__, NULL);
+#endif
 
     // Create Framebuffers
     int w, h;
