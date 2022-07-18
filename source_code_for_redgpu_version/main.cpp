@@ -26,19 +26,20 @@
 extern "C" size_t gsDroidSansMonoFontGetBytesCount();
 extern "C" unsigned char gGsDroidSansMonoFont[];
 
-static GLFWwindow *             g_Window = NULL;
-static RedContext               g_Instance = NULL;
-static RedHandleGpuDevice       g_PhysicalDevice = NULL;
-static RedHandleGpu             g_Device = NULL;
-static uint32_t                 g_DeviceIndex = 0;
-static uint32_t                 g_QueueFamily = 0;
-static RedHandleQueue           g_Queue = NULL;
-static RedHandleProcedureCache  g_PipelineCache = NULL;
-static RedHandleStructsMemory   g_DescriptorPool = NULL;
-static RedHandleStructsMemory   g_DescriptorPoolSamplers = NULL;
-static ImGui_ImplRedGpuH_Window g_MainWindowData;
-static int                      g_MinImageCount = 2;
-static bool                     g_SwapChainRebuild = false;
+static GLFWwindow *              g_Window = NULL;
+static RedContext                g_Instance = NULL;
+static RedHandleGpuDevice        g_PhysicalDevice = NULL;
+static RedHandleGpu              g_Device = NULL;
+static uint32_t                  g_DeviceIndex = 0;
+static uint32_t                  g_QueueFamily = 0;
+static RedHandleQueue            g_Queue = NULL;
+static RedHandleProcedureCache   g_PipelineCache = NULL;
+static RedHandleStructsMemory    g_DescriptorPool = NULL;
+static RedHandleStructsMemory    g_DescriptorPoolSamplers = NULL;
+static ImGui_ImplRedGpu_InitInfo g_RedGpuInitInfo = {};
+static ImGui_ImplRedGpuH_Window  g_MainWindowData = {};
+static int                       g_MinImageCount = 2;
+static bool                      g_SwapChainRebuild = false;
 
 // NOTE(Constantine): Global variables for main.cpp.
 bool                       g_windowsHideAll                     = false;
@@ -136,6 +137,10 @@ void fileAppend(const char * filepath, const char * appendString) {
 }
 
 // NOTE(Constantine): Procedures implementations for script.cpp.
+
+void * getInitDataPointer() {
+  return (void *)&g_RedGpuInitInfo;
+}
 
 void * getWindowDataPointer() {
   return (void *)&g_MainWindowData;
@@ -2820,6 +2825,7 @@ void tick()
 
           const char * text =
 "// Game Script REDGPU Version"
+"\nfn getGameScriptRedGpuVersionInitDataPointer() -> Number pointer"
 "\nfn getGameScriptRedGpuVersionWindowDataPointer() -> Number pointer"
 "\n// Game Script"
 "\nfn printConsole(String string)"
@@ -3537,19 +3543,18 @@ int main(int, char**)
 
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForVulkan(g_Window, true);
-    ImGui_ImplRedGpu_InitInfo init_info = {};
-    init_info.Instance = g_Instance;
-    init_info.PhysicalDevice = g_PhysicalDevice;
-    init_info.Device = g_Device;
-    init_info.QueueFamily = g_QueueFamily;
-    init_info.PipelineCache = g_PipelineCache;
-    init_info.DescriptorPool = g_DescriptorPool;
-    init_info.DescriptorPoolSamplers = g_DescriptorPoolSamplers;
-    init_info.Subpass = 0;
-    init_info.MinImageCount = g_MinImageCount;
-    init_info.ImageCount = wd->ImageCount;
-    init_info.MSAASamples = RED_MULTISAMPLE_COUNT_BITFLAG_1;
-    ImGui_ImplRedGpu_Init(&init_info, wd->RenderPass);
+    g_RedGpuInitInfo.Instance = g_Instance;
+    g_RedGpuInitInfo.PhysicalDevice = g_PhysicalDevice;
+    g_RedGpuInitInfo.Device = g_Device;
+    g_RedGpuInitInfo.QueueFamily = g_QueueFamily;
+    g_RedGpuInitInfo.PipelineCache = g_PipelineCache;
+    g_RedGpuInitInfo.DescriptorPool = g_DescriptorPool;
+    g_RedGpuInitInfo.DescriptorPoolSamplers = g_DescriptorPoolSamplers;
+    g_RedGpuInitInfo.Subpass = 0;
+    g_RedGpuInitInfo.MinImageCount = g_MinImageCount;
+    g_RedGpuInitInfo.ImageCount = wd->ImageCount;
+    g_RedGpuInitInfo.MSAASamples = RED_MULTISAMPLE_COUNT_BITFLAG_1;
+    ImGui_ImplRedGpu_Init(&g_RedGpuInitInfo, wd->RenderPass);
 
     // Load Fonts
     // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.

@@ -383,6 +383,14 @@ GS_API GS_C_PROCEDURE_RETURN_TYPE() _gsCProcedurePrintConsole GS_C_PROCEDURE_PAR
   return ape_object_make_null();
 }
 
+void * getInitDataPointer();
+
+GS_API GS_C_PROCEDURE_RETURN_TYPE() _gsCProcedureGetGameScriptRedGpuVersionInitDataPointer GS_C_PROCEDURE_PARAMETERS() {
+  if (!ape_check_args(ape, true, argc, args, 0, 0)) { return ape_object_make_null(); }
+
+  return ape_object_make_number(_gsPointerToNumber(getInitDataPointer()));
+}
+
 void * getWindowDataPointer();
 
 GS_API GS_C_PROCEDURE_RETURN_TYPE() _gsCProcedureGetGameScriptRedGpuVersionWindowDataPointer GS_C_PROCEDURE_PARAMETERS() {
@@ -16254,6 +16262,7 @@ void mape_set_c_procedures() {
   mape_set_native_function(0, g_ape, "slWavStream_setFilter", _gsCProcedureSlWavStream_setFilter, NULL);
   mape_set_native_function(0, g_ape, "slWavStream_stop", _gsCProcedureSlWavStream_stop, NULL);
   // Game Script REDGPU Version:
+  mape_set_native_function(0, g_ape, "getGameScriptRedGpuVersionInitDataPointer",   _gsCProcedureGetGameScriptRedGpuVersionInitDataPointer,   NULL);
   mape_set_native_function(0, g_ape, "getGameScriptRedGpuVersionWindowDataPointer", _gsCProcedureGetGameScriptRedGpuVersionWindowDataPointer, NULL);
   // Game Script:
   mape_set_native_function(0, g_ape, "printConsole",                             _gsCProcedurePrintConsole,                             NULL);
