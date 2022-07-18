@@ -263,11 +263,6 @@ const char* ape_traceback_get_function_name(const ape_traceback_t *traceback, in
 // Constantine's Ape modified procedures
 //-----------------------------------------------------------------------------
 
-#if defined(_WIN32)
-#elif defined(__MINGW32__)
-#else
-__attribute__((always_inline))
-#endif
 void mape_set_native_function(int threadIndex, ape_t *ape, const char *name, ape_native_fn fn, void *data);
 
 #ifdef __cplusplus

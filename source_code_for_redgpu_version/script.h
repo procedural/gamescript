@@ -1,6 +1,8 @@
 #include <vector>
 #include <unordered_map>
 #include <mutex>
+#include <string.h> // memcpy
+#include <math.h>   // asin, acos, atan
 #ifdef _WIN32
 #include <Windows.h>
 #include <chrono>

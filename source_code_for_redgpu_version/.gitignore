@@ -1,6 +1,8 @@
 *.ini
 *.obj
 *.exe
+*.o
 a.out
 redgpu.dll
 gamescript_autosave.txt
+game_script_redgpu_version

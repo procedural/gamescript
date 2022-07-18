@@ -1,4 +1,4 @@
-#include <stdint.h>
+#include <stddef.h>
 
 size_t gsDroidSansMonoFontGetBytesCount() {
   return 117072;
