@@ -383,6 +383,14 @@ GS_API GS_C_PROCEDURE_RETURN_TYPE() _gsCProcedurePrintConsole GS_C_PROCEDURE_PAR
   return ape_object_make_null();
 }
 
+void * getWindowDataPointer();
+
+GS_API GS_C_PROCEDURE_RETURN_TYPE() _gsCProcedureGetGameScriptRedGpuVersionWindowDataPointer GS_C_PROCEDURE_PARAMETERS() {
+  if (!ape_check_args(ape, true, argc, args, 0, 0)) { return ape_object_make_null(); }
+
+  return ape_object_make_number(_gsPointerToNumber(getWindowDataPointer()));
+}
+
 void windowSetTitle(const char * title);
 
 GS_API GS_C_PROCEDURE_RETURN_TYPE() _gsCProcedureWindowSetTitle GS_C_PROCEDURE_PARAMETERS() {
@@ -2068,9 +2076,9 @@ GS_API GS_C_PROCEDURE_RETURN_TYPE() _gsCProcedureGamepadUpdateGamecontrollerdbTx
   getArgAs_CChars(const char *, mappings,  args[_i++]);
   getArgAs_END
 
-  int status = gamepadUpdateGamepadMappings(mappings);
+  int success = gamepadUpdateGamepadMappings(mappings);
 
-  return ape_object_make_bool((bool)status);
+  return ape_object_make_bool((bool)success);
 }
 
 GS_API GS_C_PROCEDURE_RETURN_TYPE() _gsCProcedureBoolToNumber GS_C_PROCEDURE_PARAMETERS() {
@@ -16245,6 +16253,8 @@ void mape_set_c_procedures() {
   mape_set_native_function(0, g_ape, "slWavStream_getLoopPoint", _gsCProcedureSlWavStream_getLoopPoint, NULL);
   mape_set_native_function(0, g_ape, "slWavStream_setFilter", _gsCProcedureSlWavStream_setFilter, NULL);
   mape_set_native_function(0, g_ape, "slWavStream_stop", _gsCProcedureSlWavStream_stop, NULL);
+  // Game Script REDGPU Version:
+  mape_set_native_function(0, g_ape, "getGameScriptRedGpuVersionWindowDataPointer", _gsCProcedureGetGameScriptRedGpuVersionWindowDataPointer, NULL);
   // Game Script:
   mape_set_native_function(0, g_ape, "printConsole",                             _gsCProcedurePrintConsole,                             NULL);
   //mape_set_native_function(0, g_ape, "printDraw",                                _gsCProcedurePrintDraw,                                NULL);

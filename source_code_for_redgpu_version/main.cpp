@@ -137,6 +137,10 @@ void fileAppend(const char * filepath, const char * appendString) {
 
 // NOTE(Constantine): Procedures implementations for script.cpp.
 
+void * getWindowDataPointer() {
+  return (void *)&g_MainWindowData;
+}
+
 int gamepadIsPresent(int gamepadId) {
   return glfwJoystickIsGamepad(gamepadId);
 }
@@ -2815,8 +2819,11 @@ void tick()
           ImGui::SetWindowSize(ImVec2(1010, 560), ImGuiCond_FirstUseEver);
 
           const char * text =
-"// Game Script"
+"// Game Script REDGPU Version"
+"\nfn getGameScriptRedGpuVersionWindowDataPointer() -> Number pointer"
+"\n// Game Script"
 "\nfn printConsole(String string)"
+"\nfn windowSetTitle(String title)"
 "\nfn windowGetWidth() -> Number width"
 "\nfn windowGetHeight() -> Number height"
 "\nfn getCurrentFrame() -> Number frame"
@@ -2897,7 +2904,9 @@ void tick()
 "\nfn memcpy(Number pointerTarget, Number pointerTargetBytesFirst, Number pointerSource, Number pointerSourceBytesFirst, Number bytesCount)"
 "\nfn memcmp(Number pointerA, Number pointerABytesFirst, Number pointerB, Number pointerBBytesFirst, Number bytesCount) -> Bool areEqual"
 "\nfn strlenWithNullChar(String string) -> Number length"
+"\nfn gamepadIsPresent(Number gamepadId0to15) -> Bool gamepadIsPresent"
 "\nfn gamepadGet15Buttons6AxesNumbers(Number gamepadId0to15) -> Number buttonsAndAxes [21] {a, b, x, y, leftBumper, rightBumper, back, start, guide, leftThumb, rightThumb, dpadUp, dpadRight, dpadDown, dpadLeft, axisLeftX, axisLeftY, axisRightX, axisRightY, leftTrigger, rightTrigger}"
+"\nfn gamepadUpdateGamecontrollerdbTxt(Number gamepadId0to15, String mappings) -> Bool success"
 "\nfn boolToNumber(Bool boolean) -> Number number"
 "\nfn boolToString(Bool boolean) -> String string"
 "\nfn numberFromRaw8BitInteger(Number raw8BitInteger) -> Number number"
