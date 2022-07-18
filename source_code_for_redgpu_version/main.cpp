@@ -26,6 +26,7 @@
 extern "C" size_t gsDroidSansMonoFontGetBytesCount();
 extern "C" unsigned char gGsDroidSansMonoFont[];
 
+static GLFWwindow *             g_Window = NULL;
 static RedContext               g_Instance = NULL;
 static RedHandleGpuDevice       g_PhysicalDevice = NULL;
 static RedHandleGpu             g_Device = NULL;
@@ -136,17 +137,46 @@ void fileAppend(const char * filepath, const char * appendString) {
 
 // NOTE(Constantine): Procedures implementations for script.cpp.
 
-int gamepadsGetCount() {
-  // TODO(Constantine)
-  return 0;
+int gamepadIsPresent(int gamepadId) {
+  return glfwJoystickIsGamepad(gamepadId);
 }
 
 void gamepadGet15Buttons6AxesNumbers(int gamepadId, double * out15Buttons, double * out6Axes) {
-  // TODO(Constantine)
+  GLFWgamepadstate state = {};
+  int status = glfwGetGamepadState(gamepadId, &state);
+  out15Buttons[0]  = (double)state.buttons[0];
+  out15Buttons[1]  = (double)state.buttons[1];
+  out15Buttons[2]  = (double)state.buttons[2];
+  out15Buttons[3]  = (double)state.buttons[3];
+  out15Buttons[4]  = (double)state.buttons[4];
+  out15Buttons[5]  = (double)state.buttons[5];
+  out15Buttons[6]  = (double)state.buttons[6];
+  out15Buttons[7]  = (double)state.buttons[7];
+  out15Buttons[8]  = (double)state.buttons[8];
+  out15Buttons[9]  = (double)state.buttons[9];
+  out15Buttons[10] = (double)state.buttons[10];
+  out15Buttons[11] = (double)state.buttons[11];
+  out15Buttons[12] = (double)state.buttons[12];
+  out15Buttons[13] = (double)state.buttons[13];
+  out15Buttons[14] = (double)state.buttons[14];
+  out6Axes[0]      = (double)state.axes[0];
+  out6Axes[1]      = (double)state.axes[1];
+  out6Axes[2]      = (double)state.axes[2];
+  out6Axes[3]      = (double)state.axes[3];
+  out6Axes[4]      = (double)state.axes[4];
+  out6Axes[5]      = (double)state.axes[5];
 }
 
-void setClipboard(void * userData, const char * text) {
-  // TODO(Constantine)
+int gamepadUpdateGamepadMappings(const char * mappings) {
+  return glfwUpdateGamepadMappings(mappings);
+}
+
+void setClipboard(const char * text) {
+  glfwSetClipboardString(g_Window, text);
+}
+
+void windowSetTitle(const char * title) {
+  glfwSetWindowTitle(g_Window, title);
 }
 
 float windowGetWidth() {
@@ -3467,21 +3497,21 @@ int main(int, char**)
         return 1;
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "Dear ImGui GLFW + REDGPU example", NULL, NULL);
+    g_Window = glfwCreateWindow(1280, 720, "Game Script REDGPU Version", NULL, NULL);
 
     SetupRedGpu();
 
     // Create Window Surface
     RedHandleSurface surface;
 #ifdef _WIN32
-    redCreateSurfaceWin32(g_Instance, g_Device, NULL, GetModuleHandle(NULL), glfwGetWin32Window(window), &surface, NULL, __FILE__, __LINE__, NULL);
+    redCreateSurfaceWin32(g_Instance, g_Device, NULL, GetModuleHandle(NULL), glfwGetWin32Window(g_Window), &surface, NULL, __FILE__, __LINE__, NULL);
 #else
-    redCreateSurfaceXlibOrXcb(g_Instance, g_Device, NULL, glfwGetX11Display(), glfwGetX11Window(window), NULL, 0, &surface, NULL, __FILE__, __LINE__, NULL);
+    redCreateSurfaceXlibOrXcb(g_Instance, g_Device, NULL, glfwGetX11Display(), glfwGetX11Window(g_Window), NULL, 0, &surface, NULL, __FILE__, __LINE__, NULL);
 #endif
 
     // Create Framebuffers
     int w, h;
-    glfwGetFramebufferSize(window, &w, &h);
+    glfwGetFramebufferSize(g_Window, &w, &h);
     ImGui_ImplRedGpuH_Window* wd = &g_MainWindowData;
     SetupRedGpuWindow(wd, surface, w, h);
 
@@ -3497,7 +3527,7 @@ int main(int, char**)
     //ImGui::StyleColorsClassic();
 
     // Setup Platform/Renderer backends
-    ImGui_ImplGlfw_InitForVulkan(window, true);
+    ImGui_ImplGlfw_InitForVulkan(g_Window, true);
     ImGui_ImplRedGpu_InitInfo init_info = {};
     init_info.Instance = g_Instance;
     init_info.PhysicalDevice = g_PhysicalDevice;
@@ -3594,7 +3624,7 @@ int main(int, char**)
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     // Main loop
-    while (!glfwWindowShouldClose(window))
+    while (!glfwWindowShouldClose(g_Window))
     {
         // Poll and handle events (inputs, window resize, etc.)
         // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
@@ -3607,7 +3637,7 @@ int main(int, char**)
         if (g_SwapChainRebuild)
         {
             int width, height;
-            glfwGetFramebufferSize(window, &width, &height);
+            glfwGetFramebufferSize(g_Window, &width, &height);
             if (width > 0 && height > 0)
             {
                 ImGui_ImplRedGpu_SetMinImageCount(g_MinImageCount, wd);
@@ -3656,7 +3686,7 @@ int main(int, char**)
     CleanupRedGpuWindow();
     CleanupRedGpu();
 
-    glfwDestroyWindow(window);
+    glfwDestroyWindow(g_Window);
     glfwTerminate();
 
     return 0;

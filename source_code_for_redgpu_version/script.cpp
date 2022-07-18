@@ -383,6 +383,25 @@ GS_API GS_C_PROCEDURE_RETURN_TYPE() _gsCProcedurePrintConsole GS_C_PROCEDURE_PAR
   return ape_object_make_null();
 }
 
+void windowSetTitle(const char * title);
+
+GS_API GS_C_PROCEDURE_RETURN_TYPE() _gsCProcedureWindowSetTitle GS_C_PROCEDURE_PARAMETERS() {
+  int APE_ARGS[] = {
+    APE_OBJECT_STRING/*title*/
+  };
+  if (!ape_check_args(ape, true, argc, args, sizeof(APE_ARGS) / sizeof(int), APE_ARGS)) { return ape_object_make_null(); }
+
+  int _i = 0;
+
+  getArgAs_BEGIN("windowSetTitle")
+  getArgAs_CChars(const char *, title, args[_i++]);
+  getArgAs_END
+
+  windowSetTitle(title);
+
+  return ape_object_make_null();
+}
+
 float windowGetWidth();
 
 GS_API GS_C_PROCEDURE_RETURN_TYPE() _gsCProcedureWindowGetWidth GS_C_PROCEDURE_PARAMETERS() {
@@ -1970,12 +1989,23 @@ GS_API GS_C_PROCEDURE_RETURN_TYPE() _gsCProcedureStrlenWithNullChar GS_C_PROCEDU
   return ape_object_make_number((double)(strlen(astring) + 1));
 }
 
-int gamepadsGetCount();
+int gamepadIsPresent(int gamepadId);
 
-GS_API GS_C_PROCEDURE_RETURN_TYPE() _gsCProcedureGetGamepadsCount GS_C_PROCEDURE_PARAMETERS() {
-  if (!ape_check_args(ape, true, argc, args, 0, 0)) { return ape_object_make_null(); }
+GS_API GS_C_PROCEDURE_RETURN_TYPE() _gsCProcedureGamepadIsPresent GS_C_PROCEDURE_PARAMETERS() {
+  int APE_ARGS[] = {
+    APE_OBJECT_NUMBER/*gamepadId0to15*/
+  };
+  if (!ape_check_args(ape, true, argc, args, sizeof(APE_ARGS) / sizeof(int), APE_ARGS)) { return ape_object_make_null(); }
 
-  return ape_object_make_number((double)gamepadsGetCount());
+  int _i = 0;
+
+  getArgAs_BEGIN("gamepadIsPresent")
+  getArgAs_Double(int, gamepadId, args[_i++]);
+  getArgAs_END
+
+  int isPresent = gamepadIsPresent(gamepadId);
+
+  return ape_object_make_bool((bool)isPresent);
 }
 
 void gamepadGet15Buttons6AxesNumbers(int gamepadId, double * out15Buttons, double * out6Axes);
@@ -2020,6 +2050,27 @@ GS_API GS_C_PROCEDURE_RETURN_TYPE() _gsCProcedureGamepadGet15Buttons6AxesNumbers
   mape_object_add_array_number(19, array, axes[4]);
   mape_object_add_array_number(20, array, axes[5]);
   return array;
+}
+
+int gamepadUpdateGamepadMappings(const char * mappings);
+
+GS_API GS_C_PROCEDURE_RETURN_TYPE() _gsCProcedureGamepadUpdateGamecontrollerdbTxt GS_C_PROCEDURE_PARAMETERS() {
+  int APE_ARGS[] = {
+    APE_OBJECT_NUMBER/*gamepadId0to15*/,
+    APE_OBJECT_STRING/*mappings*/
+  };
+  if (!ape_check_args(ape, true, argc, args, sizeof(APE_ARGS) / sizeof(int), APE_ARGS)) { return ape_object_make_null(); }
+
+  int _i = 0;
+
+  getArgAs_BEGIN("gamepadUpdateGamecontrollerdbTxt")
+  getArgAs_Double(int,          gamepadId, args[_i++]); // NOTE(Constantine): Just noticed gamepadId is not needed here. Will have to leave it as is for API stability.
+  getArgAs_CChars(const char *, mappings,  args[_i++]);
+  getArgAs_END
+
+  int status = gamepadUpdateGamepadMappings(mappings);
+
+  return ape_object_make_bool((bool)status);
 }
 
 GS_API GS_C_PROCEDURE_RETURN_TYPE() _gsCProcedureBoolToNumber GS_C_PROCEDURE_PARAMETERS() {
@@ -15536,7 +15587,7 @@ GS_API GS_C_PROCEDURE_RETURN_TYPE() _gsCProcedureGetCopiedCodeString GS_C_PROCED
 
 #ifdef __ANDROID__
 #else
-void setClipboard(void * userData, const char * text);
+void setClipboard(const char * text);
 #endif
 
 GS_API GS_C_PROCEDURE_RETURN_TYPE() _gsCProcedureSetCopiedCodeString GS_C_PROCEDURE_PARAMETERS() {
@@ -15554,7 +15605,7 @@ GS_API GS_C_PROCEDURE_RETURN_TYPE() _gsCProcedureSetCopiedCodeString GS_C_PROCED
   g_codeStringCopied = code;
 #ifdef __ANDROID__
 #else
-  setClipboard(0, g_codeStringCopied.c_str());
+  setClipboard(g_codeStringCopied.c_str());
 #endif
 
   return ape_object_make_null();
@@ -15734,7 +15785,7 @@ void mape_set_c_procedures() {
   // Game Script for Windows Platform
   mape_set_native_function(0, g_ape, "isWindowsPlatform", _gsCProcedureIsWindowsPlatform, NULL);
   mape_set_native_function(0, g_ape, "setAllWindowsHidden", _gsCProcedureSetAllWindowsHidden, NULL);
-  mape_set_native_function(0, g_ape, "getGamepadsCount", _gsCProcedureGetGamepadsCount, NULL);
+  //mape_set_native_function(0, g_ape, "getGamepadsCount", _gsCProcedureGetGamepadsCount, NULL);
   mape_set_native_function(0, g_ape, "getWindowsPlatformInstalledLocationPathString", _gsCProcedureGetWindowsPlatformInstalledLocationPathString, NULL);
   mape_set_native_function(0, g_ape, "getWindowsPlatformLocalFolderPathString", _gsCProcedureGetWindowsPlatformLocalFolderPathString, NULL);
   mape_set_native_function(0, g_ape, "getWindowsPlatformLocalCacheFolderPathString", _gsCProcedureGetWindowsPlatformLocalCacheFolderPathString, NULL);
@@ -16197,7 +16248,7 @@ void mape_set_c_procedures() {
   // Game Script:
   mape_set_native_function(0, g_ape, "printConsole",                             _gsCProcedurePrintConsole,                             NULL);
   //mape_set_native_function(0, g_ape, "printDraw",                                _gsCProcedurePrintDraw,                                NULL);
-  //mape_set_native_function(0, g_ape, "windowSetTitle",                           _gsCProcedureWindowSetTitle,                           NULL);
+  mape_set_native_function(0, g_ape, "windowSetTitle",                           _gsCProcedureWindowSetTitle,                           NULL);
   mape_set_native_function(0, g_ape, "windowGetWidth",                           _gsCProcedureWindowGetWidth,                           NULL);
   mape_set_native_function(0, g_ape, "windowGetHeight",                          _gsCProcedureWindowGetHeight,                          NULL);
   //mape_set_native_function(0, g_ape, "windowSetWidthHeight",                     _gsCProcedureWindowSetWidthHeight,                     NULL);
@@ -16368,11 +16419,11 @@ void mape_set_c_procedures() {
   //mape_set_native_function(0, g_ape, "mouseGetButtonIsPressedAndHeld",           _gsCProcedureMouseGetButtonIsPressedAndHeld,           NULL);
   //mape_set_native_function(0, g_ape, "mouseGetButtonIsReleased",                 _gsCProcedureMouseGetButtonIsReleased,                 NULL);
   //mape_set_native_function(0, g_ape, "mouseGetWheelScroll",                      _gsCProcedureMouseGetWheelScroll,                      NULL);
-  //mape_set_native_function(0, g_ape, "gamepadIsPresent",                         _gsCProcedureGamepadIsPresent,                         NULL);
+  mape_set_native_function(0, g_ape, "gamepadIsPresent",                         _gsCProcedureGamepadIsPresent,                         NULL);
   mape_set_native_function(0, g_ape, "gamepadGet15Buttons6AxesNumbers",          _gsCProcedureGamepadGet15Buttons6AxesNumbers,          NULL);
   //mape_set_native_function(0, g_ape, "gamepadGetName",                           _gsCProcedureGamepadGetName,                           NULL);
   //mape_set_native_function(0, g_ape, "gamepadGetGUID",                           _gsCProcedureGamepadGetGUID,                           NULL);
-  //mape_set_native_function(0, g_ape, "gamepadUpdateGamecontrollerdbTxt",         _gsCProcedureGamepadUpdateGamecontrollerdbTxt,         NULL);
+  mape_set_native_function(0, g_ape, "gamepadUpdateGamecontrollerdbTxt",         _gsCProcedureGamepadUpdateGamecontrollerdbTxt,         NULL);
   mape_set_native_function(0, g_ape, "boolToNumber",                             _gsCProcedureBoolToNumber,                             NULL);
   mape_set_native_function(0, g_ape, "boolToString",                             _gsCProcedureBoolToString,                             NULL);
   mape_set_native_function(0, g_ape, "numberFromRaw8BitInteger",                 _gsCProcedureNumberFromRaw8BitInteger,                NULL);
