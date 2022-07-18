@@ -65,7 +65,7 @@ static bool                g_windowShowFrame0Cache              = false;
 static bool                g_windowShowCodeCompileMode          = false;
 static bool                g_enableOnScreenKeyboard             = true;
 static bool                g_enableDoubleNewlineWorkaround      = true;
-static float               g_uiScale                            = 1.8f;
+static float               g_uiScale                            = 1.0f;
 static int                 g_codeRunMode                        = 0; // 0: default, 1: run from gamescript_run.txt or gamescript_compile_and_run.txt
 std::string                g_codeString;
 std::string                g_codeStringCopied;
