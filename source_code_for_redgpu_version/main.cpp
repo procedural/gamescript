@@ -42,6 +42,7 @@ static int                       g_MinImageCount = 2;
 static bool                      g_SwapChainRebuild = false;
 
 // NOTE(Constantine): Global variables for main.cpp.
+static bool                g_windowsWindowIsCollapsed           = false;
 bool                       g_windowsHideAll                     = false;
 static bool                g_windowsShowAll                     = false;
 static bool                g_windowShowGameScript               = true;
@@ -522,6 +523,7 @@ void tick()
     ImGuiIO& io = ImGui::GetIO();
 
     if (g_codeRunMode == 0) {
+      ImGui::SetNextWindowCollapsed(g_windowsWindowIsCollapsed);
       if (ImGui::Begin("Windows")) {
         ImGui::Checkbox("Hide all windows", &g_windowsHideAll);
         ImGui::Checkbox("Show all windows", &g_windowsShowAll);
@@ -3522,6 +3524,16 @@ void tick()
 void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mods) {
   if (key == GLFW_KEY_F1 && action == GLFW_PRESS) {
     g_windowShowListOfFunctions = g_windowShowListOfFunctions == 0 ? 1 : 0;
+  }
+  if (key == GLFW_KEY_F2 && action == GLFW_PRESS) {
+    g_windowShowCodeRun = g_windowShowCodeRun == 0 ? 1 : 0;
+  }
+  if (key == GLFW_KEY_F3 && action == GLFW_PRESS) {
+    g_windowForceShowConsole = g_windowForceShowConsole == 0 ? 1 : 0;
+  }
+  if (key == GLFW_KEY_F4 && action == GLFW_PRESS) {
+    g_windowsHideAll = g_windowsHideAll == 0 ? 1 : 0;
+    g_windowsWindowIsCollapsed = g_windowsHideAll;
   }
   if (key == GLFW_KEY_F11 && action == GLFW_PRESS) {
     static bool g_KeyCallbackF11 = true;
