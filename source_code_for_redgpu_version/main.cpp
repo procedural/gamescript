@@ -17,7 +17,7 @@
 
 #include <malloc.h>
 #include <string>
-#include <sstream>
+#include <sstream>   // std::stringstream
 #include <fstream>
 #include <mutex>
 
@@ -514,6 +514,8 @@ static std::string byte_to_binary_string(unsigned char byte) {
   std::string result = b;
   return result;
 }
+
+void FilterTextForLineMatches(std::string & text, std::string lineMatch);
 
 void tick()
 {
@@ -2820,7 +2822,7 @@ void tick()
       }
 
       if (g_windowsShowAll == true || (g_windowsHideAll == false && g_windowShowListOfFunctions == true)) {
-        if (ImGui::Begin("List of Functions", &g_windowShowListOfFunctions, ImGuiWindowFlags_HorizontalScrollbar)) {
+        if (ImGui::Begin("List of Functions (F1)", &g_windowShowListOfFunctions, ImGuiWindowFlags_HorizontalScrollbar)) {
           ImGui::SetWindowSize(ImVec2(1010, 560), ImGuiCond_FirstUseEver);
 
           const char * text =
@@ -3457,7 +3459,20 @@ void tick()
           if (ImGui::Button("Save")) {
             fileWrite("gamescript_list_of_functions.txt", text);
           }
-          ImGui::TextUnformatted(text);
+
+          ImGui::SameLine();
+
+          static std::string g_ListOfFunctionsTextFiltered = text;
+
+          static char g_ListOfFunctionsSearchFunctionName[256] = {};
+          if (ImGui::InputText("Search function name", g_ListOfFunctionsSearchFunctionName, 255, 0, 0, 0)) {
+            g_ListOfFunctionsTextFiltered = text;
+            if (g_ListOfFunctionsSearchFunctionName[0] != 0) {
+              FilterTextForLineMatches(g_ListOfFunctionsTextFiltered, std::string("fn ") + std::string(g_ListOfFunctionsSearchFunctionName));
+            }
+          }
+
+          ImGui::TextUnformatted(g_ListOfFunctionsTextFiltered.c_str());
         }
         ImGui::End();
       }
@@ -3504,6 +3519,30 @@ void tick()
     }
 }
 
+void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mods) {
+  if (key == GLFW_KEY_F1 && action == GLFW_PRESS) {
+    g_windowShowListOfFunctions = g_windowShowListOfFunctions == 0 ? 1 : 0;
+  }
+  if (key == GLFW_KEY_F11 && action == GLFW_PRESS) {
+    static bool g_KeyCallbackF11 = true;
+    static int  g_KeyCallbackF11PreviousWindowX;
+    static int  g_KeyCallbackF11PreviousWindowY;
+    static int  g_KeyCallbackF11PreviousWindowWidth;
+    static int  g_KeyCallbackF11PreviousWindowHeight;
+    if (g_KeyCallbackF11 == true) {
+      glfwGetWindowPos(window, &g_KeyCallbackF11PreviousWindowX, &g_KeyCallbackF11PreviousWindowY);
+      glfwGetWindowSize(window, &g_KeyCallbackF11PreviousWindowWidth, &g_KeyCallbackF11PreviousWindowHeight);
+    }
+    if (g_KeyCallbackF11 == true) {
+      const GLFWvidmode * mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+      glfwSetWindowMonitor(window, glfwGetPrimaryMonitor(), 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
+    } else {
+      glfwSetWindowMonitor(window, NULL, g_KeyCallbackF11PreviousWindowX, g_KeyCallbackF11PreviousWindowY, g_KeyCallbackF11PreviousWindowWidth, g_KeyCallbackF11PreviousWindowHeight, GLFW_DONT_CARE);
+    }
+    g_KeyCallbackF11 = g_KeyCallbackF11 == true ? false : true;
+  }
+}
+
 int main(int, char**)
 {
     // Setup GLFW window
@@ -3513,6 +3552,7 @@ int main(int, char**)
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     g_Window = glfwCreateWindow(1280, 720, "Game Script REDGPU Version", NULL, NULL);
+    glfwSetKeyCallback(g_Window, KeyCallback);
 
     SetupRedGpu();
 
@@ -3704,4 +3744,19 @@ int main(int, char**)
     glfwTerminate();
 
     return 0;
+}
+
+void FilterTextForLineMatches(std::string & text, std::string lineMatch) {
+  std::string out;
+
+  std::stringstream ss;
+  ss << text;
+  for (std::string line; std::getline(ss, line, '\n');) {
+    if (line.rfind(lineMatch, 0) == 0) {
+      out += line;
+      out += "\n";
+    }
+  }
+
+  text = out;
 }
