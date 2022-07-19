@@ -524,7 +524,7 @@ void tick()
 
     if (g_codeRunMode == 0) {
       ImGui::SetNextWindowCollapsed(g_windowsWindowIsCollapsed);
-      if (ImGui::Begin("Windows")) {
+      if (ImGui::Begin("Windows (F4)")) {
         ImGui::Checkbox("Hide all windows", &g_windowsHideAll);
         ImGui::Checkbox("Show all windows", &g_windowsShowAll);
         ImGui::Checkbox("Show Game Script window", &g_windowShowGameScript);
@@ -649,7 +649,7 @@ void tick()
 
       static int  codeRunResetFrameTo = 0;
       if (g_windowForceShowCodeRun == true || g_windowsShowAll == true || (g_windowsHideAll == false && g_windowShowCodeRun == true)) {
-        if (ImGui::Begin("Code Run", &g_windowShowCodeRun)) {
+        if (ImGui::Begin("Code Run (F2)", &g_windowShowCodeRun)) {
           ImGui::Text("Current frame: %llu", g_currentFrame);
           if (ImGui::Checkbox("Run code", &g_runScript)) {
             g_frame0CacheStartPositionIsDirty = true;
@@ -678,7 +678,7 @@ void tick()
       }
 
       if (g_windowForceShowConsole == true || g_windowsShowAll == true || (g_windowsHideAll == false && g_windowShowConsole == true)) {
-        if (ImGui::Begin("Console", &g_windowShowConsole, ImGuiWindowFlags_HorizontalScrollbar)) {
+        if (ImGui::Begin("Console (F3)", &g_windowShowConsole, ImGuiWindowFlags_HorizontalScrollbar)) {
           ImGui::SetWindowSize(ImVec2(875, 700), ImGuiCond_FirstUseEver);
 
           if (ImGui::Button("Clear")) {
