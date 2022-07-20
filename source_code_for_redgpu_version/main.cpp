@@ -58,14 +58,11 @@ static bool                g_windowForceShowConsole             = false;
 static bool                g_windowShowAbout                    = false;
 static bool                g_windowShowMemoryViewer             = false;
 static bool                g_windowForceShowMemoryViewer        = false;
-static bool                g_windowShowKeyboardOptions          = false;
 static bool                g_windowShowCHeaderForRedGpu         = false;
 static bool                g_windowShowLicenses                 = false;
 static bool                g_windowShowListOfFunctions          = false;
 static bool                g_windowShowFrame0Cache              = false;
 static bool                g_windowShowCodeCompileMode          = false;
-static bool                g_enableOnScreenKeyboard             = true;
-static bool                g_enableDoubleNewlineWorkaround      = true;
 static float               g_uiScale                            = 1.0f;
 static int                 g_codeRunMode                        = 0; // 0: default, 1: run from gamescript_run.txt or gamescript_compile_and_run.txt
 std::string                g_codeString;
@@ -539,7 +536,6 @@ void tick()
         ImGui::Checkbox("Force show Console window", &g_windowForceShowConsole);
         ImGui::Checkbox("Show Memory Viewer window", &g_windowShowMemoryViewer);
         ImGui::Checkbox("Force show Memory Viewer window", &g_windowForceShowMemoryViewer);
-        ImGui::Checkbox("Show Keyboard Options window", &g_windowShowKeyboardOptions);
         ImGui::Checkbox("Show List of Functions window", &g_windowShowListOfFunctions);
         ImGui::Checkbox("Show C Header for REDGPU window", &g_windowShowCHeaderForRedGpu);
         ImGui::Checkbox("Show Frame 0 Cache window", &g_windowShowFrame0Cache);
@@ -3475,17 +3471,6 @@ void tick()
           }
 
           ImGui::TextUnformatted(g_ListOfFunctionsTextFiltered.c_str());
-        }
-        ImGui::End();
-      }
-
-      if (g_windowsShowAll == true || (g_windowsHideAll == false && g_windowShowKeyboardOptions == true)) {
-        if (ImGui::Begin("Keyboard Options", &g_windowShowKeyboardOptions, ImGuiWindowFlags_HorizontalScrollbar)) {
-          ImGui::Checkbox("Enable on-screen keyboard", &g_enableOnScreenKeyboard);
-          ImGui::Checkbox("Enable double newline workaround", &g_enableDoubleNewlineWorkaround);
-          ImGui::Text("Notes:");
-          ImGui::Text("* You may need to disable your keyboard settings -> 'English prediction' option that can prevent any typing.");
-          ImGui::Text("* To have Shift key working in scrcpy program, run it with --prefer-text flag.");
         }
         ImGui::End();
       }
