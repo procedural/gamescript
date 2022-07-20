@@ -102,6 +102,7 @@ bool                       g_frame0CacheEnable                  = false;
 bool                       g_frame0CacheStartPositionIsDirty    = true;
 uint64_t                   g_frame0CacheStartPosition           = 0;
 bool                       g_compileMode                        = true;
+bool                       g_enableCustomRendering              = false;
 
 // NOTE(Constantine): Global variables and procedures from script.cpp.
 extern uint64_t                                  g_currentFrame;
@@ -220,6 +221,10 @@ bool igInputTextMultiline(const char * label, char * buf, size_t buf_size, float
 
 bool igInputText(const char * label, char * buf, size_t buf_size, int flags, void * callback, void * user_data) {
   return ImGui::InputText(label, buf, buf_size, flags, 0, 0);
+}
+
+void igRender() {
+  ImGui::Render();
 }
 
 static void gsAutosaveSave() {
@@ -2827,6 +2832,9 @@ void tick()
 "// Game Script REDGPU Version"
 "\nfn getGameScriptRedGpuVersionInitDataPointer() -> Number pointer"
 "\nfn getGameScriptRedGpuVersionWindowDataPointer() -> Number pointer"
+"\nfn gameScriptRedGpuVersionGetEnableCustomRendering() -> Bool enabled"
+"\nfn gameScriptRedGpuVersionSetEnableCustomRendering(Bool enable)"
+"\nfn gameScriptRedGpuVersionImguiRender()"
 "\n// Game Script"
 "\nfn printConsole(String string)"
 "\nfn windowSetTitle(String title)"
@@ -3706,16 +3714,20 @@ int main(int, char**)
         tick();
 
         // Rendering
-        ImGui::Render();
+        if (g_enableCustomRendering == false) {
+          ImGui::Render();
+        }
         ImDrawData* draw_data = ImGui::GetDrawData();
         const bool is_minimized = (draw_data->DisplaySize.x <= 0.0f || draw_data->DisplaySize.y <= 0.0f);
         if (!is_minimized)
         {
-            wd->ClearValues[0] = clear_color.x * clear_color.w;
-            wd->ClearValues[1] = clear_color.y * clear_color.w;
-            wd->ClearValues[2] = clear_color.z * clear_color.w;
-            wd->ClearValues[3] = clear_color.w;
-            FrameRender(wd, draw_data);
+            if (g_enableCustomRendering == false) {
+              wd->ClearValues[0] = clear_color.x * clear_color.w;
+              wd->ClearValues[1] = clear_color.y * clear_color.w;
+              wd->ClearValues[2] = clear_color.z * clear_color.w;
+              wd->ClearValues[3] = clear_color.w;
+              FrameRender(wd, draw_data);
+            }
             FramePresent(wd);
         }
     }

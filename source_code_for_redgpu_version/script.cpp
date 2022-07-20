@@ -33,6 +33,7 @@ extern bool                       g_frame0CacheEnable;
 extern bool                       g_frame0CacheStartPositionIsDirty;
 extern uint64_t                   g_frame0CacheStartPosition;
 extern bool                       g_compileMode;
+extern bool                       g_enableCustomRendering;
 static ape_program_t *            g_ape_compiled_program = 0;
 extern std::string                g_installedLocationPath;
 extern std::string                g_localFolderPath;
@@ -2655,6 +2656,7 @@ bool igButton(const char * label, float sizeX, float sizeY);
 void igTextUnformatted(const char * text);
 bool igInputTextMultiline(const char * label, char * buf, size_t buf_size, float sizeX, float sizeY, int flags, void * callback, void * user_data);
 bool igInputText(const char * label, char * buf, size_t buf_size, int flags, void * callback, void * user_data);
+void igRender();
 
 GS_API GS_C_PROCEDURE_RETURN_TYPE() _gsCProcedureImguiSetStyleColor GS_C_PROCEDURE_PARAMETERS() {
   int APE_ARGS[] = {
@@ -2809,6 +2811,37 @@ GS_API GS_C_PROCEDURE_RETURN_TYPE() _gsCProcedureImguiInputTextMultiline GS_C_PR
   getArgAs_END
 
   return ape_object_make_bool(igInputTextMultiline(textFieldName, &outPointer[outPointerBytesFirst], outPointerBytesCountMax, textFieldWidth, textFieldHeight, 0, 0, 0));
+}
+
+GS_API GS_C_PROCEDURE_RETURN_TYPE() _gsCProcedureGameScriptRedGpuVersionGetEnableCustomRendering GS_C_PROCEDURE_PARAMETERS() {
+  if (!ape_check_args(ape, true, argc, args, 0, 0)) { return ape_object_make_null(); }
+
+  return ape_object_make_bool(g_enableCustomRendering);
+}
+
+GS_API GS_C_PROCEDURE_RETURN_TYPE() _gsCProcedureGameScriptRedGpuVersionSetEnableCustomRendering GS_C_PROCEDURE_PARAMETERS() {
+  int APE_ARGS[] = {
+    APE_OBJECT_BOOL/*enable*/
+  };
+  if (!ape_check_args(ape, true, argc, args, sizeof(APE_ARGS) / sizeof(int), APE_ARGS)) { return ape_object_make_null(); }
+
+  int _i = 0;
+
+  getArgAs_BEGIN("gameScriptRedGpuVersionSetEnableCustomRendering")
+  getArgAs_Bool(bool, enable, args[_i++]);
+  getArgAs_END
+
+  g_enableCustomRendering = enable;
+
+  return ape_object_make_null();
+}
+
+GS_API GS_C_PROCEDURE_RETURN_TYPE() _gsCProcedureGameScriptRedGpuVersionImguiRender GS_C_PROCEDURE_PARAMETERS() {
+  if (!ape_check_args(ape, true, argc, args, 0, 0)) { return ape_object_make_null(); }
+
+  igRender();
+
+  return ape_object_make_null();
 }
 
 GS_API GS_C_PROCEDURE_RETURN_TYPE() _gsCProcedureGetUniqueNumber GS_C_PROCEDURE_PARAMETERS() {
@@ -15798,6 +15831,12 @@ GS_API GS_C_PROCEDURE_RETURN_TYPE() _gsCProcedureSetFrame0Cache GS_C_PROCEDURE_P
 }
 
 void mape_set_c_procedures() {
+  // Game Script REDGPU Version:
+  mape_set_native_function(0, g_ape, "getGameScriptRedGpuVersionInitDataPointer", _gsCProcedureGetGameScriptRedGpuVersionInitDataPointer, NULL);
+  mape_set_native_function(0, g_ape, "getGameScriptRedGpuVersionWindowDataPointer", _gsCProcedureGetGameScriptRedGpuVersionWindowDataPointer, NULL);
+  mape_set_native_function(0, g_ape, "gameScriptRedGpuVersionGetEnableCustomRendering", _gsCProcedureGameScriptRedGpuVersionGetEnableCustomRendering, NULL);
+  mape_set_native_function(0, g_ape, "gameScriptRedGpuVersionSetEnableCustomRendering", _gsCProcedureGameScriptRedGpuVersionSetEnableCustomRendering, NULL);
+  mape_set_native_function(0, g_ape, "gameScriptRedGpuVersionImguiRender", _gsCProcedureGameScriptRedGpuVersionImguiRender, NULL);
   // Game Script for Windows Platform
   mape_set_native_function(0, g_ape, "isWindowsPlatform", _gsCProcedureIsWindowsPlatform, NULL);
   mape_set_native_function(0, g_ape, "setAllWindowsHidden", _gsCProcedureSetAllWindowsHidden, NULL);
@@ -16261,9 +16300,6 @@ void mape_set_c_procedures() {
   mape_set_native_function(0, g_ape, "slWavStream_getLoopPoint", _gsCProcedureSlWavStream_getLoopPoint, NULL);
   mape_set_native_function(0, g_ape, "slWavStream_setFilter", _gsCProcedureSlWavStream_setFilter, NULL);
   mape_set_native_function(0, g_ape, "slWavStream_stop", _gsCProcedureSlWavStream_stop, NULL);
-  // Game Script REDGPU Version:
-  mape_set_native_function(0, g_ape, "getGameScriptRedGpuVersionInitDataPointer",   _gsCProcedureGetGameScriptRedGpuVersionInitDataPointer,   NULL);
-  mape_set_native_function(0, g_ape, "getGameScriptRedGpuVersionWindowDataPointer", _gsCProcedureGetGameScriptRedGpuVersionWindowDataPointer, NULL);
   // Game Script:
   mape_set_native_function(0, g_ape, "printConsole",                             _gsCProcedurePrintConsole,                             NULL);
   //mape_set_native_function(0, g_ape, "printDraw",                                _gsCProcedurePrintDraw,                                NULL);
