@@ -227,6 +227,12 @@ void igRender() {
   ImGui::Render();
 }
 
+void redCallImguiDraw(void * callsHandle) {
+  ImDrawData* draw_data = ImGui::GetDrawData();
+  IM_ASSERT(draw_data != NULL && "redCallImguiDraw's ImGui::GetDrawData() returned NULL.");
+  ImGui_ImplRedGpu_RenderDrawData(draw_data, (RedHandleCalls)callsHandle, NULL);
+}
+
 static void gsAutosaveSave() {
   std::string code = g_codeString;
   if (code.back() == '\n') {
@@ -321,27 +327,16 @@ static void CleanupRedGpuWindow()
 
 static void FrameRender(ImGui_ImplRedGpuH_Window* wd, ImDrawData* draw_data)
 {
+    if (g_SwapChainRebuild)
+        return;
+
     RedCallProceduresAndAddresses cpa;
     redGetCallProceduresAndAddresses(g_Instance, g_Device, &cpa, NULL, __FILE__, __LINE__, NULL);
 
-    RedHandleGpuSignal image_acquired_semaphore  = wd->FrameSemaphores[wd->SemaphoreIndex].ImageAcquiredSemaphore;
-    RedHandleGpuSignal render_complete_semaphore = wd->FrameSemaphores[wd->SemaphoreIndex].RenderCompleteSemaphore;
-    RedStatuses statuses = {};
-    redPresentGetImageIndex(g_Instance, g_Device, wd->Swapchain, NULL, image_acquired_semaphore, &wd->FrameIndex, &statuses, __FILE__, __LINE__, NULL);
-    if (statuses.statusError == RED_STATUS_ERROR_PRESENT_IS_OUT_OF_DATE || statuses.status == RED_STATUS_PRESENT_IS_SUBOPTIMAL)
-    {
-        g_SwapChainRebuild = true;
-        return;
-    }
-
     ImGui_ImplRedGpuH_Frame* fd = &wd->Frames[wd->FrameIndex];
-    {
-        redCpuSignalWait(g_Instance, g_Device, 1, &fd->Fence, 1, NULL, __FILE__, __LINE__, NULL);
-        redCpuSignalUnsignal(g_Instance, g_Device, 1, &fd->Fence, NULL, __FILE__, __LINE__, NULL);
-    }
-    {
-        redCallsSet(g_Instance, g_Device, fd->CommandBuffer.handle, fd->CommandBuffer.memory, fd->CommandBuffer.reusable, NULL, __FILE__, __LINE__, NULL);
-    }
+
+    redCallsSet(g_Instance, g_Device, fd->CommandBuffer.handle, fd->CommandBuffer.memory, fd->CommandBuffer.reusable, NULL, __FILE__, __LINE__, NULL);
+
     {
         RedUsageImage imageUsage = {};
         imageUsage.barrierSplit           = RED_BARRIER_SPLIT_NONE;
@@ -373,6 +368,7 @@ static void FrameRender(ImGui_ImplRedGpuH_Window* wd, ImDrawData* draw_data)
     ImGui_ImplRedGpu_RenderDrawData(draw_data, fd->CommandBuffer.handle, NULL);
 
     redCallEndProcedureOutput(cpa.redCallEndProcedureOutput, fd->CommandBuffer.handle);
+
     {
         RedUsageImage imageUsage = {};
         imageUsage.barrierSplit           = RED_BARRIER_SPLIT_NONE;
@@ -392,9 +388,13 @@ static void FrameRender(ImGui_ImplRedGpuH_Window* wd, ImDrawData* draw_data)
         imageUsage.imageLayersCount       = -1;
         redCallUsageAliasOrderBarrier(cpa.redCallUsageAliasOrderBarrier, fd->CommandBuffer.handle, g_Instance, 0, NULL, 1, &imageUsage, 0, NULL, 0, NULL, 0);
     }
+
+    redCallsEnd(g_Instance, g_Device, fd->CommandBuffer.handle, fd->CommandBuffer.memory, NULL, __FILE__, __LINE__, NULL);
+
     // Submit command buffer
     {
-        redCallsEnd(g_Instance, g_Device, fd->CommandBuffer.handle, fd->CommandBuffer.memory, NULL, __FILE__, __LINE__, NULL);
+        RedHandleGpuSignal image_acquired_semaphore  = wd->FrameSemaphores[wd->SemaphoreIndex].ImageAcquiredSemaphore;
+        RedHandleGpuSignal render_complete_semaphore = wd->FrameSemaphores[wd->SemaphoreIndex].RenderCompleteSemaphore;
 
         RedHandleCalls callsHandles[1] = {
           fd->CommandBuffer.handle,
@@ -2835,6 +2835,7 @@ void tick()
 "\nfn gameScriptRedGpuVersionGetEnableCustomRendering() -> Bool enabled"
 "\nfn gameScriptRedGpuVersionSetEnableCustomRendering(Bool enable)"
 "\nfn gameScriptRedGpuVersionImguiRender()"
+"\nfn redCallImguiDraw(Number calls)"
 "\n// Game Script"
 "\nfn printConsole(String string)"
 "\nfn windowSetTitle(String title)"
@@ -3711,13 +3712,35 @@ int main(int, char**)
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        tick();
+        g_enableCustomRendering = false;
+
+        if (g_SwapChainRebuild == false) {
+          RedHandleGpuSignal image_acquired_semaphore = wd->FrameSemaphores[wd->SemaphoreIndex].ImageAcquiredSemaphore;
+
+          RedStatuses statuses = {};
+          redPresentGetImageIndex(g_Instance, g_Device, wd->Swapchain, NULL, image_acquired_semaphore, &wd->FrameIndex, &statuses, __FILE__, __LINE__, NULL);
+          if (statuses.statusError == RED_STATUS_ERROR_PRESENT_IS_OUT_OF_DATE || statuses.status == RED_STATUS_PRESENT_IS_SUBOPTIMAL) {
+            g_SwapChainRebuild = true;
+          }
+        }
+
+        if (g_SwapChainRebuild == false) {
+          ImGui_ImplRedGpuH_Frame* fd = &wd->Frames[wd->FrameIndex];
+
+          redCpuSignalWait(g_Instance, g_Device, 1, &fd->Fence, 1, NULL, __FILE__, __LINE__, NULL);
+          redCpuSignalUnsignal(g_Instance, g_Device, 1, &fd->Fence, NULL, __FILE__, __LINE__, NULL);
+        }
+
+        if (g_SwapChainRebuild == false) {
+          tick();
+        }
 
         // Rendering
         if (g_enableCustomRendering == false) {
           ImGui::Render();
         }
         ImDrawData* draw_data = ImGui::GetDrawData();
+        IM_ASSERT(draw_data != NULL && "draw_data is NULL, a possible cause: with custom rendering enabled, gameScriptRedGpuVersionImguiRender() was not called in the script.");
         const bool is_minimized = (draw_data->DisplaySize.x <= 0.0f || draw_data->DisplaySize.y <= 0.0f);
         if (!is_minimized)
         {

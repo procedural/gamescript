@@ -2657,6 +2657,7 @@ void igTextUnformatted(const char * text);
 bool igInputTextMultiline(const char * label, char * buf, size_t buf_size, float sizeX, float sizeY, int flags, void * callback, void * user_data);
 bool igInputText(const char * label, char * buf, size_t buf_size, int flags, void * callback, void * user_data);
 void igRender();
+void redCallImguiDraw(void * callsHandle);
 
 GS_API GS_C_PROCEDURE_RETURN_TYPE() _gsCProcedureImguiSetStyleColor GS_C_PROCEDURE_PARAMETERS() {
   int APE_ARGS[] = {
@@ -2840,6 +2841,23 @@ GS_API GS_C_PROCEDURE_RETURN_TYPE() _gsCProcedureGameScriptRedGpuVersionImguiRen
   if (!ape_check_args(ape, true, argc, args, 0, 0)) { return ape_object_make_null(); }
 
   igRender();
+
+  return ape_object_make_null();
+}
+
+GS_API GS_C_PROCEDURE_RETURN_TYPE() _gsCProcedureGameScriptRedGpuVersionRedCallImguiDraw GS_C_PROCEDURE_PARAMETERS() {
+  int APE_ARGS[] = {
+    APE_OBJECT_NUMBER/*calls*/,
+  };
+  if (!ape_check_args(ape, true, argc, args, sizeof(APE_ARGS) / sizeof(int), APE_ARGS)) { return ape_object_make_null(); }
+
+  int _i = 0;
+
+  getArgAs_BEGIN("redCallImguiDraw")
+  getArgAs_Pointer(RedHandleCalls, calls, args[_i++]);
+  getArgAs_END
+
+  redCallImguiDraw((void *)calls);
 
   return ape_object_make_null();
 }
@@ -15837,6 +15855,7 @@ void mape_set_c_procedures() {
   mape_set_native_function(0, g_ape, "gameScriptRedGpuVersionGetEnableCustomRendering", _gsCProcedureGameScriptRedGpuVersionGetEnableCustomRendering, NULL);
   mape_set_native_function(0, g_ape, "gameScriptRedGpuVersionSetEnableCustomRendering", _gsCProcedureGameScriptRedGpuVersionSetEnableCustomRendering, NULL);
   mape_set_native_function(0, g_ape, "gameScriptRedGpuVersionImguiRender", _gsCProcedureGameScriptRedGpuVersionImguiRender, NULL);
+  mape_set_native_function(0, g_ape, "redCallImguiDraw", _gsCProcedureGameScriptRedGpuVersionRedCallImguiDraw, NULL);
   // Game Script for Windows Platform
   mape_set_native_function(0, g_ape, "isWindowsPlatform", _gsCProcedureIsWindowsPlatform, NULL);
   mape_set_native_function(0, g_ape, "setAllWindowsHidden", _gsCProcedureSetAllWindowsHidden, NULL);
