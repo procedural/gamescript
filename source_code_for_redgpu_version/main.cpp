@@ -3523,11 +3523,11 @@ void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mod
     g_windowShowCodeRun = g_windowShowCodeRun == 0 ? 1 : 0;
   }
   if (key == GLFW_KEY_F3 && action == GLFW_PRESS) {
-    g_windowForceShowConsole = g_windowForceShowConsole == 0 ? 1 : 0;
-  }
-  if (key == GLFW_KEY_F4 && action == GLFW_PRESS) {
     g_windowsHideAll = g_windowsHideAll == 0 ? 1 : 0;
     g_windowsWindowIsCollapsed = g_windowsHideAll;
+  }
+  if (key == GLFW_KEY_F4 && action == GLFW_PRESS) {
+    g_windowForceShowConsole = g_windowForceShowConsole == 0 ? 1 : 0;
   }
   if (key == GLFW_KEY_F11 && action == GLFW_PRESS) {
     static bool g_KeyCallbackF11 = true;
