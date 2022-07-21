@@ -3529,6 +3529,19 @@ void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mod
   if (key == GLFW_KEY_F4 && action == GLFW_PRESS) {
     g_windowShowCodeRun = g_windowShowCodeRun == 0 ? 1 : 0;
   }
+  if (key == GLFW_KEY_F5 && action == GLFW_PRESS) {
+    if (g_compileMode == true) {
+      scriptCompileProgram();
+    }
+    g_currentFrame = 0;
+    g_runScript = true;
+  }
+  if (key == GLFW_KEY_F7 && action == GLFW_PRESS) {
+    g_runScript = false;
+  }
+  if (key == GLFW_KEY_F9 && action == GLFW_PRESS) {
+    g_runScript = true;
+  }
   if (key == GLFW_KEY_F11 && action == GLFW_PRESS) {
     static bool g_KeyCallbackF11 = true;
     static int  g_KeyCallbackF11PreviousWindowX;
