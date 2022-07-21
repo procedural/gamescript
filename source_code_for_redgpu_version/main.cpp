@@ -526,7 +526,7 @@ void tick()
 
     if (g_codeRunMode == 0) {
       ImGui::SetNextWindowCollapsed(g_windowsWindowIsCollapsed);
-      if (ImGui::Begin("Windows (F4)")) {
+      if (ImGui::Begin("Windows (F3)")) {
         ImGui::Checkbox("Hide all windows", &g_windowsHideAll);
         ImGui::Checkbox("Show all windows", &g_windowsShowAll);
         ImGui::Checkbox("Show Game Script window", &g_windowShowGameScript);
@@ -650,7 +650,7 @@ void tick()
 
       static int  codeRunResetFrameTo = 0;
       if (g_windowForceShowCodeRun == true || g_windowsShowAll == true || (g_windowsHideAll == false && g_windowShowCodeRun == true)) {
-        if (ImGui::Begin("Code Run (F2)", &g_windowShowCodeRun)) {
+        if (ImGui::Begin("Code Run (F4)", &g_windowShowCodeRun)) {
           ImGui::Text("Current frame: %llu", g_currentFrame);
           if (ImGui::Checkbox("Run code", &g_runScript)) {
             g_frame0CacheStartPositionIsDirty = true;
@@ -679,7 +679,7 @@ void tick()
       }
 
       if (g_windowForceShowConsole == true || g_windowsShowAll == true || (g_windowsHideAll == false && g_windowShowConsole == true)) {
-        if (ImGui::Begin("Console (F3)", &g_windowShowConsole, ImGuiWindowFlags_HorizontalScrollbar)) {
+        if (ImGui::Begin("Console (F2)", &g_windowShowConsole, ImGuiWindowFlags_HorizontalScrollbar)) {
           ImGui::SetWindowSize(ImVec2(875, 700), ImGuiCond_FirstUseEver);
 
           if (ImGui::Button("Clear")) {
@@ -3520,14 +3520,14 @@ void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mod
     g_windowShowListOfFunctions = g_windowShowListOfFunctions == 0 ? 1 : 0;
   }
   if (key == GLFW_KEY_F2 && action == GLFW_PRESS) {
-    g_windowShowCodeRun = g_windowShowCodeRun == 0 ? 1 : 0;
+    g_windowForceShowConsole = g_windowForceShowConsole == 0 ? 1 : 0;
   }
   if (key == GLFW_KEY_F3 && action == GLFW_PRESS) {
     g_windowsHideAll = g_windowsHideAll == 0 ? 1 : 0;
     g_windowsWindowIsCollapsed = g_windowsHideAll;
   }
   if (key == GLFW_KEY_F4 && action == GLFW_PRESS) {
-    g_windowForceShowConsole = g_windowForceShowConsole == 0 ? 1 : 0;
+    g_windowShowCodeRun = g_windowShowCodeRun == 0 ? 1 : 0;
   }
   if (key == GLFW_KEY_F11 && action == GLFW_PRESS) {
     static bool g_KeyCallbackF11 = true;
