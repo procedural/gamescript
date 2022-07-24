@@ -3754,18 +3754,14 @@ int main(int, char**)
         }
         ImDrawData* draw_data = ImGui::GetDrawData();
         IM_ASSERT(draw_data != NULL && "draw_data is NULL, a possible cause: with custom rendering enabled, gameScriptRedGpuVersionImguiRender() was not called in the script.");
-        const bool is_minimized = (draw_data->DisplaySize.x <= 0.0f || draw_data->DisplaySize.y <= 0.0f);
-        if (!is_minimized)
-        {
-            if (g_enableCustomRendering == false) {
-              wd->ClearValues[0] = clear_color.x * clear_color.w;
-              wd->ClearValues[1] = clear_color.y * clear_color.w;
-              wd->ClearValues[2] = clear_color.z * clear_color.w;
-              wd->ClearValues[3] = clear_color.w;
-              FrameRender(wd, draw_data);
-            }
-            FramePresent(wd);
+        if (g_enableCustomRendering == false) {
+          wd->ClearValues[0] = clear_color.x * clear_color.w;
+          wd->ClearValues[1] = clear_color.y * clear_color.w;
+          wd->ClearValues[2] = clear_color.z * clear_color.w;
+          wd->ClearValues[3] = clear_color.w;
+          FrameRender(wd, draw_data);
         }
+        FramePresent(wd);
     }
 
     // Cleanup
