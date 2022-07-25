@@ -3536,6 +3536,11 @@ void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mod
     g_currentFrame = 0;
     g_runScript = true;
   }
+  if (key == GLFW_KEY_F6 && action == GLFW_PRESS) {
+    if (g_compileMode == true) {
+      scriptCompileProgram();
+    }
+  }
   if (key == GLFW_KEY_F7 && action == GLFW_PRESS) {
     g_runScript = false;
   }
